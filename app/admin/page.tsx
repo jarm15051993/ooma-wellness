@@ -40,6 +40,15 @@ interface Customer {
   lastPurchase: string | null
 }
 
+interface InactiveCustomer {
+  id: string
+  name: string | null
+  lastName: string | null
+  email: string
+  phone: string | null
+  createdAt: string
+}
+
 const defaultForm = {
   title: '',
   description: '',
@@ -58,7 +67,7 @@ const toastOpts = (border: string) => ({
 
 export default function AdminPage() {
   const router = useRouter()
-  const [tab, setTab] = useState<'classes' | 'customers'>('classes')
+  const [tab, setTab] = useState<'classes' | 'customers' | 'inactive'>('classes')
 
   // ── Classes state ────────────────────────────────────────────────────────────
   const [classes, setClasses] = useState<AdminClass[]>([])
@@ -72,6 +81,12 @@ export default function AdminPage() {
   const [customersLoading, setCustomersLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  // ── Inactive customers state ──────────────────────────────────────────────────
+  const [inactiveCustomers, setInactiveCustomers] = useState<InactiveCustomer[]>([])
+  const [inactiveLoading, setInactiveLoading] = useState(false)
+  const [inactiveSearch, setInactiveSearch] = useState('')
+  const [debouncedInactiveSearch, setDebouncedInactiveSearch] = useState('')
 
   // ── Fetch classes ─────────────────────────────────────────────────────────────
   const fetchClasses = async () => {
@@ -106,11 +121,34 @@ export default function AdminPage() {
     if (tab === 'customers') fetchCustomers(debouncedSearch)
   }, [tab, debouncedSearch, fetchCustomers])
 
-  // Debounce search input
+  // ── Fetch inactive customers ───────────────────────────────────────────────────
+  const fetchInactiveCustomers = useCallback(async (q: string) => {
+    setInactiveLoading(true)
+    try {
+      const res = await fetch(`/api/admin/inactive-customers?search=${encodeURIComponent(q)}`)
+      const data = await res.json()
+      if (res.ok) setInactiveCustomers(data.customers)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setInactiveLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (tab === 'inactive') fetchInactiveCustomers(debouncedInactiveSearch)
+  }, [tab, debouncedInactiveSearch, fetchInactiveCustomers])
+
+  // Debounce search inputs
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 350)
     return () => clearTimeout(timer)
   }, [search])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedInactiveSearch(inactiveSearch), 350)
+    return () => clearTimeout(timer)
+  }, [inactiveSearch])
 
   // ── Logout ───────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
@@ -180,17 +218,17 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex gap-1 bg-warm-white p-1 rounded-xl border border-rule mb-8 w-fit">
-          {(['classes', 'customers'] as const).map(t => (
+          {([['classes', 'Classes'], ['customers', 'Active Customers'], ['inactive', 'Non-Active']] as const).map(([t, label]) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-6 py-2 rounded-lg text-sm font-medium transition capitalize tracking-wider ${
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition tracking-wider ${
                 tab === t
                   ? 'bg-ink text-warm-white'
                   : 'text-mgray hover:text-ink'
               }`}
             >
-              {t}
+              {label}
             </button>
           ))}
         </div>
@@ -414,6 +452,64 @@ export default function AdminPage() {
                   </tbody>
                 </table>
                 <p className="text-lgray text-xs mt-4">{customers.length} customer{customers.length !== 1 ? 's' : ''}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Non-Active Customers Tab ─────────────────────────────────────────── */}
+        {tab === 'inactive' && (
+          <div className="bg-warm-white rounded-2xl p-8 border border-rule">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <h2 className="text-2xl font-serif font-light text-burg tracking-wide">Non-Active Customers</h2>
+              <div className="relative w-full sm:w-80">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lgray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or phone…"
+                  value={inactiveSearch}
+                  onChange={e => setInactiveSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-warm-white border border-rule rounded-lg text-ink placeholder-lgray focus:outline-none focus:border-burg text-sm"
+                />
+              </div>
+            </div>
+
+            {inactiveLoading ? (
+              <p className="text-mgray text-sm">Loading...</p>
+            ) : inactiveCustomers.length === 0 ? (
+              <p className="text-lgray text-sm">{inactiveSearch ? 'No customers match your search.' : 'No non-active customers found.'}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-rule">
+                      {['Name', 'Last Name', 'Phone', 'Email', 'Signed Up At'].map(h => (
+                        <th key={h} className="text-left text-xs font-medium text-mgray uppercase tracking-wider pb-3 pr-4 whitespace-nowrap">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-rule">
+                    {inactiveCustomers.map(c => (
+                      <tr key={c.id} className="hover:bg-bone/50 transition">
+                        <td className="py-3 pr-4 text-ink font-medium">{c.name ?? '—'}</td>
+                        <td className="py-3 pr-4 text-ink">{c.lastName ?? '—'}</td>
+                        <td className="py-3 pr-4 text-mgray whitespace-nowrap">{c.phone ?? '—'}</td>
+                        <td className="py-3 pr-4 text-mgray">{c.email}</td>
+                        <td className="py-3 pr-4 text-lgray whitespace-nowrap">
+                          {new Date(c.createdAt).toLocaleString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit',
+                          })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="text-lgray text-xs mt-4">{inactiveCustomers.length} customer{inactiveCustomers.length !== 1 ? 's' : ''}</p>
               </div>
             )}
           </div>
