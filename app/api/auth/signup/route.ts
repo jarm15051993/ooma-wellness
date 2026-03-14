@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const email = body.email?.trim().toLowerCase()
+    const platform = body.platform === 'mobile' ? 'mobile' : 'web'
 
     if (!email) {
       return NextResponse.json({ error: 'email', message: 'Email is required.' }, { status: 400 })
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     if (existing) {
       return NextResponse.json(
         { error: 'email', message: 'An account with this email already exists. Try logging in or reset your password.' },
-        { status: 400 }
+        { status: 409 }
       )
     }
 
@@ -31,12 +32,16 @@ export async function POST(request: NextRequest) {
     })
 
     const appUrl = getAppUrl()
+    const activationLink = platform === 'mobile'
+      ? `ooma://activate?token=${activationToken}&email=${encodeURIComponent(email)}`
+      : `${appUrl}/activate?token=${activationToken}`
+
     try {
       await sendEmail({
         to: user.email,
         type: 'activation',
         userId: user.id,
-        vars: { name: user.email, link: `${appUrl}/activate?token=${activationToken}` },
+        vars: { name: user.email, link: activationLink },
       })
     } catch (emailErr) {
       console.error('[signup] Failed to send activation email:', emailErr)

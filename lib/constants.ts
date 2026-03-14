@@ -18,6 +18,7 @@ export const PHONE_LENGTHS: Record<string, { min: number; max: number }> = {
   '+504': { min: 8,  max: 8  }, // Honduras
   '+505': { min: 8,  max: 8  }, // Nicaragua
   '+53':  { min: 8,  max: 8  }, // Cuba
+  '+353': { min: 7,  max: 9  }, // Ireland
   '+44':  { min: 10, max: 10 }, // UK
   '+34':  { min: 9,  max: 9  }, // Spain
   '+33':  { min: 9,  max: 9  }, // France
@@ -49,6 +50,7 @@ export const COUNTRY_CODES = [
   { code: '+504', flag: '🇭🇳', label: '+504 (Honduras)' },
   { code: '+505', flag: '🇳🇮', label: '+505 (Nicaragua)' },
   { code: '+53',  flag: '🇨🇺', label: '+53 (Cuba)' },
+  { code: '+353', flag: '🇮🇪', label: '+353 (Ireland)' },
   { code: '+44',  flag: '🇬🇧', label: '+44 (UK)' },
   { code: '+34',  flag: '🇪🇸', label: '+34 (Spain)' },
   { code: '+33',  flag: '🇫🇷', label: '+33 (France)' },

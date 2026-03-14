@@ -5,7 +5,7 @@ import { getAppUrl } from '@/lib/app-url'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json()
+    const { email, platform } = await request.json()
 
     if (!email) {
       return NextResponse.json({ error: 'Email required' }, { status: 400 })
@@ -28,12 +28,15 @@ export async function POST(request: NextRequest) {
     })
 
     const appUrl = getAppUrl()
+    const activationLink = platform === 'mobile'
+      ? `ooma://activate?token=${activationToken}&email=${encodeURIComponent(user.email)}`
+      : `${appUrl}/activate?token=${activationToken}`
     try {
       await sendEmail({
         to: user.email,
         type: 'activation',
         userId: user.id,
-        vars: { name: user.name ?? user.email, link: `${appUrl}/activate?token=${activationToken}` },
+        vars: { name: user.name ?? user.email, link: activationLink },
       })
     } catch (emailErr) {
       console.error('[resend-activation] Failed to send activation email:', emailErr)
