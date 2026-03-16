@@ -113,7 +113,8 @@ export async function POST(request: NextRequest) {
           userId,
           classId,
           stretcherNumber: availableReformer,
-          status: 'confirmed'
+          status: 'confirmed',
+          userCreditId: credits[0].id,
         },
         include: {
           class: true
