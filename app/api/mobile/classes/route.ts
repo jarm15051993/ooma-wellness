@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Fetch user's confirmed bookings for these classes in one query
-    const userBookingMap: Record<string, number> = {}
+    const userBookingMap: Record<string, { stretcherNumber: number; bookingId: string }> = {}
     if (classes.length > 0) {
       const userBookings = await prisma.booking.findMany({
         where: {
@@ -30,15 +30,15 @@ export async function GET(request: NextRequest) {
           classId: { in: classes.map(c => c.id) },
           status: 'confirmed'
         },
-        select: { classId: true, stretcherNumber: true }
+        select: { id: true, classId: true, stretcherNumber: true }
       })
       for (const b of userBookings) {
-        userBookingMap[b.classId] = b.stretcherNumber
+        userBookingMap[b.classId] = { stretcherNumber: b.stretcherNumber, bookingId: b.id }
       }
     }
 
     const classesWithSpots = classes.map(cls => {
-      const reformerNumber = userBookingMap[cls.id] ?? null
+      const userBooking = userBookingMap[cls.id] ?? null
       const bookedCount = cls.bookedCount ?? 0
       return {
         id: cls.id,
@@ -50,8 +50,9 @@ export async function GET(request: NextRequest) {
         bookedSpots: bookedCount,
         availableSpots: cls.capacity - bookedCount,
         isFull: bookedCount >= cls.capacity,
-        isBooked: reformerNumber !== null,
-        userStretcherNumber: reformerNumber
+        isBooked: userBooking !== null,
+        userStretcherNumber: userBooking?.stretcherNumber ?? null,
+        bookingId: userBooking?.bookingId ?? null,
       }
     })
 

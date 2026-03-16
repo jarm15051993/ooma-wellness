@@ -35,28 +35,36 @@ model User {
 }
 
 model Package {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  classCount  Int
-  price       Float
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  classCount    Int
+  price         Float
+  active        Boolean  @default(true)
+  durationDays  Int      @default(30)
+  stripePriceId String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user_id       String?  @db.Uuid
+
   transactions Transaction[]
   payments     Payment[]
+  userCredits  UserCredit[]
 }
 
 model UserCredit {
-  id              String   @id @default(cuid())
-  userId          String
+  id               String    @id @default(cuid())
+  userId           String
   creditsRemaining Int
-  creditsTotal    Int
-  expiresAt       DateTime?
-  createdAt       DateTime @default(now())
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creditsTotal     Int
+  expiresAt        DateTime?
+  packageId        String?
+  stripePaymentId  String?
+  createdAt        DateTime  @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  package  Package?  @relation(fields: [packageId], references: [id])
+  bookings Booking[]
 }
 
 model Class {
@@ -74,16 +82,20 @@ model Class {
 }
 
 model Booking {
-  id        String   @id @default(cuid())
-  userId    String
-  classId   String
+  id              String    @id @default(cuid())
+  userId          String
+  classId         String
   stretcherNumber Int
-  status    String   @default("confirmed")
-  createdAt DateTime @default(now())
-  
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
-  
+  status          String    @default("confirmed")
+  userCreditId    String?
+  creditLost      Boolean   @default(false)
+  cancelledAt     DateTime?
+  createdAt       DateTime  @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class      Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  userCredit UserCredit? @relation(fields: [userCreditId], references: [id])
+
   @@unique([userId, classId])
   @@unique([classId, stretcherNumber])
 }
