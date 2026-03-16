@@ -4,7 +4,7 @@ import { verifyToken, extractBearerToken } from '@/lib/jwt'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { bookingId: string } }
+  { params }: { params: Promise<{ bookingId: string }> }
 ) {
   try {
     const token = extractBearerToken(request.headers.get('authorization'))
@@ -12,7 +12,7 @@ export async function PATCH(
     const payload = await verifyToken(token)
     const userId = payload.userId
 
-    const { bookingId } = params
+    const { bookingId } = await params
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
