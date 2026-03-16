@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
 
     const buffer = pass.getAsBuffer()
 
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: {
         'Content-Type': 'application/vnd.apple.pkpass',
         'Content-Disposition': 'attachment; filename="ooma-class-pass.pkpass"',
