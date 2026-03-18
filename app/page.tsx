@@ -195,7 +195,7 @@ nav {
   letter-spacing: .3em; text-transform: uppercase;
   color: rgba(250,248,244,.5); border: 1px solid rgba(250,248,244,.2);
   background: none; padding: 13px 32px; cursor: pointer;
-  text-decoration: none; display: inline-block;
+  text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
   transition: color .2s, border-color .2s, transform .15s;
 }
 .btn-hero-g:hover { color: var(--moon); border-color: rgba(250,248,244,.55); transform: translateY(-1px); }
