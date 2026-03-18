@@ -44,12 +44,12 @@ export async function PATCH(
     }
 
     const now = new Date()
-    const windowOpen = new Date(booking.class.startTime.getTime() - 60 * 60 * 1000)
+    const windowOpen = new Date(booking.class.startTime.getTime() - 2 * 60 * 60 * 1000)
     const windowClose = booking.class.endTime
 
     if (now < windowOpen || now > windowClose) {
       return NextResponse.json(
-        { error: 'Validation is only available from 1 hour before the class until it ends.' },
+        { error: 'Validation is only available from 2 hours before the class until it ends.' },
         { status: 400 }
       )
     }
