@@ -30,9 +30,10 @@ function ActivateContent() {
           setMessage(data.error)
         } else if (data.onboardingCompleted) {
           if (platform === 'mobile') {
+            window.location.href = 'ooma://login'
             setStatus('success')
             setMessage('Account already activated.')
-            setAppDeepLink(`ooma://login`)
+            setAppDeepLink('ooma://login')
           } else {
             setStatus('success')
             setMessage('Account already activated. Redirecting to login…')
@@ -40,9 +41,14 @@ function ActivateContent() {
           }
         } else if (data.userId) {
           if (platform === 'mobile') {
+            const deepLink = `ooma://complete-profile?userId=${data.userId}&email=${encodeURIComponent(email)}`
+            // Auto-redirect — Chrome Custom Tab (Gmail in-app browser) passes
+            // ooma:// to Android intent system which opens the app directly
+            window.location.href = deepLink
+            // Keep button as fallback in case auto-redirect is blocked
             setStatus('success')
             setMessage('Account activated!')
-            setAppDeepLink(`ooma://complete-profile?userId=${data.userId}&email=${encodeURIComponent(email)}`)
+            setAppDeepLink(deepLink)
           } else {
             setStatus('success')
             setMessage(data.message || 'Account activated successfully!')
