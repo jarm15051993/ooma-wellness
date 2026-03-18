@@ -5,45 +5,27 @@ export async function POST() {
   try {
     const now = new Date()
 
-    // 3 test classes for validation window testing:
-    // Class A: started 30min ago, ends in 30min → window ACTIVE (currently running)
-    const activeStart = new Date(now.getTime() - 30 * 60 * 1000)
-    const activeEnd   = new Date(now.getTime() + 30 * 60 * 1000)
-    // Class B: starts in 45min → window opened 15min ago, ACTIVE
-    const soonStart = new Date(now.getTime() + 45 * 60 * 1000)
-    const soonEnd   = new Date(soonStart.getTime() + 60 * 60 * 1000)
-    // Class C: starts in 3h → window not open yet, good for "opens at" button state
-    const laterStart = new Date(now.getTime() + 3 * 60 * 60 * 1000)
-    const laterEnd   = new Date(laterStart.getTime() + 60 * 60 * 1000)
-
-    await prisma.class.createMany({
-      data: [
-        {
-          title: 'Quick Flow',
-          description: 'Short energising session',
-          startTime: activeStart,
-          endTime: activeEnd,
-          capacity: 6,
-          instructor: 'Sarah Martinez',
-        },
-        {
-          title: 'Express Pilates',
-          description: 'Fast-paced lunchtime reset',
-          startTime: soonStart,
-          endTime: soonEnd,
-          capacity: 6,
-          instructor: 'Maria Rodriguez',
-        },
-        {
-          title: 'Evening Unwind',
-          description: 'Relax and restore after a long day',
-          startTime: laterStart,
-          endTime: laterEnd,
-          capacity: 6,
-          instructor: 'Ana Lopez',
-        },
-      ],
+    // 10 classes all inside the validation window right now
+    const names = [
+      ['Quick Flow', 'Sarah Martinez'],
+      ['Express Pilates', 'Maria Rodriguez'],
+      ['Core Strength', 'Ana Lopez'],
+      ['Morning Stretch', 'Sarah Martinez'],
+      ['Reformer Basics', 'Maria Rodriguez'],
+      ['Deep Stretch', 'Ana Lopez'],
+      ['Power Pilates', 'Sarah Martinez'],
+      ['Balance & Flow', 'Maria Rodriguez'],
+      ['Breathwork', 'Ana Lopez'],
+      ['Full Body Reset', 'Sarah Martinez'],
+    ]
+    const windowClasses = names.map(([title, instructor], i) => {
+      // Stagger starts: from 50min ago to 10min from now (all within window)
+      const offsetMs = (-50 + i * 6) * 60 * 1000
+      const startTime = new Date(now.getTime() + offsetMs)
+      const endTime   = new Date(startTime.getTime() + 60 * 60 * 1000)
+      return { title, instructor, startTime, endTime, capacity: 6 }
     })
+    await prisma.class.createMany({ data: windowClasses })
 
     // Check if the full 7-day schedule already exists
     const existingClasses = await prisma.class.count({
