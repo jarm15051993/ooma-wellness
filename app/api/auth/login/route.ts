@@ -7,6 +7,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password } = body
 
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+    }
+
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password required' },
@@ -52,11 +56,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Return user data (exclude password)
-    const { password: _, ...userWithoutPassword } = user
-
+    // Return only safe, non-sensitive fields — never expose health data, isAdmin, tokens
     return NextResponse.json(
-      { message: 'Login successful', user: userWithoutPassword },
+      {
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          lastName: user.lastName,
+          phone: user.phone,
+          profilePicture: user.profilePicture,
+          onboardingCompleted: user.onboardingCompleted,
+          createdAt: user.createdAt,
+        },
+      },
       { status: 200 }
     )
   } catch (error) {

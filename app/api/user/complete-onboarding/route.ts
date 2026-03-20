@@ -11,6 +11,14 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 })
     }
 
+    if (typeof password !== 'string' || password.length < 8) {
+      return NextResponse.json({ message: 'Password must be at least 8 characters.' }, { status: 400 })
+    }
+
+    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+      return NextResponse.json({ message: 'Password must contain at least one letter and one number.' }, { status: 400 })
+    }
+
     const user = await prisma.user.findUnique({ where: { id: userId } })
 
     if (!user) {

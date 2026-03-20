@@ -19,10 +19,8 @@ export async function POST(request: NextRequest) {
     })
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'email', message: 'An account with this email already exists. Try logging in or reset your password.' },
-        { status: 409 }
-      )
+      // Return identical response to prevent email enumeration
+      return NextResponse.json({ message: 'Check your email to activate your account.' }, { status: 201 })
     }
 
     const activationToken = crypto.randomUUID()

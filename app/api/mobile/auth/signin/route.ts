@@ -7,6 +7,10 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
 
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+    }
+
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password required' },
