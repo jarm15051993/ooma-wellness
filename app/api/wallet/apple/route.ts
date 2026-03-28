@@ -93,9 +93,19 @@ export async function GET(request: NextRequest) {
     console.log('[wallet/apple] CERT starts with:', certBuf.toString('utf8', 0, 30))
     console.log('[wallet/apple] KEY starts with:',  keyBuf.toString('utf8',  0, 30))
 
+    // Minimal burgundy circle icon — required by Apple Wallet
+    const ICON_1X = 'iVBORw0KGgoAAAANSUhEUgAAAB0AAAAdCAIAAADZ8fBYAAAAVElEQVR4nGP4/vkdLRDDqLnD0dxsWT1ciHxz8RhK0Gic5hI0FL/R2M0l0lA8RmMxlyRDcRk9au6oucPMXFrlN5KMxqWd7uUZQaPxaxxm9dCouRQiAAWJRPD43zHYAAAAAElFTkSuQmCC'
+    const ICON_2X = 'iVBORw0KGgoAAAANSUhEUgAAADoAAAA6CAIAAABu2d1/AAAAqklEQVR4nO3ZsRWAMAhFURdxBRdzdxsLWzcwQIAY8s55Pbf+bM99TdQ2XAD3N8GFCxduFPfcD0njuUKoF9rONUD70UZup9UsVnNdoGa0jutu1YoV3CCrSlyUG2qVi0XcBKtQXI6bZpWIa3GTrU0xXLhw4cKFCxeuAzdf/I0px80UNyUVuTliCaPozjAfN04sB5ReIH3RhrtrrOc96J5zi31+koMLFy5cuLm9+LEAnKKfYMQAAAAASUVORK5CYII='
+    const ICON_3X = 'iVBORw0KGgoAAAANSUhEUgAAAFcAAABXCAIAAAD+qk47AAABJUlEQVR4nO3bsRECQQwEwU+EFEiM3HEwcEnhpdu91VFTpQA0bUvX9/NmrvgGEwYFFFBAAQUUUEABBRRQGKvwejzvz78plOIjHEaFxfidHBYFeb/bQq9gJTBBKBU29JssZAqbCbQQGoUIgRBCoBAkUEGsKsQJJBBLCvF4FURfIZ4thGgqxIO1ECh0FeKpcoiyQjzSAYFCXSGeZ4JAAYWGQjzMB4ECClWFeJIVAgUUUEABBRRQQAEFFFBAAQUU3AonQtxPQwGFhsJZEKUuFFDoKZwCUY1CoaUwH6JRxC0LCosKMyHaLdw7LivMgVis4A5apJCFkOzPf4RUYT+EcHP+pjwKbgjHwvxTmhVUHBs25M96u8LYQQEFFFBAAQUUUEABBRRQqM4PG0wfxEghuvQAAAAASUVORK5CYII='
+
     console.log('[wallet/apple] Creating PKPass...')
     const pass = new PKPass(
-      { 'pass.json': Buffer.from(JSON.stringify(passJson)) },
+      {
+        'pass.json': Buffer.from(JSON.stringify(passJson)),
+        'icon.png': Buffer.from(ICON_1X, 'base64'),
+        'icon@2x.png': Buffer.from(ICON_2X, 'base64'),
+        'icon@3x.png': Buffer.from(ICON_3X, 'base64'),
+      },
       {
         wwdr: wwdrBuf,
         signerCert: certBuf,
