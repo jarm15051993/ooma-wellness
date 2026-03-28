@@ -70,11 +70,18 @@ export default async function WalletApplePage({
             <script
               dangerouslySetInnerHTML={{
                 __html: `
-                  // Auto-trigger the pass download
+                  var triggered = false;
+                  // Auto-trigger the pass download after short delay
                   setTimeout(function() {
+                    triggered = true;
                     window.location.href = '${passUrl}';
                   }, 300);
-                  // After wallet sheet appears, offer redirect
+                  // When Wallet sheet is dismissed, auto-redirect back to app
+                  document.addEventListener('visibilitychange', function() {
+                    if (triggered && document.visibilityState === 'visible') {
+                      window.location.href = 'ooma://';
+                    }
+                  });
                 `,
               }}
             />
