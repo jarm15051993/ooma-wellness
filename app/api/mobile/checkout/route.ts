@@ -3,12 +3,6 @@ import Stripe from 'stripe'
 import { verifyToken, extractBearerToken } from '@/lib/jwt'
 import { prisma } from '@/lib/prisma'
 
-const PACKAGES = [
-  { id: '1', name: '1 Class', classes: 1, price: 10 },
-  { id: '2', name: '2 Classes', classes: 2, price: 15 },
-  { id: '3', name: '5 Classes', classes: 5, price: 35 },
-]
-
 export async function POST(request: NextRequest) {
   try {
     const token = extractBearerToken(request.headers.get('authorization'))
@@ -16,24 +10,38 @@ export async function POST(request: NextRequest) {
     const payload = await verifyToken(token)
     const userId = payload.userId
 
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } })
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, isStudent: true },
+    })
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
     const { packageId } = await request.json()
-    const selectedPackage = PACKAGES.find(pkg => pkg.id === packageId)
-    if (!selectedPackage) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+    if (!packageId) return NextResponse.json({ error: 'packageId required' }, { status: 400 })
+
+    const pkg = await prisma.package.findUnique({
+      where: { id: packageId },
+      select: { id: true, name: true, classCount: true, price: true, active: true, isStudentPackage: true, durationDays: true },
+    })
+    if (!pkg || !pkg.active) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+
+    // Server-side student enforcement — runs before any Stripe interaction
+    if (pkg.isStudentPackage && !user.isStudent) {
+      return NextResponse.json({ error: 'This package is only available to students.' }, { status: 403 })
+    }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-01-28.clover' })
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: selectedPackage.price * 100,
+      amount: Math.round(pkg.price * 100),
       currency: 'eur',
       receipt_email: user.email,
       metadata: {
         userId,
-        packageId,
-        classes: selectedPackage.classes.toString(),
-        packageName: selectedPackage.name,
+        packageId: pkg.id,
+        classes: pkg.classCount.toString(),
+        packageName: pkg.name,
+        durationDays: pkg.durationDays.toString(),
       },
     })
 

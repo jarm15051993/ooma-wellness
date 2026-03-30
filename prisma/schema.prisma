@@ -38,6 +38,8 @@ model User {
   canViewStudents       Boolean  @default(false)
   canValidateAttendance Boolean  @default(false)
   canBulkUpload         Boolean  @default(false)
+  canMarkAsStudent      Boolean  @default(false)
+  isStudent             Boolean  @default(false)
   disclaimerAcceptedAt  DateTime?
   disclaimerVersion     String?
   createdAt DateTime @default(now())
@@ -62,8 +64,10 @@ model Package {
   price         Float
   active        Boolean  @default(true)
   durationDays  Int      @default(30)
-  stripePriceId String?  @unique
-  createdAt     DateTime @default(now())
+  stripePriceId        String?  @unique
+  isStudentPackage     Boolean  @default(false)
+  studentStripePriceId String?  @unique
+  createdAt            DateTime @default(now())
   updatedAt     DateTime @updatedAt
   user_id       String?  @db.Uuid
 

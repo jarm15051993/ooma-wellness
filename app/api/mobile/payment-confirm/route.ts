@@ -27,7 +27,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ creditsAdded: classCount })
     }
 
-    const { userId, packageId, classes } = intent.metadata as { userId: string; packageId: string; classes: string }
+    const { userId, packageId, classes, durationDays } = intent.metadata as {
+      userId: string; packageId: string; classes: string; durationDays?: string
+    }
 
     await prisma.payment.create({
       data: {
@@ -40,11 +42,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    const days = durationDays ? parseInt(durationDays) : 30
+    const expiresAt = days > 0 ? new Date(Date.now() + days * 24 * 60 * 60 * 1000) : null
 
     await prisma.userCredit.create({
       data: {
         userId,
+        packageId,
         creditsRemaining: parseInt(classes),
         creditsTotal: parseInt(classes),
         expiresAt,
@@ -54,7 +58,7 @@ export async function POST(request: NextRequest) {
     // Fire-and-forget purchase confirmation email
     const packageName = intent.metadata.packageName ?? `${classes} Class Pack`
     const amount = ((intent.amount_received || 0) / 100).toFixed(2)
-    const expiresLabel = expiresAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    const expiresLabel = expiresAt ? expiresAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'No expiry'
     prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } })
       .then(user => {
         if (!user) return
