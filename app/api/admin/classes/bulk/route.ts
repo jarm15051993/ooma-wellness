@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken, extractBearerToken } from '@/lib/jwt'
-import { addMinutes } from 'date-fns'
 
 type BulkClassInput = {
   title: string
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
       const [hours, mins] = c.startTime.split(':').map(Number)
       const start = new Date(`${c.date}T00:00:00`)
       start.setHours(hours, mins, 0, 0)
-      const end = addMinutes(start, c.durationMins)
+      const end = new Date(start.getTime() + c.durationMins * 60_000)
 
       toCreate.push({
         title: c.title,
