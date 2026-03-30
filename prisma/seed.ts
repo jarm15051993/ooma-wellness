@@ -268,9 +268,9 @@ async function main() {
   // ─── Regular packages ──────────────────────────────────────────────────────
   // stripePriceId values are placeholders — owner must create Stripe products and replace before go-live
   const regularPackages = [
-    { name: 'Early Bird · 3 Classes',  classCount: 3,  price: 45,  durationDays: 30, stripePriceId: '__early_bird_3__' },
-    { name: 'Flow Pack · 5 Classes',   classCount: 5,  price: 70,  durationDays: 30, stripePriceId: '__flow_pack_5__' },
-    { name: 'Committed · 10 Classes',  classCount: 10, price: 130, durationDays: 30, stripePriceId: '__committed_10__' },
+    { name: '1 Class',   classCount: 1, price: 12, durationDays: 30, stripePriceId: 'price_1TGpCLKfNoZ8iddxSCDC4dTo' },
+    { name: '3 Classes', classCount: 3, price: 27, durationDays: 30, stripePriceId: 'price_1TGpFxKfNoZ8iddxOAhkOeuM' },
+    { name: '5 Classes', classCount: 5, price: 40, durationDays: 30, stripePriceId: 'price_1TGpH2KfNoZ8iddxeY9gERze' },
   ]
   for (const pkg of regularPackages) {
     await prisma.package.upsert({
@@ -288,9 +288,9 @@ async function main() {
   //   3. Replace the placeholder stripePriceId values below with the real price_xxx IDs
   //   4. Re-run this seed
   const studentPackages = [
-    { name: 'Early Bird · 3 Classes (Student)',  classCount: 3,  price: 35,  durationDays: 30, stripePriceId: '__student_early_bird_3__' },
-    { name: 'Flow Pack · 5 Classes (Student)',   classCount: 5,  price: 55,  durationDays: 30, stripePriceId: '__student_flow_pack_5__' },
-    { name: 'Committed · 10 Classes (Student)',  classCount: 10, price: 100, durationDays: 30, stripePriceId: '__student_committed_10__' },
+    { name: '1 Class (Student)',   classCount: 1, price: 10, durationDays: 30, stripePriceId: 'price_1TGpCvKfNoZ8iddxNGv2fOhq' },
+    { name: '3 Classes (Student)', classCount: 3, price: 23, durationDays: 30, stripePriceId: 'price_1TGpGPKfNoZ8iddxHKBmgnxy' },
+    { name: '5 Classes (Student)', classCount: 5, price: 37, durationDays: 30, stripePriceId: 'price_1TGpIEKfNoZ8iddxzsvx13qU' },
   ]
   for (const pkg of studentPackages) {
     await prisma.package.upsert({
