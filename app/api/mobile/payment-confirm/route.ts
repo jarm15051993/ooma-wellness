@@ -27,7 +27,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ creditsAdded: classCount })
     }
 
-    const { userId, packageId, classes } = intent.metadata as { userId: string; packageId: string; classes: string }
+    const { userId, packageId, classes, durationDays } = intent.metadata as {
+      userId: string; packageId: string; classes: string; durationDays?: string
+    }
 
     await prisma.payment.create({
       data: {
@@ -40,11 +42,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    const days = durationDays ? parseInt(durationDays) : 30
+    const expiresAt = days > 0 ? new Date(Date.now() + days * 24 * 60 * 60 * 1000) : null
 
     await prisma.userCredit.create({
       data: {
         userId,
+        packageId,
         creditsRemaining: parseInt(classes),
         creditsTotal: parseInt(classes),
         expiresAt,

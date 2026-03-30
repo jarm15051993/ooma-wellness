@@ -180,6 +180,51 @@ const templates = [
 `.trim(),
   },
   {
+    type: 'student_status_granted',
+    subject: 'Your student discount is now active at OOMA',
+    htmlBody: `
+<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+  <h1 style="color: #fbbf24; text-align: center; margin-bottom: 8px;">OOMA Wellness Club</h1>
+  <p style="color: #9ca3af; text-align: center; margin-bottom: 32px;">Student Discount Active</p>
+
+  <p style="color: #fff; font-size: 16px;">Hi {{name}},</p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">
+    Great news — your student status has been verified and your discount is now active.
+    You now have access to our <strong style="color: #fbbf24;">student packages</strong> at reduced rates.
+  </p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">
+    Open the Ooma app and head to the packages screen to see your student pricing.
+  </p>
+
+  <p style="color: #6b7280; font-size: 13px; text-align: center; margin-top: 32px;">
+    If you have any questions, contact us at admin@oomawellness.shop.
+  </p>
+</div>
+`.trim(),
+  },
+  {
+    type: 'student_status_removed',
+    subject: 'Your student status at OOMA has been updated',
+    htmlBody: `
+<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+  <h1 style="color: #fbbf24; text-align: center; margin-bottom: 8px;">OOMA Wellness Club</h1>
+  <p style="color: #9ca3af; text-align: center; margin-bottom: 32px;">Student Status Update</p>
+
+  <p style="color: #fff; font-size: 16px;">Hi {{name}},</p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">
+    Your student status at OOMA Wellness Club has been removed. You no longer have access to student-only packages.
+  </p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">
+    All regular packages remain available to you. If you believe this is a mistake, please contact us.
+  </p>
+
+  <p style="color: #6b7280; font-size: 13px; text-align: center; margin-top: 32px;">
+    Questions? Reach us at admin@oomawellness.shop.
+  </p>
+</div>
+`.trim(),
+  },
+  {
     type: 'email_verification',
     subject: 'Verify your new email address',
     htmlBody: `
@@ -218,6 +263,42 @@ async function main() {
       create: template,
     })
     console.log(`Seeded template: ${template.type}`)
+  }
+
+  // ─── Regular packages ──────────────────────────────────────────────────────
+  // stripePriceId values are placeholders — owner must create Stripe products and replace before go-live
+  const regularPackages = [
+    { name: 'Early Bird · 3 Classes',  classCount: 3,  price: 45,  durationDays: 30, stripePriceId: '__early_bird_3__' },
+    { name: 'Flow Pack · 5 Classes',   classCount: 5,  price: 70,  durationDays: 30, stripePriceId: '__flow_pack_5__' },
+    { name: 'Committed · 10 Classes',  classCount: 10, price: 130, durationDays: 30, stripePriceId: '__committed_10__' },
+  ]
+  for (const pkg of regularPackages) {
+    await prisma.package.upsert({
+      where: { stripePriceId: pkg.stripePriceId },
+      update: {},
+      create: { ...pkg, active: true, isStudentPackage: false },
+    })
+    console.log(`Seeded regular package: ${pkg.name}`)
+  }
+
+  // ─── Student packages ───────────────────────────────────────────────────────
+  // These are separate Stripe products — owner must:
+  //   1. Create each as a new Product in Stripe dashboard
+  //   2. Create a Price for each (EUR, one-time)
+  //   3. Replace the placeholder stripePriceId values below with the real price_xxx IDs
+  //   4. Re-run this seed
+  const studentPackages = [
+    { name: 'Early Bird · 3 Classes (Student)',  classCount: 3,  price: 35,  durationDays: 30, stripePriceId: '__student_early_bird_3__' },
+    { name: 'Flow Pack · 5 Classes (Student)',   classCount: 5,  price: 55,  durationDays: 30, stripePriceId: '__student_flow_pack_5__' },
+    { name: 'Committed · 10 Classes (Student)',  classCount: 10, price: 100, durationDays: 30, stripePriceId: '__student_committed_10__' },
+  ]
+  for (const pkg of studentPackages) {
+    await prisma.package.upsert({
+      where: { stripePriceId: pkg.stripePriceId },
+      update: {},
+      create: { ...pkg, active: true, isStudentPackage: true },
+    })
+    console.log(`Seeded student package: ${pkg.name}`)
   }
 
   // Welcome gift package — 1 free class, no price, no Stripe price, no expiry enforced at credit level

@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
       canViewStudents: isOwner || user.canViewStudents,
       canValidateAttendance: isOwner || user.canValidateAttendance,
       canBulkUpload: isOwner || user.canBulkUpload,
+      canMarkAsStudent: isOwner || user.canMarkAsStudent,
+      isStudent: user.isStudent,
     })
 
     const { password: _, isAdmin: __, ...userWithoutPassword } = user

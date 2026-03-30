@@ -24,7 +24,7 @@ function applyPlaceholders(template: string, vars: Record<string, string>): stri
 
 interface SendEmailOptions {
   to: string
-  type: 'activation' | 'password_reset' | 'email_verification' | 'booking_confirmation' | 'booking_cancellation' | 'package_purchase'
+  type: 'activation' | 'password_reset' | 'email_verification' | 'booking_confirmation' | 'booking_cancellation' | 'package_purchase' | 'student_status_granted' | 'student_status_removed'
   userId?: string
   vars: Record<string, string>
   metadata?: Record<string, unknown>
