@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     // Fire-and-forget purchase confirmation email
     const packageName = intent.metadata.packageName ?? `${classes} Class Pack`
     const amount = ((intent.amount_received || 0) / 100).toFixed(2)
-    const expiresLabel = expiresAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    const expiresLabel = expiresAt ? expiresAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'No expiry'
     prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } })
       .then(user => {
         if (!user) return
