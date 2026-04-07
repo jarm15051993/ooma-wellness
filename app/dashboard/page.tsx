@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
+import QRCode from 'react-qr-code'
 
 interface Booking {
   id: string
@@ -302,6 +303,14 @@ export default function DashboardPage() {
   const [fieldSaving, setFieldSaving] = useState(false)
   const [fieldError, setFieldError] = useState<string | null>(null)
 
+  // Goals state
+  const [userGoalIds, setUserGoalIds] = useState<string[]>([])
+  const [availableGoals, setAvailableGoals] = useState<{ id: string; label: string }[]>([])
+  const [editingGoals, setEditingGoals] = useState(false)
+  const [editGoalIds, setEditGoalIds] = useState<string[]>([])
+  const [goalsSaving, setGoalsSaving] = useState(false)
+  const [goalError, setGoalError] = useState<string | null>(null)
+
   // Calendar state
   const [classes, setClasses] = useState<Class[]>([])
   const [processingClass, setProcessingClass] = useState<string | null>(null)
@@ -392,6 +401,12 @@ export default function DashboardPage() {
         await Promise.all([
           fetchClasses(parsedUser.id),
           fetchUpcomingBookings(parsedUser.id),
+          fetch(`/api/user/goals?userId=${parsedUser.id}`)
+            .then(r => r.json())
+            .then(d => { if (d.userGoalIds) setUserGoalIds(d.userGoalIds) }),
+          fetch('/api/mobile/goals')
+            .then(r => r.json())
+            .then(d => { if (Array.isArray(d)) setAvailableGoals(d) }),
         ])
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -513,6 +528,31 @@ export default function DashboardPage() {
     }
   }
 
+  const saveGoals = async () => {
+    if (editGoalIds.length === 0) { setGoalError('Please select at least one goal.'); return }
+    setGoalsSaving(true)
+    setGoalError(null)
+    try {
+      const response = await fetch('/api/user/update', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, goalIds: editGoalIds }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Update failed')
+      const goalsDisplay = availableGoals.filter(g => editGoalIds.includes(g.id)).map(g => g.label).join(', ')
+      const updated = { ...user, goals: goalsDisplay }
+      setUser(updated)
+      localStorage.setItem('user', JSON.stringify(updated))
+      setUserGoalIds(editGoalIds)
+      setEditingGoals(false)
+    } catch (error: any) {
+      setGoalError(error.message || 'Update failed. Please try again.')
+    } finally {
+      setGoalsSaving(false)
+    }
+  }
+
   const handleCancelBooking = async (booking: Booking) => {
     setCancellingId(booking.id)
     try {
@@ -574,7 +614,7 @@ export default function DashboardPage() {
           <h2 className="text-4xl font-serif font-light text-ink mb-6 tracking-wide">My <em className="text-burg">Profile</em></h2>
 
           {/* Profile Picture + Fields */}
-          <div className="flex items-start gap-8 mb-6">
+          <div className="flex flex-col sm:flex-row items-start gap-8 mb-6">
             <div className="flex-shrink-0">
               <div
                 onDrop={handleDrop}
@@ -609,11 +649,11 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-6">
-              <FieldRow key={editingField === 'name' ? 'name-e' : 'name'} {...fieldRowShared} field="name" label="First Name" display={user.name} initialValue={user.name || ''} isEditing={editingField === 'name'} />
-              <FieldRow key={editingField === 'lastName' ? 'lastName-e' : 'lastName'} {...fieldRowShared} field="lastName" label="Last Name" display={user.lastName} initialValue={user.lastName || ''} isEditing={editingField === 'lastName'} />
-              <FieldRow key={editingField === 'email' ? 'email-e' : 'email'} {...fieldRowShared} field="email" label="Email" display={user.email} initialValue={user.email || ''} isEditing={editingField === 'email'} />
-              <FieldRow key={editingField === 'phone' ? 'phone-e' : 'phone'} {...fieldRowShared} field="phone" label="Phone" display={user.phone} initialValue={user.phone || ''} isEditing={editingField === 'phone'} />
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 min-w-0 w-full">
+              <FieldRow key={editingField === 'name' ? 'name-e' : 'name'} {...fieldRowShared} field="name" label="First Name" display={<span className="break-words">{user.name}</span>} initialValue={user.name || ''} isEditing={editingField === 'name'} />
+              <FieldRow key={editingField === 'lastName' ? 'lastName-e' : 'lastName'} {...fieldRowShared} field="lastName" label="Last Name" display={<span className="break-words">{user.lastName}</span>} initialValue={user.lastName || ''} isEditing={editingField === 'lastName'} />
+              <FieldRow key={editingField === 'email' ? 'email-e' : 'email'} {...fieldRowShared} field="email" label="Email" display={<span className="break-all">{user.email}</span>} initialValue={user.email || ''} isEditing={editingField === 'email'} />
+              <FieldRow key={editingField === 'phone' ? 'phone-e' : 'phone'} {...fieldRowShared} field="phone" label="Phone" display={<span className="break-words">{user.phone}</span>} initialValue={user.phone || ''} isEditing={editingField === 'phone'} />
               <FieldRow key={editingField === 'birthday' ? 'birthday-e' : 'birthday'} {...fieldRowShared} field="birthday" label="Birthday" display={user.birthday ? new Date(user.birthday).toLocaleDateString('en-US', { timeZone: 'UTC' }) : '—'} initialValue={user.birthday || ''} isEditing={editingField === 'birthday'} />
               <div>
                 <p className="text-xs font-medium text-mgray tracking-wider uppercase mb-1">Class Credits</p>
@@ -631,9 +671,83 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          {/* Goals */}
+          <div className="border-t border-rule pt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <p className="text-xs font-medium text-mgray tracking-wider uppercase">Goals</p>
+              {!editingGoals && (
+                <button type="button" onClick={() => { setEditGoalIds(userGoalIds); setEditingGoals(true); setGoalError(null) }}
+                  className="opacity-60 hover:opacity-100 text-mgray hover:text-burg transition-opacity" title="Edit goals">
+                  <PencilIcon />
+                </button>
+              )}
+            </div>
+            {editingGoals ? (
+              <div>
+                {availableGoals.length === 0 ? (
+                  <p className="text-mgray text-sm">Loading goals…</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {availableGoals.map(goal => {
+                      const selected = editGoalIds.includes(goal.id)
+                      const disabled = !selected && editGoalIds.length >= 3
+                      return (
+                        <button key={goal.id} type="button"
+                          onClick={() => {
+                            if (selected) setEditGoalIds(ids => ids.filter(id => id !== goal.id))
+                            else if (!disabled) setEditGoalIds(ids => [...ids, goal.id])
+                            setGoalError(null)
+                          }}
+                          className={`px-3 py-1.5 rounded-full border text-sm font-medium transition ${
+                            selected ? 'bg-burg border-burg text-warm-white'
+                            : disabled ? 'border-rule text-lgray cursor-not-allowed opacity-50'
+                            : 'border-rule text-ink hover:border-burg hover:text-burg'
+                          }`}>
+                          {goal.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+                <p className="text-xs text-mgray mb-3">Select at least 1 and up to 3 goals ({editGoalIds.length} selected)</p>
+                {goalError && <p className="text-burg text-xs mb-2">{goalError}</p>}
+                <div className="flex gap-2">
+                  <button type="button" onClick={saveGoals} disabled={goalsSaving}
+                    className="px-3 py-1 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white text-sm font-medium rounded-lg transition tracking-wide">
+                    {goalsSaving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button type="button" onClick={() => { setEditingGoals(false); setGoalError(null) }} disabled={goalsSaving}
+                    className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-sm rounded-lg transition">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {userGoalIds.length > 0
+                  ? availableGoals.filter(g => userGoalIds.includes(g.id)).map(g => (
+                      <span key={g.id} className="px-3 py-1 rounded-full border border-mgray text-mgray text-sm">{g.label}</span>
+                    ))
+                  : <p className="text-ink text-base">{user.goals ?? '—'}</p>
+                }
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* 2. My Upcoming Classes */}
+        {/* 2. QR Code */}
+        {user.qrCode && (
+          <div className="bg-warm-white rounded-2xl p-8 border border-rule mb-6 flex flex-col items-center">
+            <h2 className="text-2xl font-serif font-light text-ink mb-2 tracking-wide self-start">My <em className="text-burg">QR Code</em></h2>
+            <p className="text-mgray text-sm mb-6 self-start">Show this at the studio to check in.</p>
+            <div className="p-4 bg-white border border-rule rounded-xl">
+              <QRCode value={user.qrCode} size={180} />
+            </div>
+          </div>
+        )}
+
+        {/* 4. My Upcoming Classes */}
         <div className="bg-warm-white rounded-2xl p-8 border border-rule mb-6">
           <h2 className="text-2xl font-serif font-light text-ink mb-4 tracking-wide">My Upcoming <em className="text-burg">Classes</em></h2>
           {upcomingBookings.length === 0 ? (
@@ -668,7 +782,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* 3. Calendar */}
+        {/* 5. Calendar */}
         <div className="bg-warm-white rounded-2xl p-8 border border-rule">
           <h2 className="text-2xl font-serif font-light text-ink mb-6 tracking-wide">My <em className="text-burg">Calendar</em></h2>
 
