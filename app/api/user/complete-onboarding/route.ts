@@ -5,10 +5,23 @@ import bcrypt from 'bcryptjs'
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userId, password, name, lastName, phone, goals, birthday, additionalInfo } = body
+    const { userId, password, name, lastName, phone, goals, goalIds, birthday, additionalInfo } = body
 
-    if (!userId || !password || !name || !lastName || !phone || !goals || !birthday) {
+    const usingGoalIds = Array.isArray(goalIds) && goalIds.length > 0
+    if (!userId || !password || !name || !lastName || !phone || !birthday || (!usingGoalIds && !goals)) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 })
+    }
+
+    if (usingGoalIds) {
+      if (goalIds.length < 1 || goalIds.length > 3) {
+        return NextResponse.json({ message: 'Please select between 1 and 3 goals.' }, { status: 400 })
+      }
+      const validGoals = await prisma.goal.findMany({
+        where: { id: { in: goalIds }, isActive: true },
+      })
+      if (validGoals.length !== goalIds.length) {
+        return NextResponse.json({ message: 'One or more selected goals are invalid.' }, { status: 400 })
+      }
     }
 
     if (typeof password !== 'string' || password.length < 8) {
@@ -35,20 +48,28 @@ export async function PATCH(request: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const updated = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        password: hashedPassword,
-        name,
-        lastName,
-        phone,
-        goals,
-        birthday: new Date(birthday),
-        additionalInfo: additionalInfo || null,
-        onboardingCompleted: true,
-        // Activate the account if it wasn't already (e.g. legacy users or mobile flow)
-        activatedAt: user.activatedAt ?? new Date(),
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      const u = await tx.user.update({
+        where: { id: userId },
+        data: {
+          password: hashedPassword,
+          name,
+          lastName,
+          phone,
+          ...(!usingGoalIds && { goals }),
+          birthday: new Date(birthday),
+          additionalInfo: additionalInfo || null,
+          onboardingCompleted: true,
+          activatedAt: user.activatedAt ?? new Date(),
+        },
+      })
+      if (usingGoalIds) {
+        await tx.userGoal.createMany({
+          data: goalIds.map((goalId: string) => ({ userId, goalId })),
+          skipDuplicates: true,
+        })
+      }
+      return u
     })
 
     const { password: _, ...userWithoutPassword } = updated
