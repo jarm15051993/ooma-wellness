@@ -62,7 +62,6 @@ interface FormState {
   lastName: string
   countryCode: string
   phone: string
-  goals: string
   birthday: string
 }
 
@@ -98,13 +97,19 @@ function OnboardingContent() {
     lastName: '',
     countryCode: '+52',
     phone: '',
-    goals: '',
     birthday: '',
   })
   const [hasConditions, setHasConditions] = useState<boolean | null>(null)
   const [conditions, setConditions] = useState<string[]>([])
   const [conditionOther, setConditionOther] = useState('')
-  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false)
+
+  // Goals state (step 3)
+  const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([])
+  const [availableGoals, setAvailableGoals] = useState<{ id: string; label: string }[]>([])
+
+  // Disclaimer state (step 4)
+  const [disclaimerScrolled, setDisclaimerScrolled] = useState(false)
+  const [disclaimerChecked, setDisclaimerChecked] = useState(false)
 
   const toggleCondition = (c: string) =>
     setConditions(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])
@@ -114,6 +119,13 @@ function OnboardingContent() {
       router.replace('/signup')
     }
   }, [userId, router])
+
+  useEffect(() => {
+    fetch('/api/mobile/goals')
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setAvailableGoals(d) })
+      .catch(() => {})
+  }, [])
 
   const set = (field: keyof FormState, value: string) =>
     setForm(prev => ({ ...prev, [field]: value }))
@@ -169,9 +181,10 @@ function OnboardingContent() {
       }
     }
     if (step === 3) {
-      if (!form.goals.trim()) return 'Please tell us your goal'
+      if (selectedGoalIds.length === 0) return 'Please select at least one goal'
     }
-    if (step === 4) {
+    // step 4 (disclaimer) is handled separately in handleNext
+    if (step === 5) {
       if (!form.birthday) return 'Birthday is required'
       if (hasConditions === null) return 'Please answer the health conditions question'
       if (hasConditions && conditions.length === 0) return 'Please select at least one condition'
@@ -203,11 +216,31 @@ function OnboardingContent() {
       }
     }
 
+    // Steps 0–3: just advance
     if (step < 4) {
       setStep(s => s + 1)
       return
     }
 
+    // Step 4: disclaimer — call API then advance
+    if (step === 4) {
+      setLoading(true)
+      try {
+        await fetch('/api/user/accept-disclaimer', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, disclaimerVersion: 'v1' }),
+        })
+        setStep(5)
+      } catch {
+        toast.error('Network error. Please try again.', { duration: 4000, style: toastStyle('#ef4444') })
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
+    // Step 5: final submit
     setLoading(true)
     try {
       const fullPhone = form.countryCode + form.phone
@@ -220,7 +253,7 @@ function OnboardingContent() {
           name: form.name.trim(),
           lastName: form.lastName.trim(),
           phone: fullPhone,
-          goals: form.goals.trim(),
+          goalIds: selectedGoalIds,
           birthday: form.birthday,
           additionalInfo: (() => {
             if (!hasConditions) return null
@@ -252,7 +285,8 @@ function OnboardingContent() {
     'Create your password',
     'Yourself',
     'How can we reach you?',
-    "What's your goal",
+    'What do you want to accomplish?',
+    'Health & Liability Disclaimer',
     'Tell us about yourself',
   ]
 
@@ -381,18 +415,90 @@ function OnboardingContent() {
 
           {step === 3 && (
             <div>
-              <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Your goal *</label>
-              <textarea
-                value={form.goals}
-                onChange={e => set('goals', e.target.value)}
-                rows={4}
-                placeholder="e.g. Improve flexibility, lose weight, reduce stress…"
-                className="w-full px-4 py-2 bg-warm-white border border-rule rounded-lg focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray resize-none"
-              />
+              {availableGoals.length === 0 ? (
+                <p className="text-mgray text-sm">Loading goals…</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {availableGoals.map(goal => {
+                    const selected = selectedGoalIds.includes(goal.id)
+                    const disabled = !selected && selectedGoalIds.length >= 3
+                    return (
+                      <button key={goal.id} type="button"
+                        onClick={() => {
+                          if (selected) setSelectedGoalIds(ids => ids.filter(id => id !== goal.id))
+                          else if (!disabled) setSelectedGoalIds(ids => [...ids, goal.id])
+                        }}
+                        className={`px-3 py-1.5 rounded-full border text-sm font-medium transition ${
+                          selected ? 'bg-burg border-burg text-warm-white'
+                          : disabled ? 'border-rule text-lgray cursor-not-allowed opacity-50'
+                          : 'border-rule text-ink hover:border-burg hover:text-burg'
+                        }`}>
+                        {goal.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+              <p className="text-xs text-mgray mt-3">Select at least 1 and up to 3 goals ({selectedGoalIds.length} selected)</p>
             </div>
           )}
 
           {step === 4 && (
+            <div>
+              <div
+                className="h-64 overflow-y-auto border border-rule rounded-lg p-4 bg-warm-white text-sm text-ink space-y-4 mb-4"
+                onScroll={e => {
+                  if (disclaimerScrolled) return
+                  const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+                  if (scrollHeight - scrollTop - clientHeight <= 30) setDisclaimerScrolled(true)
+                }}
+              >
+                <p className="font-semibold text-xs tracking-widest uppercase text-mgray">AVISO DE SALUD Y RESPONSABILIDAD — OOMA WELLNESS CLUB</p>
+                <p className="text-xs text-mgray">Versión 1.0 · 2026 · Barcelona, Catalunya, España</p>
+                <p className="text-xs text-mgray">Marco legal: RDL 1/2007 · Decret legislatiu 1/2000 · Última actualización: Marzo 2026</p>
+                <p className="text-xs text-burg font-medium">Aviso importante: La aceptación de este documento es condición necesaria para participar en cualquier actividad de OOMA Wellness Club. Si tienes dudas sobre tu estado de salud, te recomendamos consultar con un profesional médico antes de comenzar.</p>
+                {[
+                  { n: '01', t: 'OBJETO Y ÁMBITO DE APLICACIÓN', body: 'El presente Aviso de Salud y Responsabilidad es emitido por OOMA Wellness Club, con domicilio en Barcelona, Catalunya, y es de aplicación obligatoria a todas las personas que accedan, participen o hagan uso de cualquiera de sus servicios, instalaciones, clases o actividades, ya sea de forma presencial o a través de su plataforma digital. Las actividades incluyen: Pilates Reformer (método STOTT), Yoga (Vinyasa, Yin y Restaurativo) y Power Flow (combinación de HIIT y Reformer). Este Aviso se rige por el Real Decreto Legislativo 1/2007, el Decret legislatiu 1/2000 de la Llei de l\'Esport de Catalunya, y el Codi Civil de Catalunya.' },
+                  { n: '02', t: 'APTITUD FÍSICA Y ESTADO DE SALUD', body: 'Al participar en OOMA, el usuario declara que se encuentra en buen estado de salud general, que no ha sido aconsejado por un médico para abstenerse de realizar ejercicio físico, que comunicará al instructor cualquier condición médica conocida, que tiene 18 años cumplidos o cuenta con autorización de su tutor legal, y que practica las actividades de forma voluntaria con plena conciencia del esfuerzo físico que implican. OOMA recomienda una revisión médica previa especialmente si no se realiza ejercicio de forma regular, si se han superado los 40 años, o si existen antecedentes cardiovasculares o lesiones previas.' },
+                  { n: '03', t: 'RIESGOS INHERENTES A LA ACTIVIDAD', body: 'La práctica de actividad física organizada conlleva riesgos inherentes: músculo-esqueléticos (contracturas, esguinces, desgarros), cardiovasculares (elevación de frecuencia cardíaca y presión arterial), fatiga y mareo, riesgos derivados del uso del Reformer y del equipamiento de Pilates, sobrecarga articular en posturas avanzadas de yoga y power flow, y agravamiento de condiciones preexistentes no comunicadas.' },
+                  { n: '04', t: 'OBLIGACIONES DE OOMA', body: 'OOMA asume: supervisión por instructores certificados conforme a la Llei 3/2008, mantenimiento periódico del equipamiento, seguro de responsabilidad civil conforme al artículo 62.3 del Decret legislatiu 1/2000, ratio instructor-alumno adecuado, información de seguridad al inicio de cada sesión, actuación diligente ante incidencias, y sesión introductoria para nuevos miembros sobre el uso correcto del equipamiento.' },
+                  { n: '05', t: 'ALCANCE Y LIMITACIÓN DE RESPONSABILIDAD', body: 'Conforme al artículo 86 del RDL 1/2007, la exoneración total de responsabilidad de OOMA no es jurídicamente posible. OOMA responde de lesiones causadas por mal estado del equipamiento, instrucciones negligentes del instructor, o ausencia de medidas de seguridad. OOMA no responde de lesiones derivadas del riesgo inherente a la actividad, del incumplimiento de indicaciones del instructor, de condiciones médicas ocultadas, del uso inadecuado fuera del horario de supervisión, ni de la pérdida de objetos personales no custodiados.' },
+                  { n: '06', t: 'OBLIGACIONES DEL USUARIO', body: 'El usuario se compromete a comunicar cualquier lesión o condición médica al instructor, seguir las indicaciones técnicas y de seguridad, cesar en la actividad ante dolor agudo, mareo o dificultad respiratoria, usar correctamente el equipamiento según las instrucciones recibidas, acudir a las sesiones en condiciones físicas adecuadas, y mantener el orden, higiene y respeto hacia los demás practicantes e instructores.' },
+                  { n: '07', t: 'MENORES DE EDAD Y COLECTIVOS CON NECESIDADES ESPECIALES', body: 'Las actividades de OOMA están dirigidas a personas mayores de 18 años. En caso excepcional de admisión de menores, será requisito la firma del tutor legal. Para colectivos con condiciones especiales (rehabilitación, embarazo, mayores de 65 años) se aplicará un protocolo de adaptación específico y se requerirá informe médico que autorice la práctica.' },
+                  { n: '08', t: 'DATOS DE SALUD Y PROTECCIÓN DE DATOS', body: 'Los datos de salud comunicados a OOMA son datos especialmente protegidos conforme al RGPD (UE) 2016/679 y la LO 3/2018. Serán tratados exclusivamente para garantizar la seguridad del usuario durante la práctica, no serán cedidos a terceros sin consentimiento expreso y se conservarán únicamente durante la vigencia de la relación contractual. Para ejercer derechos de acceso, rectificación, supresión y portabilidad: privacidad@ooma.club' },
+                  { n: '09', t: 'RESOLUCIÓN DE CONTROVERSIAS Y LEY APLICABLE', body: 'Cualquier controversia se someterá a la Junta Arbitral de Consum de Catalunya y a la OMIC del Ayuntamiento de Barcelona. Este Aviso se rige por el derecho español y catalán, con sumisión a los Juzgados y Tribunales de Barcelona. En caso de contradicción con las condiciones generales de contratación, prevalecerá la interpretación más favorable al usuario conforme al artículo 80 del RDL 1/2007. Consultas: legal@ooma.club' },
+                ].map(s => (
+                  <div key={s.n}>
+                    <p className="font-semibold text-xs tracking-wider uppercase mb-1">{s.n} — {s.t}</p>
+                    <p className="text-mgray text-xs leading-relaxed">{s.body}</p>
+                  </div>
+                ))}
+                <p className="text-xs text-mgray pt-2 border-t border-rule">OOMA Wellness Club · Barcelona, Catalunya · Aviso de Salud y Responsabilidad · v1.0 · 2026</p>
+              </div>
+              {!disclaimerScrolled && (
+                <p className="text-xs text-mgray mb-3 text-center">↓ Scroll to the bottom to continue</p>
+              )}
+              <label className={`flex items-start gap-3 cursor-pointer ${!disclaimerScrolled ? 'opacity-40 pointer-events-none' : ''}`}>
+                <div
+                  onClick={() => disclaimerScrolled && setDisclaimerChecked(v => !v)}
+                  className={`mt-0.5 w-4 h-4 flex-shrink-0 rounded border flex items-center justify-center transition ${
+                    disclaimerChecked ? 'bg-burg border-burg' : 'border-rule hover:border-burg'
+                  }`}
+                >
+                  {disclaimerChecked && (
+                    <svg className="w-2.5 h-2.5 text-warm-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-sm text-mgray leading-snug" onClick={() => disclaimerScrolled && setDisclaimerChecked(v => !v)}>
+                  He leído y acepto el Aviso de Salud y Responsabilidad de OOMA Wellness Club
+                </span>
+              </label>
+            </div>
+          )}
+
+          {step === 5 && (
             <>
               <div>
                 <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Birthday *</label>
@@ -489,35 +595,6 @@ function OnboardingContent() {
           )}
         </div>
 
-        {step === 4 && (
-          <label className="flex items-start gap-3 mt-6 cursor-pointer">
-            <div
-              onClick={() => setDisclaimerAccepted(v => !v)}
-              className={`mt-0.5 w-4 h-4 flex-shrink-0 rounded border flex items-center justify-center transition ${
-                disclaimerAccepted ? 'bg-burg border-burg' : 'border-rule hover:border-burg'
-              }`}
-            >
-              {disclaimerAccepted && (
-                <svg className="w-2.5 h-2.5 text-warm-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </div>
-            <span className="text-sm text-mgray leading-snug" onClick={() => setDisclaimerAccepted(v => !v)}>
-              I have read and acknowledge the{' '}
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="text-burg hover:underline"
-              >
-                Health &amp; Liability Disclaimer
-              </a>
-            </span>
-          </label>
-        )}
-
         <div className="flex gap-3 mt-4">
           {step > 0 && (
             <button
@@ -531,10 +608,14 @@ function OnboardingContent() {
           <button
             type="button"
             onClick={handleNext}
-            disabled={loading || (step === 4 && (hasConditions === null || (hasConditions === true && conditions.length === 0) || !disclaimerAccepted))}
+            disabled={
+              loading ||
+              (step === 4 && (!disclaimerScrolled || !disclaimerChecked)) ||
+              (step === 5 && (hasConditions === null || (hasConditions === true && conditions.length === 0)))
+            }
             className="flex-1 bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
           >
-            {loading ? 'Saving…' : step === 4 ? "Let's go!" : 'Continue'}
+            {loading ? 'Saving…' : step === 5 ? "Let's go!" : 'Continue'}
           </button>
         </div>
       </div>
