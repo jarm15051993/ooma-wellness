@@ -55,6 +55,26 @@ model User {
   adminLogsAsAdmin         AdminAuditLog[] @relation("AdminLogs")
   adminLogsAsTarget        AdminAuditLog[] @relation("TargetLogs")
   notificationPreferences  NotificationPreference[]
+  userGoals           UserGoal[]
+}
+
+model Goal {
+  id        String     @id @default(uuid())
+  label     String     @unique
+  sortOrder Int
+  isActive  Boolean    @default(true)
+  userGoals UserGoal[]
+}
+
+model UserGoal {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  goalId    String
+  goal      Goal     @relation(fields: [goalId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, goalId])
 }
 
 model Package {

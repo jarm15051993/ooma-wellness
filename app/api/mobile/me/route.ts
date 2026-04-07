@@ -27,6 +27,11 @@ export async function GET(request: NextRequest) {
         updatedAt: true,
         isBeta: true,
         role: true,
+        goals: true,
+        userGoals: {
+          select: { goalId: true, goal: { select: { label: true } } },
+          orderBy: { goal: { sortOrder: 'asc' } },
+        },
       }
     })
 
@@ -34,10 +39,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const { role, ...userFields } = user
+    const { role, userGoals, goals, ...userFields } = user
     const isBeta = role === 'ADMIN' || role === 'OWNER' ? false : user.isBeta
+    const userGoalIds = userGoals.map(ug => ug.goalId)
+    const goalsDisplay = userGoals.length > 0
+      ? userGoals.map(ug => ug.goal.label).join(', ')
+      : goals
 
-    return NextResponse.json({ user: { ...userFields, isBeta } }, { status: 200 })
+    return NextResponse.json({ user: { ...userFields, isBeta, goals: goalsDisplay, userGoalIds } }, { status: 200 })
   } catch (error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

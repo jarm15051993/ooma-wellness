@@ -31,6 +31,10 @@ export async function GET(
             lastName: true,
             goals: true,
             additionalInfo: true,
+            userGoals: {
+              select: { goal: { select: { label: true } } },
+              orderBy: { goal: { sortOrder: 'asc' } },
+            },
           },
         },
       },
@@ -44,7 +48,9 @@ export async function GET(
       user: {
         id: b.user.id,
         fullName: [b.user.name, b.user.lastName].filter(Boolean).join(' '),
-        goals: b.user.goals ?? null,
+        goals: b.user.userGoals.length > 0
+            ? b.user.userGoals.map(ug => ug.goal.label).join(', ')
+            : b.user.goals ?? null,
         healthConditions: b.user.additionalInfo ?? null,
       },
     }))

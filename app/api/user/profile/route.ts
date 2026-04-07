@@ -20,11 +20,22 @@ export async function GET(request: NextRequest) {
         goals: true,
         additionalInfo: true,
         profilePicture: true,
+        userGoals: {
+          select: { goalId: true, goal: { select: { label: true } } },
+          orderBy: { goal: { sortOrder: 'asc' } },
+        },
       },
     })
 
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    return NextResponse.json({ user })
+
+    const { userGoals, goals, ...rest } = user
+    const userGoalIds = userGoals.map(ug => ug.goalId)
+    const goalsDisplay = userGoals.length > 0
+      ? userGoals.map(ug => ug.goal.label).join(', ')
+      : goals
+
+    return NextResponse.json({ user: { ...rest, goals: goalsDisplay, userGoalIds } })
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
