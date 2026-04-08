@@ -553,6 +553,121 @@ footer {
 .acc-footer-text { font-size: 12.5px; color: rgba(250,248,244,.4); font-weight: 300; line-height: 1.7; }
 .acc-footer-text strong { color: rgba(250,248,244,.7); font-weight: 400; }
 
+/* ── § TARIFAS ── */
+.tarifas {
+  background: var(--cloud);
+  padding: 96px 56px 80px;
+  position: relative; overflow: hidden;
+}
+.tarifas::before {
+  content: ''; position: absolute;
+  top: -200px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px; border-radius: 50%;
+  border: 1px solid rgba(200,169,106,0.07); pointer-events: none;
+}
+.tarifas-header { text-align: center; margin-bottom: 48px; }
+.tarifas-eyebrow {
+  font-size: 8px; letter-spacing: .52em; text-transform: uppercase;
+  color: var(--terra); display: block; margin-bottom: 18px;
+}
+.tarifas-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 6vw, 82px); font-weight: 300;
+  color: var(--ink); letter-spacing: -.01em; margin-bottom: 20px; display: block;
+}
+.tarifas-rule {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; margin-bottom: 20px;
+}
+.tarifas-rule-line { flex: 0 0 48px; height: 1px; background: var(--rule); }
+.tarifas-rule-diamond { width: 5px; height: 5px; background: var(--terra); transform: rotate(45deg); flex-shrink: 0; }
+.tarifas-sub {
+  font-size: 11px; font-weight: 300; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--lgray); display: block;
+}
+.mod-label {
+  font-size: 8px; letter-spacing: .42em; text-transform: uppercase;
+  color: var(--lgray); text-align: center; margin-bottom: 20px;
+}
+.individ-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; border: 1px solid var(--rule); background: var(--rule);
+}
+.plan-card { background: var(--moon); display: flex; flex-direction: column; min-width: 0; border-top: 2px solid transparent; }
+.plan-card-combined { background: var(--moon); display: flex; flex-direction: column; min-width: 0; border-top: 2px solid var(--gold); }
+.plan-card-head {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--rule);
+}
+.plan-table { width: 100%; border-collapse: collapse; }
+.plan-modalidad {
+  font-size: 7.5px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--terra); display: block; margin-bottom: 12px; line-height: 1.6;
+}
+.plan-card-head .plan-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 3.5vw, 38px); font-weight: 300; color: var(--ink);
+  line-height: 1.15; margin: 0;
+}
+.plan-table thead th {
+  padding: 10px 20px; border-bottom: 1px solid var(--rule);
+  font-size: 7px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--lgray); font-weight: 400;
+}
+.plan-table thead th:first-child { text-align: left; }
+.plan-table thead th:not(:first-child) { text-align: right; }
+.plan-table tbody tr { border-bottom: 1px solid var(--rule); transition: background .15s; }
+.plan-table tbody tr:last-child { border-bottom: none; }
+.plan-table tbody tr:hover { background: var(--cloud); }
+.plan-table tbody tr.row-ilimitadas { background: var(--linen); }
+.plan-table tbody tr.row-ilimitadas:hover { background: var(--gold-pale); }
+.plan-table td { padding: 15px 20px; }
+.plan-table td:first-child { font-size: 12.5px; font-weight: 300; color: var(--ink); text-align: left; white-space: nowrap; }
+.plan-table td:nth-child(2) {
+  font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 300;
+  color: var(--ink); text-align: right; white-space: nowrap;
+}
+.plan-table td:last-child { font-size: 11px; color: var(--lgray); text-align: right; white-space: nowrap; }
+.row-ilimitadas td:nth-child(2) { color: var(--terra); }
+.plan-table small { display: block; font-size: 9px; color: var(--lgray); white-space: normal; word-break: break-word; }
+.pack-bar {
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  background: var(--moon); border: 1px solid var(--rule);
+  padding: 22px 32px; margin-top: 32px;
+}
+.pack-bar-line { flex: 1; height: 1px; background: var(--rule); }
+.pack-bar-label {
+  font-size: 7.5px; letter-spacing: .38em; text-transform: uppercase;
+  color: var(--mgray); white-space: nowrap;
+}
+.pack-badge {
+  background: var(--terra); color: var(--moon);
+  font-size: 7.5px; letter-spacing: .28em; text-transform: uppercase;
+  padding: 6px 16px;
+}
+.pack-wrap { max-width: 640px; margin: 1px auto 0; }
+.tarifas-footer {
+  margin-top: 52px; padding-top: 32px; border-top: 1px solid var(--rule);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 20px;
+}
+.tarifas-footer-note { font-size: 11px; font-weight: 300; color: var(--lgray); line-height: 1.9; }
+.tarifas-footer-note strong { font-weight: 400; color: var(--mgray); }
+.tarifas-footer-actions { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+.tarifas-link {
+  font-size: 8px; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--mgray); text-decoration: none; transition: color .2s;
+}
+.tarifas-link:hover { color: var(--terra); }
+.tarifas-link-sep { width: 1px; height: 14px; background: var(--rule); }
+.tarifas-cta {
+  font-size: 8.5px; letter-spacing: .32em; text-transform: uppercase;
+  color: var(--moon); background: var(--terra);
+  padding: 13px 30px; text-decoration: none; display: inline-block;
+  transition: background .2s;
+}
+.tarifas-cta:hover { background: var(--ink); }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   nav { padding: 0 24px; }
@@ -567,6 +682,11 @@ footer {
   #reservas { padding: 72px 28px; }
   .res-steps { grid-template-columns: 1fr 1fr; }
   .res-planes { grid-template-columns: 1fr; }
+  .tarifas { padding: 72px 28px 60px; }
+  .individ-grid { grid-template-columns: 1fr; }
+  .tarifas-footer { flex-direction: column; align-items: flex-start; }
+  .plan-table thead th, .plan-table td { padding: 12px 20px; }
+  .pack-bar { flex-wrap: wrap; }
   .acc-grid { grid-template-columns: 1fr; }
   #acceso { padding: 72px 28px; }
   #cierre { padding: 80px 28px; }
@@ -595,6 +715,7 @@ const bodyHtml = `
     <li><a href="#filosofia">El estudio</a></li>
     <li><a href="#clases">Clases</a></li>
     <li><a href="#reservas">Reservas</a></li>
+    <li><a href="#precios">Precios</a></li>
     <li><a href="#acceso">Acceso</a></li>
     <li><a href="#coffee">Coffee</a></li>
   </ul>
@@ -611,6 +732,7 @@ const bodyHtml = `
   <a href="#filosofia">El estudio</a>
   <a href="#clases">Clases</a>
   <a href="#reservas">Reservas</a>
+  <a href="#precios">Precios</a>
   <a href="#coffee">Coffee</a>
   <!-- <a href="/signup" class="btn-fill">Crea tu cuenta</a> -->
 </div>
@@ -776,6 +898,165 @@ const bodyHtml = `
   <p class="res-nota rv">Sin permanencias. Vienes porque quieres, no por obligación.</p>
 </section>
 
+<!-- PRECIOS -->
+<section id="precios" class="tarifas">
+  <div class="tarifas-header">
+    <span class="tarifas-eyebrow rv">Elige tu modalidad &amp; frecuencia</span>
+    <span class="tarifas-title rv">Tarifas</span>
+    <div class="tarifas-rule rv">
+      <div class="tarifas-rule-line"></div>
+      <div class="tarifas-rule-diamond"></div>
+      <div class="tarifas-rule-line"></div>
+    </div>
+  </div>
+
+  <p class="mod-label rv">Modalidades individuales</p>
+  <div class="individ-grid rv">
+    <!-- Reformer Pilates -->
+    <div class="plan-card">
+      <div class="plan-card-head">
+        <span class="plan-modalidad">Modalidad</span>
+        <div class="plan-name">Reformer Pilates</div>
+      </div>
+      <table class="plan-table">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Precio / mes</th>
+            <th>€ / clase</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Clase suelta</td>
+            <td>15 €</td>
+            <td>15 €</td>
+          </tr>
+          <tr>
+            <td>Mensual · 4 clases</td>
+            <td>52 €</td>
+            <td>13 €</td>
+          </tr>
+          <tr>
+            <td>Mensual · 8 clases</td>
+            <td>96 €</td>
+            <td>12 €</td>
+          </tr>
+          <tr>
+            <td>Mensual · 15 clases</td>
+            <td>150 €</td>
+            <td>10 €</td>
+          </tr>
+          <tr class="row-ilimitadas">
+            <td>Mensual ilimitadas</td>
+            <td>180 €</td>
+            <td>≈8,18 €</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Yoga -->
+    <div class="plan-card">
+      <div class="plan-card-head">
+        <span class="plan-modalidad">Modalidad</span>
+        <div class="plan-name">Yoga</div>
+      </div>
+      <table class="plan-table">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Precio / mes</th>
+            <th>€ / clase</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Clase suelta</td>
+            <td>12 €</td>
+            <td>12 €</td>
+          </tr>
+          <tr>
+            <td>Mensual · 4 clases</td>
+            <td>44 €</td>
+            <td>11 €</td>
+          </tr>
+          <tr>
+            <td>Mensual · 8 clases</td>
+            <td>80 €</td>
+            <td>10 €</td>
+          </tr>
+          <tr>
+            <td>Mensual · 12 clases</td>
+            <td>108 €</td>
+            <td>9 €</td>
+          </tr>
+          <tr class="row-ilimitadas">
+            <td>Mensual ilimitadas</td>
+            <td>120 €</td>
+            <td>≈5,45 €*</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pack-bar rv">
+    <div class="pack-bar-line"></div>
+    <span class="pack-bar-label">Modalidad combinada</span>
+    <span class="pack-badge">Pack especial</span>
+    <div class="pack-bar-line"></div>
+  </div>
+
+  <div class="pack-wrap rv">
+    <div class="plan-card-combined">
+      <div class="plan-card-head">
+        <span class="plan-modalidad">Modalidad combinada · Pack especial</span>
+        <div class="plan-name">Reformer + Yoga</div>
+      </div>
+      <table class="plan-table">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Precio / mes</th>
+            <th>€ / clase</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mensual · 4 clases</td>
+            <td>47 €</td>
+            <td>11,75 €</td>
+          </tr>
+          <tr>
+            <td>Mensual · 8 clases</td>
+            <td>87 €</td>
+            <td>10,87 €</td>
+          </tr>
+          <tr>
+            <td>Mensual · 15 clases</td>
+            <td>138 €</td>
+            <td>9,20 €</td>
+          </tr>
+          <tr class="row-ilimitadas">
+            <td>Mensual ilimitadas</td>
+            <td>200 €</td>
+            <td>≈4,54 €</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tarifas-footer rv">
+    <p class="tarifas-footer-note">* Precio estimado según media de clases al mes.</p>
+    <div class="tarifas-footer-actions">
+      <a href="#reservas" class="tarifas-link">Consulta disponibilidad</a>
+      <div class="tarifas-link-sep"></div>
+      <a href="#reservas" class="tarifas-link">Reserva tu clase</a>
+    </div>
+  </div>
+</section>
+
 <!-- ACCESO -->
 <section id="acceso">
   <div class="acc-inner">
@@ -914,11 +1195,10 @@ const bodyHtml = `
   <div class="cierre-circle1"></div>
   <div class="cierre-circle2"></div>
   <div class="cierre-inner">
-    <h2 class="cierre-h2 rv">Un sitio para moverte,<br>respirar y <em>desconectar</em><br>un rato del día.</h2>
-    <p class="cierre-body rv">El bienestar no va de hacerlo perfecto,<br>va de hacerlo constante.</p>
+    <h2 class="cierre-h2 rv">Empieza cuando<br>quieras, <em>a tu ritmo</em>.</h2>
+    <p class="cierre-body rv">Sin permanencias. Sin presión.<br>Solo tú, el movimiento y el tiempo que necesitas.</p>
     <div class="cierre-btns rv">
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdNJKcAxlZgFPAfZhTcjF57bQTu4iPp9iYn6AAjmml5GxaWZQ/viewform?fbclid=PAdGRleAQnqAtleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAadHLeaxoMhBdPPkza04FCJ3KvQh40jZEQXnzJflA6AS-cQ4LKWk_QsYHHgVDw_aem_se1qBnrx2iE7I95LXgd69A&utm_source=ig&utm_medium=social&utm_content=link_in_bio" class="btn-hero-p" target="_blank" rel="noopener noreferrer">Me interesa</a>
-      <a href="#clases" class="btn-hero-g">Ver clases</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdNJKcAxlZgFPAfZhTcjF57bQTu4iPp9iYn6AAjmml5GxaWZQ/viewform" class="btn-hero-p" target="_blank" rel="noopener noreferrer">Únete a OOMA</a>
     </div>
   </div>
 </section>
