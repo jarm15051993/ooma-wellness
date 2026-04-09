@@ -682,11 +682,18 @@ footer {
   #reservas { padding: 72px 28px; }
   .res-steps { grid-template-columns: 1fr 1fr; }
   .res-planes { grid-template-columns: 1fr; }
-  .tarifas { padding: 72px 28px 60px; }
-  .individ-grid { grid-template-columns: 1fr; }
+  .tarifas { padding: 60px 20px 48px; }
+  .individ-grid { grid-template-columns: 1fr; gap: 0; }
+  .individ-grid .plan-card:not(:last-child) { border-bottom: 1px solid var(--rule); }
   .tarifas-footer { flex-direction: column; align-items: flex-start; }
-  .plan-table thead th, .plan-table td { padding: 12px 20px; }
-  .pack-bar { flex-wrap: wrap; }
+  .plan-card-head { height: auto !important; padding: 22px 18px 18px; }
+  .plan-card-head .plan-name { font-size: clamp(22px, 6vw, 30px); }
+  .plan-table thead th, .plan-table td { padding: 11px 14px; }
+  .plan-table thead th { white-space: nowrap; }
+  .plan-table td:nth-child(2) { font-size: 18px; }
+  .plan-table td:first-child { white-space: normal; }
+  .pack-wrap { max-width: 100%; }
+  .pack-bar { flex-wrap: wrap; padding: 18px 20px; margin-top: 20px; }
   .acc-grid { grid-template-columns: 1fr; }
   #acceso { padding: 72px 28px; }
   #cierre { padding: 80px 28px; }
@@ -696,6 +703,16 @@ footer {
 @media (max-width: 600px) {
   .res-steps { grid-template-columns: 1fr; }
   .hero-pills { display: none; }
+}
+@media (max-width: 480px) {
+  .tarifas { padding: 48px 16px 40px; }
+  .plan-table thead th:last-child, .plan-table td:last-child { display: none; }
+  .plan-table thead th, .plan-table td { padding: 10px 12px; }
+  .plan-table td:first-child { font-size: 11.5px; }
+  .plan-table td:nth-child(2) { font-size: 16px; }
+  .plan-card-head .plan-name { font-size: clamp(20px, 7vw, 26px); }
+  .plan-card-head { padding: 18px 14px 16px; }
+  .pack-bar { padding: 14px 16px; gap: 12px; }
 }
 `
 
