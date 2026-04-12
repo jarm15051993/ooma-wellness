@@ -28,10 +28,16 @@ export async function POST(request: NextRequest) {
       durationDays = 30,
       isStudentPackage = false,
       active = true,
+      packageType = 'BOTH',
+      isUnlimited = false,
     } = body
 
     if (!name || classCount == null || price == null) {
       return NextResponse.json({ error: 'name, classCount, and price are required' }, { status: 400 })
+    }
+
+    if (!['REFORMER', 'YOGA', 'BOTH'].includes(packageType)) {
+      return NextResponse.json({ error: 'Invalid packageType. Must be REFORMER, YOGA, or BOTH' }, { status: 400 })
     }
 
     const data = {
@@ -42,6 +48,8 @@ export async function POST(request: NextRequest) {
       durationDays: parseInt(durationDays),
       isStudentPackage: Boolean(isStudentPackage),
       active: Boolean(active),
+      packageType,
+      isUnlimited: Boolean(isUnlimited),
     }
 
     const pkg = id
