@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
         classesRemaining: uc.creditsRemaining,
         purchasedAt: uc.createdAt,
         expiresAt: uc.expiresAt,
+        packageType: uc.package?.packageType ?? uc.packageType,
       }))
       // oldest first (already ordered by createdAt asc)
 
@@ -39,6 +40,7 @@ export async function GET(request: NextRequest) {
         purchasedAt: uc.createdAt,
         expiresAt: uc.expiresAt,
         expiredReason: uc.creditsRemaining === 0 ? 'classes_used' : 'date_expired',
+        packageType: uc.package?.packageType ?? uc.packageType,
       }))
       .sort((a, b) => {
         // most recently expired first
