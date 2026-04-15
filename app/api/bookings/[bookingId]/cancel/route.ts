@@ -41,7 +41,7 @@ export async function PATCH(
 
     const now = new Date()
     const hoursUntilClass = (booking.class.startTime.getTime() - now.getTime()) / 3600000
-    const creditLost = hoursUntilClass < 1
+    const creditLost = hoursUntilClass < 2
 
     const updatedBooking = await prisma.$transaction(async tx => {
       const updated = await tx.booking.update({
@@ -89,7 +89,7 @@ export async function PATCH(
         const date = updatedBooking.class.startTime.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric' })
         const time = updatedBooking.class.startTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
         const creditNote = creditLost
-          ? 'This class was cancelled less than 1 hour before it started, so your credit was not returned.'
+          ? 'This class was cancelled less than 2 hours before it started, so your credit was not returned.'
           : 'Your credit has been returned to your account.'
         return sendEmail({
           to: user.email,

@@ -54,18 +54,11 @@ export async function GET(request: NextRequest) {
 
     // Build the Google Wallet "Save to Wallet" JWT
     // Note: `typ` here is a Google-specific payload claim, not the standard JWT header typ
+    // loyaltyClasses must be pre-created via the Google Wallet REST API — do not include inline.
     const walletJwt = await new SignJWT({
       origins: [] as string[],
       typ: 'savetowallet',
       payload: {
-        loyaltyClasses: [
-          {
-            id: classId,
-            issuerName: 'Ooma Wellness',
-            programName: 'Ooma Class Pass',
-            reviewStatus: 'UNDER_REVIEW',
-          },
-        ],
         loyaltyObjects: [loyaltyObject],
       },
     })
