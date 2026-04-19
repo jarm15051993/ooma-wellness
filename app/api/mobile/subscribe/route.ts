@@ -59,17 +59,26 @@ export async function POST(request: NextRequest) {
     const customerId = await getOrCreateStripeCustomer(userId)
 
     // Create Stripe subscription — stays incomplete until first payment is confirmed.
-    // Expanding latest_invoice.payment_intent gives us the clientSecret to pass to the app.
     const stripeSub = await stripe.subscriptions.create({
       customer:         customerId,
       items:            [{ price: pkg.stripePriceId }],
       payment_behavior: 'default_incomplete',
-      expand:           ['latest_invoice.payment_intent'],
       metadata:         { userId, packageId },
     })
 
-    const invoice       = stripeSub.latest_invoice as Stripe.Invoice
-    const paymentIntent = invoice.payment_intent   as Stripe.PaymentIntent
+    // Retrieve the latest invoice and expand its payment_intent to get the clientSecret.
+    // Done as a separate call because the Invoice type in newer Stripe API versions
+    // no longer exposes payment_intent as a top-level property.
+    const invoiceId = typeof stripeSub.latest_invoice === 'string'
+      ? stripeSub.latest_invoice
+      : (stripeSub.latest_invoice as any)?.id
+
+    if (!invoiceId) {
+      return NextResponse.json({ error: 'Failed to retrieve invoice' }, { status: 500 })
+    }
+
+    const invoice       = await stripe.invoices.retrieve(invoiceId, { expand: ['payment_intent'] })
+    const paymentIntent = (invoice as any).payment_intent as Stripe.PaymentIntent | null
 
     if (!paymentIntent?.client_secret) {
       return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 })
