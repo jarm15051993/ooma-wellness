@@ -76,10 +76,10 @@ export async function POST(request: NextRequest) {
 
     // In Stripe SDK v20, payment_intent moved to invoice.payments[0].payment.payment_intent.
     // List the invoice's payments and expand the nested payment_intent to get the client_secret.
-    const invoicePayments = await stripe.invoicePayments.list(
-      { invoice: invoiceId },
-      { expand: ['data.payment.payment_intent'] } as any,
-    )
+    const invoicePayments = await stripe.invoicePayments.list({
+      invoice: invoiceId,
+      expand: ['data.payment.payment_intent'],
+    } as any)
 
     const firstPayment  = invoicePayments.data[0]
     const paymentIntent = firstPayment?.payment?.payment_intent as Stripe.PaymentIntent | undefined
