@@ -77,10 +77,10 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     throw new Error('Subscription not found — retryable')
   }
 
-  // Retrieve fresh period dates from Stripe
-  const stripeSub   = await stripe.subscriptions.retrieve(stripeSubId)
-  const periodStart = new Date(stripeSub.current_period_start * 1000)
-  const periodEnd   = new Date(stripeSub.current_period_end   * 1000)
+  // Use invoice period dates — period_start/end are present on Invoice in all API versions.
+  // This also avoids an extra subscriptions.retrieve() call.
+  const periodStart = new Date(invoice.period_start * 1000)
+  const periodEnd   = new Date(invoice.period_end   * 1000)
 
   // Idempotency — if we already created credits for this period, skip
   const alreadyHandled = await prisma.userCredit.findFirst({
@@ -119,9 +119,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
         creditsRemaining: sub.package.isUnlimited ? 0 : sub.package.classCount,
         creditsTotal:     sub.package.isUnlimited ? 0 : sub.package.classCount,
         expiresAt:        periodEnd,
-        stripePaymentId:  typeof invoice.payment_intent === 'string'
-          ? invoice.payment_intent
-          : invoice.payment_intent?.id ?? null,
+        stripePaymentId:  invoice.id,
       },
     })
   })

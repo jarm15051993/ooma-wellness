@@ -4,10 +4,8 @@ import { verifyToken, extractBearerToken } from '@/lib/jwt'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateStripeCustomer } from '@/lib/stripe-customer'
 
-// Pin to a stable v1 API version — the v2 API (2026-01-28.clover) removed
-// current_period_start/end from Subscription and payment_intent from Invoice.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20' as any,
+  apiVersion: '2026-01-28.clover' as any,
 })
 
 export async function POST(request: NextRequest) {
@@ -61,24 +59,25 @@ export async function POST(request: NextRequest) {
     const customerId = await getOrCreateStripeCustomer(userId)
 
     // Create Stripe subscription — stays incomplete until first payment is confirmed.
-    // Expanding latest_invoice.payment_intent gives us the clientSecret to pass to the app.
+    // Expand latest_invoice so we can read the billing period and confirmation_secret
+    // (the v2 replacement for payment_intent.client_secret on Invoice).
     const stripeSub = await stripe.subscriptions.create({
       customer:         customerId,
       items:            [{ price: pkg.stripePriceId }],
       payment_behavior: 'default_incomplete',
-      expand:           ['latest_invoice.payment_intent'],
+      expand:           ['latest_invoice'],
       metadata:         { userId, packageId },
     })
 
-    const invoice       = stripeSub.latest_invoice as Stripe.Invoice
-    const paymentIntent = invoice.payment_intent   as Stripe.PaymentIntent
+    const invoice = stripeSub.latest_invoice as Stripe.Invoice
 
-    if (!paymentIntent?.client_secret) {
+    const clientSecret = invoice.confirmation_secret?.client_secret
+    if (!clientSecret) {
       return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 })
     }
 
-    const periodStart = new Date(stripeSub.current_period_start * 1000)
-    const periodEnd   = new Date(stripeSub.current_period_end   * 1000)
+    const periodStart = new Date(invoice.period_start * 1000)
+    const periodEnd   = new Date(invoice.period_end   * 1000)
 
     // Create the DB record immediately. The webhook (invoice.payment_succeeded)
     // will create the UserCredit once payment is confirmed. Status starts as
@@ -96,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       subscription,
-      clientSecret: paymentIntent.client_secret,
+      clientSecret,
     })
   } catch (error: any) {
     console.error('[mobile/subscribe] Error:', error)
