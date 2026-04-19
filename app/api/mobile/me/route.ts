@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
         createdAt: true,
         updatedAt: true,
         isBeta: true,
+        isClubMember: true,
         role: true,
         language: true,
         goals: true,
