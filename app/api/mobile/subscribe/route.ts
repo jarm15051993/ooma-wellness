@@ -50,10 +50,18 @@ export async function POST(request: NextRequest) {
 
     // Prevent duplicate active subscription for the same package
     const existing = await prisma.subscription.findFirst({
-      where: { userId, packageId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
+      where:   { userId, packageId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
+      include: { credits: { take: 1 } },
     })
     if (existing) {
-      return NextResponse.json({ error: 'You already have an active subscription for this package' }, { status: 409 })
+      // If it has no credits the previous payment never completed — clean it up
+      // automatically so the user can retry instead of being permanently blocked.
+      if (existing.credits.length === 0) {
+        try { await stripe.subscriptions.cancel(existing.stripeSubscriptionId) } catch {}
+        await prisma.subscription.delete({ where: { id: existing.id } })
+      } else {
+        return NextResponse.json({ error: 'You already have an active subscription for this package' }, { status: 409 })
+      }
     }
 
     const customerId = await getOrCreateStripeCustomer(userId)
