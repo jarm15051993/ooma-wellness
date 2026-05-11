@@ -9,33 +9,43 @@ export async function GET(request: NextRequest) {
     const payload = await verifyToken(token)
     const userId  = payload.userId
 
-    const subscriptions = await prisma.subscription.findMany({
-      where:   { userId },
-      include: {
-        package: {
-          select: {
-            name:        true,
-            packageType: true,
-            isUnlimited: true,
-            classCount:  true,
-            price:       true,
+    const [subscriptions, standaloneCredits] = await Promise.all([
+      prisma.subscription.findMany({
+        where:   { userId },
+        include: {
+          package: {
+            select: {
+              name:        true,
+              packageType: true,
+              isUnlimited: true,
+              classCount:  true,
+              price:       true,
+            },
+          },
+          credits: {
+            where:   { expiresAt: { gte: new Date() } },
+            orderBy: { createdAt: 'desc' },
+            take:    1,
           },
         },
-        // Return the most recent credit for this period (to show classes remaining)
-        credits: {
-          where:   { expiresAt: { gte: new Date() } },
-          orderBy: { createdAt: 'desc' },
-          take:    1,
+        orderBy: [
+          { status: 'asc' },
+          { currentPeriodEnd: 'asc' },
+        ],
+      }),
+      // Credits not linked to any subscription (e.g. welcome gift, manual grants)
+      prisma.userCredit.findMany({
+        where: {
+          userId,
+          subscriptionId: null,
+          creditsRemaining: { gt: 0 },
+          OR: [{ expiresAt: null }, { expiresAt: { gte: new Date() } }],
         },
-      },
-      orderBy: [
-        // ACTIVE before CANCELLED/PAST_DUE/EXPIRED
-        { status: 'asc' },
-        { currentPeriodEnd: 'asc' },
-      ],
-    })
+        include: { package: { select: { name: true, packageType: true } } },
+      }),
+    ])
 
-    return NextResponse.json({ subscriptions })
+    return NextResponse.json({ subscriptions, standaloneCredits })
   } catch (error: any) {
     console.error('[mobile/subscriptions] Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

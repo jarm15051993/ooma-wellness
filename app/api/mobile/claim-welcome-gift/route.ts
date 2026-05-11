@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
         expiresAt: null,
         stripePaymentId: null,
       },
+      include: { package: { select: { name: true, packageType: true } } },
     })
 
     triggerWalletPassUpdate(userId).catch(err =>
