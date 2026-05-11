@@ -487,6 +487,8 @@ footer {
 .footer-logo svg { display: block; width: 100%; height: auto; }
 .footer-tagline { font-size: 11.5px; color: var(--mgray); line-height: 1.8; font-weight: 300; }
 .footer-location { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--lgray); margin-top: 6px; }
+.footer-privacy { display: inline-block; font-size: 10px; letter-spacing: .12em; color: var(--lgray); text-decoration: none; margin-top: 10px; transition: color .2s; }
+.footer-privacy:hover { color: var(--terra); }
 .footer-col-title {
   font-size: 8px; letter-spacing: .36em; text-transform: uppercase;
   color: var(--terra); display: block; margin-bottom: 20px;
@@ -1227,6 +1229,7 @@ const bodyHtml = `
       <a href="#hero" class="footer-logo" aria-label="OOMA Wellness Club">${WORDMARK}</a>
       <p class="footer-tagline">Movimiento consciente.<br>Bienestar real. Comunidad.</p>
       <p class="footer-location">Tortosa · Terres de l'Ebre</p>
+      <a href="/privacy" class="footer-privacy">Política de privacidad</a>
     </div>
     <div>
       <span class="footer-col-title">Estudio</span>

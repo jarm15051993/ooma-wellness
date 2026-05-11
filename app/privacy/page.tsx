@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Ooma Wellness',
+  title: 'Política de Privacidad — Ooma Wellness',
 }
 
 export default function PrivacyPage() {
@@ -11,19 +11,19 @@ export default function PrivacyPage() {
 
         {/* Header */}
         <p className="text-xs tracking-[0.2em] uppercase text-mgray mb-3">Ooma Wellness</p>
-        <h1 className="font-serif text-4xl text-ink mb-2">Privacy Policy</h1>
-        <p className="text-xs text-mgray mb-12">Last updated: May 11, 2026</p>
+        <h1 className="font-serif text-4xl text-ink mb-2">Política de Privacidad</h1>
+        <p className="text-xs text-mgray mb-12">Última actualización: 11 de mayo de 2026</p>
 
         <div className="space-y-10 text-ink">
 
           <section>
-            <h2 className="section-heading">1. Who We Are</h2>
+            <h2 className="section-heading">1. Responsable del tratamiento</h2>
             <p className="body-text">
-              Ooma Wellness ("<strong>we</strong>", "<strong>us</strong>", "<strong>our</strong>") operates the Ooma Wellness mobile
-              application and the website at oomawellness.shop. We are the data controller responsible for your personal data.
+              Ooma Wellness ("<strong>nosotros</strong>") es el responsable del tratamiento de los datos personales recogidos
+              a través de la aplicación móvil Ooma Wellness y del sitio web oomawellness.shop.
             </p>
             <p className="body-text mt-3">
-              <strong>Contact:</strong>{' '}
+              <strong>Contacto:</strong>{' '}
               <a href="mailto:admin@oomawellness.shop" className="text-burg underline">
                 admin@oomawellness.shop
               </a>
@@ -33,29 +33,29 @@ export default function PrivacyPage() {
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">2. What Data We Collect</h2>
-            <p className="body-text mb-4">We collect the following categories of personal data:</p>
+            <h2 className="section-heading">2. Datos que recogemos</h2>
+            <p className="body-text mb-4">Recogemos las siguientes categorías de datos personales:</p>
 
             <div className="space-y-4">
               <div>
-                <p className="label-text">Account Information</p>
-                <p className="body-text">First name, last name, email address, phone number, date of birth, profile photo, and national identity document (DNI/NIE) where provided.</p>
+                <p className="label-text">Datos de cuenta</p>
+                <p className="body-text">Nombre, apellidos, dirección de correo electrónico, número de teléfono, fecha de nacimiento, foto de perfil y documento de identidad (DNI/NIE) cuando se facilita.</p>
               </div>
               <div>
-                <p className="label-text">Health &amp; Fitness Information</p>
-                <p className="body-text">Fitness goals and any medical conditions or physical considerations you choose to share with us during onboarding. Providing this information is entirely voluntary.</p>
+                <p className="label-text">Información de salud y bienestar</p>
+                <p className="body-text">Objetivos de actividad física y condiciones médicas o consideraciones físicas que decidas compartir durante el proceso de registro. Facilitar esta información es completamente voluntario.</p>
               </div>
               <div>
-                <p className="label-text">Booking &amp; Attendance Data</p>
-                <p className="body-text">Records of classes booked, cancelled, and attended, including timestamps and class type.</p>
+                <p className="label-text">Datos de reservas y asistencia</p>
+                <p className="body-text">Registro de clases reservadas, canceladas y asistidas, incluyendo fecha, hora y tipo de clase.</p>
               </div>
               <div>
-                <p className="label-text">Payment Information</p>
-                <p className="body-text">Transaction amounts and dates. Payment card details are processed directly by Stripe and are never stored on our servers. See <a href="https://stripe.com/privacy" className="text-burg underline" target="_blank" rel="noopener noreferrer">Stripe's Privacy Policy</a>.</p>
+                <p className="label-text">Datos de pago</p>
+                <p className="body-text">Importes y fechas de transacciones. Los datos de tarjeta de crédito son procesados directamente por Stripe y nunca se almacenan en nuestros servidores. Consulta la <a href="https://stripe.com/es/privacy" className="text-burg underline" target="_blank" rel="noopener noreferrer">Política de Privacidad de Stripe</a>.</p>
               </div>
               <div>
-                <p className="label-text">Technical Data</p>
-                <p className="body-text">IP address, device type, operating system version, and standard server access logs collected automatically when you use the app or website.</p>
+                <p className="label-text">Datos técnicos</p>
+                <p className="body-text">Dirección IP, tipo de dispositivo, versión del sistema operativo y registros de acceso estándar generados automáticamente al utilizar la app o el sitio web.</p>
               </div>
             </div>
           </section>
@@ -63,24 +63,24 @@ export default function PrivacyPage() {
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">3. How We Use Your Data</h2>
+            <h2 className="section-heading">3. Finalidades y base jurídica</h2>
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="border-b border-rule">
-                  <th className="text-left py-2 pr-4 font-medium text-mgray text-xs tracking-widest uppercase">Purpose</th>
-                  <th className="text-left py-2 font-medium text-mgray text-xs tracking-widest uppercase">Legal Basis</th>
+                  <th className="text-left py-2 pr-4 font-medium text-mgray text-xs tracking-widest uppercase">Finalidad</th>
+                  <th className="text-left py-2 font-medium text-mgray text-xs tracking-widest uppercase">Base jurídica</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-rule">
                 {[
-                  ['Creating and managing your account', 'Contract performance'],
-                  ['Processing class bookings and subscriptions', 'Contract performance'],
-                  ['Processing payments via Stripe', 'Contract performance'],
-                  ['Sending booking confirmations and reminders', 'Contract performance'],
-                  ['Verifying identity for check-in (QR code)', 'Contract performance'],
-                  ['Personalising your experience (goals, class type)', 'Legitimate interest'],
-                  ['Preventing fraud and ensuring platform security', 'Legitimate interest'],
-                  ['Complying with legal and tax obligations', 'Legal obligation'],
+                  ['Crear y gestionar tu cuenta', 'Ejecución de contrato'],
+                  ['Gestionar reservas y suscripciones', 'Ejecución de contrato'],
+                  ['Procesar pagos a través de Stripe', 'Ejecución de contrato'],
+                  ['Enviar confirmaciones y recordatorios de clases', 'Ejecución de contrato'],
+                  ['Verificar identidad en el acceso (código QR)', 'Ejecución de contrato'],
+                  ['Personalizar tu experiencia (objetivos, tipo de clase)', 'Interés legítimo'],
+                  ['Prevenir fraudes y garantizar la seguridad', 'Interés legítimo'],
+                  ['Cumplir obligaciones legales y fiscales', 'Obligación legal'],
                 ].map(([purpose, basis]) => (
                   <tr key={purpose}>
                     <td className="py-3 pr-4 text-ink">{purpose}</td>
@@ -94,14 +94,14 @@ export default function PrivacyPage() {
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">4. Who We Share Your Data With</h2>
-            <p className="body-text mb-4">We do not sell your personal data. We share it only with the following service providers, solely to operate the service:</p>
+            <h2 className="section-heading">4. Destinatarios de los datos</h2>
+            <p className="body-text mb-4">No vendemos tus datos personales. Solo los compartimos con los siguientes proveedores de servicios, únicamente para el funcionamiento del servicio:</p>
             <div className="space-y-3">
               {[
-                ['Stripe', 'Payment processing', 'stripe.com/privacy'],
-                ['Supabase', 'Database hosting (EU region)', 'supabase.com/privacy'],
-                ['Vercel', 'Application hosting', 'vercel.com/legal/privacy-policy'],
-                ['Expo / EAS', 'Mobile app distribution', 'expo.dev/privacy'],
+                ['Stripe', 'Procesamiento de pagos', 'stripe.com/es/privacy'],
+                ['Supabase', 'Alojamiento de base de datos (región UE)', 'supabase.com/privacy'],
+                ['Vercel', 'Alojamiento de la aplicación', 'vercel.com/legal/privacy-policy'],
+                ['Expo / EAS', 'Distribución de la app móvil', 'expo.dev/privacy'],
               ].map(([name, role, url]) => (
                 <div key={name} className="flex items-start gap-3">
                   <span className="text-mgray mt-0.5">—</span>
@@ -115,37 +115,37 @@ export default function PrivacyPage() {
               ))}
             </div>
             <p className="body-text mt-4">
-              We may also disclose data when required by law or to protect the rights and safety of our users.
+              También podremos facilitar datos cuando lo exija la ley o para proteger los derechos y la seguridad de nuestros usuarios.
             </p>
           </section>
 
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">5. Data Retention</h2>
+            <h2 className="section-heading">5. Plazos de conservación</h2>
             <p className="body-text">
-              We retain your personal data for as long as your account is active. When you delete your account, your profile is
-              immediately anonymised. Financial and transaction records are retained for 7 years to comply with Spanish tax law
-              (Ley General Tributaria). Booking history is retained for 3 years for operational purposes.
+              Conservamos tus datos personales mientras tu cuenta esté activa. Cuando eliminas tu cuenta, tus datos de perfil
+              se anonimizan de inmediato. Los registros financieros y de transacciones se conservan durante 7 años en cumplimiento
+              de la Ley General Tributaria. El historial de reservas se conserva durante 3 años con fines operativos.
             </p>
           </section>
 
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">6. Your Rights (GDPR)</h2>
+            <h2 className="section-heading">6. Tus derechos (RGPD)</h2>
             <p className="body-text mb-4">
-              If you are located in the European Economic Area, you have the following rights regarding your personal data:
+              Si te encuentras en el Espacio Económico Europeo, tienes los siguientes derechos sobre tus datos personales:
             </p>
             <div className="space-y-2">
               {[
-                ['Access', 'Request a copy of the data we hold about you.'],
-                ['Rectification', 'Correct inaccurate or incomplete data directly in the app or by contacting us.'],
-                ['Erasure', 'Delete your account and anonymise your personal data at any time from the Profile screen in the app.'],
-                ['Restriction', 'Ask us to restrict processing of your data in certain circumstances.'],
-                ['Portability', 'Receive your data in a structured, machine-readable format.'],
-                ['Objection', 'Object to processing based on legitimate interest.'],
-                ['Withdrawal of consent', 'Where processing is based on consent, withdraw it at any time without affecting prior processing.'],
+                ['Acceso', 'Solicitar una copia de los datos que conservamos sobre ti.'],
+                ['Rectificación', 'Corregir datos inexactos o incompletos directamente en la app o contactándonos.'],
+                ['Supresión', 'Eliminar tu cuenta y anonimizar tus datos personales en cualquier momento desde la pantalla de Perfil de la app.'],
+                ['Limitación', 'Solicitar que restrinjamos el tratamiento de tus datos en determinadas circunstancias.'],
+                ['Portabilidad', 'Recibir tus datos en un formato estructurado y legible por máquina.'],
+                ['Oposición', 'Oponerte al tratamiento basado en interés legítimo.'],
+                ['Retirada del consentimiento', 'Cuando el tratamiento se base en el consentimiento, retirarlo en cualquier momento sin que ello afecte al tratamiento previo.'],
               ].map(([right, desc]) => (
                 <div key={right} className="flex gap-3">
                   <span className="text-mgray mt-0.5 shrink-0">—</span>
@@ -154,11 +154,11 @@ export default function PrivacyPage() {
               ))}
             </div>
             <p className="body-text mt-4">
-              To exercise any of these rights, contact us at{' '}
+              Para ejercer cualquiera de estos derechos, contáctanos en{' '}
               <a href="mailto:admin@oomawellness.shop" className="text-burg underline">
                 admin@oomawellness.shop
-              </a>. We will respond within 30 days. You also have the right to lodge a complaint with the Spanish Data
-              Protection Agency (
+              </a>. Responderemos en un plazo de 30 días. También tienes derecho a presentar una reclamación ante la Agencia
+              Española de Protección de Datos (
               <a href="https://www.aepd.es" className="text-burg underline" target="_blank" rel="noopener noreferrer">
                 aepd.es
               </a>).
@@ -168,40 +168,40 @@ export default function PrivacyPage() {
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">7. Security</h2>
+            <h2 className="section-heading">7. Seguridad</h2>
             <p className="body-text">
-              We use industry-standard measures to protect your data, including encrypted connections (HTTPS/TLS), secure token
-              authentication, and access controls limiting who can view personal information. No system is completely secure;
-              if you believe your account has been compromised, contact us immediately.
+              Aplicamos medidas de seguridad estándar del sector para proteger tus datos, incluyendo conexiones cifradas (HTTPS/TLS),
+              autenticación segura mediante tokens y controles de acceso que limitan quién puede consultar la información personal.
+              Ningún sistema es completamente seguro; si crees que tu cuenta ha sido comprometida, contáctanos de inmediato.
             </p>
           </section>
 
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">8. Children</h2>
+            <h2 className="section-heading">8. Menores de edad</h2>
             <p className="body-text">
-              Our service is not directed to children under 16. We do not knowingly collect personal data from children.
-              If you believe a child has provided us with personal data, please contact us so we can delete it.
+              Nuestro servicio no está dirigido a menores de 16 años. No recogemos conscientemente datos personales de menores.
+              Si crees que un menor nos ha facilitado datos personales, contáctanos para que podamos eliminarlos.
             </p>
           </section>
 
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">9. Changes to This Policy</h2>
+            <h2 className="section-heading">9. Cambios en esta política</h2>
             <p className="body-text">
-              We may update this policy from time to time. When we do, we will update the date at the top of this page.
-              For significant changes we will notify you via the app or email.
+              Podemos actualizar esta política periódicamente. Cuando lo hagamos, actualizaremos la fecha que figura al comienzo
+              de esta página. Para cambios significativos te notificaremos a través de la app o por correo electrónico.
             </p>
           </section>
 
           <div className="border-t border-rule" />
 
           <section>
-            <h2 className="section-heading">10. Contact</h2>
+            <h2 className="section-heading">10. Contacto</h2>
             <p className="body-text">
-              For any privacy-related questions or requests, please contact us at{' '}
+              Para cualquier consulta o solicitud relacionada con la privacidad, contáctanos en{' '}
               <a href="mailto:admin@oomawellness.shop" className="text-burg underline">
                 admin@oomawellness.shop
               </a>.
@@ -210,7 +210,7 @@ export default function PrivacyPage() {
 
         </div>
 
-        <p className="text-xs text-mgray mt-16 pb-8">© {new Date().getFullYear()} Ooma Wellness. All rights reserved.</p>
+        <p className="text-xs text-mgray mt-16 pb-8">© {new Date().getFullYear()} Ooma Wellness. Todos los derechos reservados.</p>
       </div>
 
       <style>{`
