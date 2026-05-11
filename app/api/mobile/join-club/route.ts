@@ -43,10 +43,11 @@ export async function POST(request: NextRequest) {
     // Client confirms via the existing payment-sheet flow.
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      currency:      'eur',
-      customer:      customerId,
-      receipt_email: user.email,
-      metadata:      { userId, type: 'club_membership' },
+      currency:                   'eur',
+      customer:                   customerId,
+      receipt_email:              user.email,
+      automatic_payment_methods:  { enabled: true },
+      metadata:                   { userId, type: 'club_membership' },
     })
 
     return NextResponse.json({ clientSecret: paymentIntent.client_secret })

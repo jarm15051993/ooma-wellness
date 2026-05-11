@@ -92,7 +92,14 @@ export async function POST(request: NextRequest) {
 
     const invoice     = invoiceRaw as Stripe.Invoice
     const periodStart = new Date(invoice.period_start * 1000)
-    const periodEnd   = new Date(invoice.period_end   * 1000)
+    // For default_incomplete subscriptions, period_end === period_start because
+    // the billing period hasn't started yet. Compute a provisional end date of
+    // +1 month; the webhook (invoice.payment_succeeded) will overwrite this with
+    // the correct value from the paid invoice.
+    const rawPeriodEnd = new Date(invoice.period_end * 1000)
+    const periodEnd = rawPeriodEnd <= periodStart
+      ? new Date(new Date(periodStart).setMonth(periodStart.getMonth() + 1))
+      : rawPeriodEnd
 
     // Create the DB record immediately. The webhook (invoice.payment_succeeded)
     // will create the UserCredit once payment is confirmed. Status starts as
