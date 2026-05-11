@@ -1229,7 +1229,7 @@ const bodyHtml = `
       <a href="#hero" class="footer-logo" aria-label="OOMA Wellness Club">${WORDMARK}</a>
       <p class="footer-tagline">Movimiento consciente.<br>Bienestar real. Comunidad.</p>
       <p class="footer-location">Tortosa · Terres de l'Ebre</p>
-      <a href="/privacy" class="footer-privacy">Política de privacidad</a>
+      <a href="/privacy" class="footer-privacy" target="_blank" rel="noopener noreferrer">Política de privacidad</a>
     </div>
     <div>
       <span class="footer-col-title">Estudio</span>
