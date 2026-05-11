@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const activationToken = crypto.randomUUID()
 
     const user = await prisma.user.create({
-      data: { email, activationToken, isBeta: false },
+      data: { email, activationToken, isBeta: process.env.NEW_USER_BETA !== 'false' },
     })
 
     const appUrl = getAppUrl()
