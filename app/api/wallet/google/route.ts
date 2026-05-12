@@ -58,11 +58,12 @@ export async function GET(request: NextRequest) {
       hexBackgroundColor: '#0D0D0D',
     }
 
-    // Normalize key: handle literal \n strings, extra spaces, or missing newlines
     const privateKeyPem = privateKeyRaw
       .replace(/\\n/g, '\n')
       .replace(/\n+/g, '\n')
       .trim()
+    console.log('[wallet/google] key starts:', privateKeyPem.substring(0, 40))
+    console.log('[wallet/google] key ends:', privateKeyPem.substring(privateKeyPem.length - 40))
     const privateKey = await importPKCS8(privateKeyPem, 'RS256')
 
     const walletJwt = await new SignJWT({
