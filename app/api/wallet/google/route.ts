@@ -63,10 +63,14 @@ export async function GET(request: NextRequest) {
       : Buffer.from(privateKeyRaw, 'base64').toString('utf8')
     const privateKey = await importPKCS8(privateKeyPem, 'RS256')
 
+    const genericClass = {
+      id: classId,
+    }
+
     const walletJwt = await new SignJWT({
       origins: ['https://oomawellness.shop'],
       typ:     'savetowallet',
-      payload: { genericObjects: [genericObject] },
+      payload: { genericClasses: [genericClass], genericObjects: [genericObject] },
     })
       .setProtectedHeader({ alg: 'RS256' })
       .setIssuer(serviceAccountEmail)
