@@ -10,66 +10,69 @@ export async function GET(request: NextRequest) {
 
     const payload = await verifyToken(token)
 
-    if (!process.env.GOOGLE_WALLET_CREDENTIALS || !process.env.GOOGLE_WALLET_ISSUER_ID) {
+    const serviceAccountEmail = process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
+    const privateKeyRaw        = process.env.GOOGLE_WALLET_PRIVATE_KEY
+    const issuerId             = process.env.GOOGLE_WALLET_ISSUER_ID
+
+    if (!serviceAccountEmail || !privateKeyRaw || !issuerId) {
       return NextResponse.json({ error: 'Google Wallet not configured' }, { status: 503 })
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+      where:  { id: payload.userId },
       select: { id: true, name: true, lastName: true, qrCode: true },
     })
 
-    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    if (!user)        return NextResponse.json({ error: 'User not found' }, { status: 404 })
     if (!user.qrCode) return NextResponse.json({ error: 'QR code not yet generated' }, { status: 400 })
 
     const fullName = [user.name, user.lastName].filter(Boolean).join(' ') || 'Ooma Member'
-
-    const credentials = JSON.parse(process.env.GOOGLE_WALLET_CREDENTIALS)
-    const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID
-    const classId = `${issuerId}.ooma_class_pass`
-    // Object IDs must be alphanumeric + underscores/dots
+    const classId  = `${issuerId}.membership`
     const objectId = `${issuerId}.user_${user.id.replace(/[^a-zA-Z0-9_.-]/g, '_')}`
 
-    const loyaltyObject = {
-      id: objectId,
+    const genericObject = {
+      id:      objectId,
       classId,
-      state: 'ACTIVE',
-      accountName: fullName,
-      accountId: user.id,
+      state:   'ACTIVE',
+      logo: {
+        sourceUri: { uri: 'https://oomawellness.shop/logo.png' },
+        contentDescription: { defaultValue: { language: 'es', value: 'OOMA Logo' } },
+      },
+      cardTitle: {
+        defaultValue: { language: 'es', value: 'OOMA' },
+      },
+      header: {
+        defaultValue: { language: 'es', value: 'Class Pass' },
+      },
+      subheader: {
+        defaultValue: { language: 'es', value: 'MEMBERSHIP' },
+      },
       textModulesData: [
-        {
-          header: 'MEMBERSHIP',
-          body: 'Class Pass',
-          id: 'membership',
-        },
+        { header: 'MEMBER', body: fullName, id: 'member' },
       ],
       barcode: {
-        type: 'QR_CODE',
-        value: user.qrCode,
-        alternateText: '',
+        type:          'QR_CODE',
+        value:         user.qrCode,
+        alternateText: user.qrCode,
       },
+      hexBackgroundColor: '#0D0D0D',
     }
 
-    const privateKey = await importPKCS8(credentials.private_key, 'RS256')
+    const privateKey = await importPKCS8(privateKeyRaw.replace(/\\n/g, '\n'), 'RS256')
 
-    // Build the Google Wallet "Save to Wallet" JWT
-    // Note: `typ` here is a Google-specific payload claim, not the standard JWT header typ
-    // loyaltyClasses must be pre-created via the Google Wallet REST API — do not include inline.
     const walletJwt = await new SignJWT({
-      origins: [] as string[],
-      typ: 'savetowallet',
-      payload: {
-        loyaltyObjects: [loyaltyObject],
-      },
+      origins: ['https://oomawellness.shop'],
+      typ:     'savetowallet',
+      payload: { genericObjects: [genericObject] },
     })
       .setProtectedHeader({ alg: 'RS256' })
-      .setIssuer(credentials.client_email)
+      .setIssuer(serviceAccountEmail)
       .setAudience('google')
       .sign(privateKey)
 
     return NextResponse.json({ saveUrl: `https://pay.google.com/gp/v/save/${walletJwt}` })
   } catch (error) {
-    console.error('Google Wallet error:', error)
+    console.error('[wallet/google] Error:', error)
     return NextResponse.json({ error: 'Failed to generate pass' }, { status: 500 })
   }
 }
