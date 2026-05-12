@@ -58,7 +58,12 @@ export async function GET(request: NextRequest) {
       hexBackgroundColor: '#0D0D0D',
     }
 
-    const privateKey = await importPKCS8(privateKeyRaw.replace(/\\n/g, '\n'), 'RS256')
+    // Normalize key: handle literal \n strings, extra spaces, or missing newlines
+    const privateKeyPem = privateKeyRaw
+      .replace(/\\n/g, '\n')
+      .replace(/\n+/g, '\n')
+      .trim()
+    const privateKey = await importPKCS8(privateKeyPem, 'RS256')
 
     const walletJwt = await new SignJWT({
       origins: ['https://oomawellness.shop'],
@@ -71,8 +76,8 @@ export async function GET(request: NextRequest) {
       .sign(privateKey)
 
     return NextResponse.json({ saveUrl: `https://pay.google.com/gp/v/save/${walletJwt}` })
-  } catch (error) {
+  } catch (error: any) {
     console.error('[wallet/google] Error:', error)
-    return NextResponse.json({ error: 'Failed to generate pass' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to generate pass', detail: error?.message }, { status: 500 })
   }
 }
