@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
       select: {
+        tokenVersion: true,
         id: true,
         email: true,
         name: true,
@@ -42,7 +43,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const { role, canValidateAttendance, userGoals, goals, language, ...userFields } = user
+    if ((payload.tokenVersion ?? 0) !== user.tokenVersion) {
+      return NextResponse.json({ error: 'Session expired' }, { status: 401 })
+    }
+
+    const { role, canValidateAttendance, userGoals, goals, language, tokenVersion: _tv, ...userFields } = user
     const isBeta = role === 'ADMIN' || role === 'OWNER' ? false : user.isBeta
     // Admins and owners always see English; students use their stored language preference
     const resolvedLanguage = (role === 'ADMIN' || role === 'OWNER') ? 'en' : (language ?? 'es')

@@ -14,6 +14,7 @@ export interface TokenPayload extends JWTPayload {
   canBulkUpload: boolean
   canMarkAsStudent: boolean
   isStudent: boolean
+  tokenVersion: number
 }
 
 export async function signToken(payload: {
@@ -27,6 +28,7 @@ export async function signToken(payload: {
   canBulkUpload: boolean
   canMarkAsStudent: boolean
   isStudent: boolean
+  tokenVersion: number
 }): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })

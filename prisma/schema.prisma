@@ -65,6 +65,7 @@ model User {
   dni                   String?  @unique
   stripeCustomerId      String?  @unique
   isClubMember          Boolean  @default(false)
+  tokenVersion          Int      @default(1)
   deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
