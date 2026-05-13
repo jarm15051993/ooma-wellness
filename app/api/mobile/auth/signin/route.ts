@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       canBulkUpload: isOwner || user.canBulkUpload,
       canMarkAsStudent: isOwner || user.canMarkAsStudent,
       isStudent: user.isStudent,
+      tokenVersion: user.tokenVersion,
     })
 
     const { password: _, isAdmin: __, ...userWithoutPassword } = user

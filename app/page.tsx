@@ -1254,7 +1254,7 @@ const bodyHtml = `
   </div>
   <hr class="footer-rule">
   <div class="footer-bottom">
-    <p class="footer-copy">© 2026 OOMA Wellness Club · Tortosa · Todos los derechos reservados</p>
+    <p class="footer-copy">© 2026 OOMA Wellness Club · Tortosa · Todos los derechos reservados · <a href="https://oomawellness.shop/privacy" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;text-underline-offset:3px;">Política de Privacidad</a></p>
     <div class="footer-socials">
       <a href="#" aria-label="Instagram">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
