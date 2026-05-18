@@ -18,6 +18,9 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "OOMA Wellness Club — Tortosa",
   description: "Movimiento consciente. Bienestar real. Comunidad. Pilates Reformer y Yoga en Tortosa, Terres de l'Ebre.",
+  verification: {
+    google: "a0mkXEiEArC3niOmqgtiOqFzAdEKrHOv5FnDvRGDO_4",
+  },
 };
 
 export default function RootLayout({
