@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
         updatedAt: true,
         isBeta: true,
         isClubMember: true,
+        isKiosk: true,
         role: true,
         canValidateAttendance: true,
         language: true,
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Session expired' }, { status: 401 })
     }
 
-    const { role, canValidateAttendance, userGoals, goals, language, tokenVersion: _tv, ...userFields } = user
+    const { role, canValidateAttendance, userGoals, goals, language, tokenVersion: _tv, isKiosk, ...userFields } = user
     const isBeta = role === 'ADMIN' || role === 'OWNER' ? false : user.isBeta
     // Admins and owners always see English; students use their stored language preference
     const resolvedLanguage = (role === 'ADMIN' || role === 'OWNER') ? 'en' : (language ?? 'es')
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
       ? userGoals.map(ug => ug.goal.label).join(', ')
       : goals
 
-    return NextResponse.json({ user: { ...userFields, isBeta, canValidateAttendance, language: resolvedLanguage, goals: goalsDisplay, userGoalIds } }, { status: 200 })
+    return NextResponse.json({ user: { ...userFields, isBeta, isKiosk, canValidateAttendance, language: resolvedLanguage, goals: goalsDisplay, userGoalIds } }, { status: 200 })
   } catch (error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

@@ -66,6 +66,7 @@ model User {
   stripeCustomerId      String?  @unique
   isClubMember          Boolean  @default(false)
   tokenVersion          Int      @default(1)
+  isKiosk               Boolean  @default(false)
   deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
