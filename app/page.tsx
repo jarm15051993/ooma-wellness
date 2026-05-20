@@ -1003,14 +1003,14 @@ const bodyHtml = `
             <td>10 €</td>
           </tr>
           <tr>
-            <td>Mensual · 12 clases</td>
-            <td>108 €</td>
+            <td>Mensual · 15 clases</td>
+            <td>135 €</td>
             <td>9 €</td>
           </tr>
           <tr class="row-ilimitadas">
             <td>Mensual ilimitadas</td>
-            <td>120 €</td>
-            <td>≈5,45 €*</td>
+            <td>150 €</td>
+            <td>≈6,82 €*</td>
           </tr>
         </tbody>
       </table>
