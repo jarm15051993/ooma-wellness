@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     await Promise.all(
       activeSubscriptions.map(async (sub) => {
         try {
-          const upcoming = await stripe.invoices.retrieveUpcoming({
+          const upcoming = await stripe.invoices.createPreview({
             subscription: sub.stripeSubscriptionId,
           })
           nextInvoices[sub.id] = {
