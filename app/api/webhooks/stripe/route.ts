@@ -44,6 +44,10 @@ export async function POST(request: NextRequest) {
         await handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
         break
 
+      case 'payment_intent.succeeded':
+        await handleOneTimePaymentSucceeded(event.data.object as Stripe.PaymentIntent)
+        break
+
       default:
         // Ignore unhandled event types
         break
@@ -207,4 +211,66 @@ async function handleSubscriptionDeleted(stripeSub: Stripe.Subscription) {
     where: { id: sub.id },
     data:  { status: 'EXPIRED' },
   })
+}
+
+// ─── payment_intent.succeeded ─────────────────────────────────────────────
+// Fires for one-time package purchases (isRecurring = false).
+// Creates UserCredit and marks the placeholder subscription ACTIVE.
+async function handleOneTimePaymentSucceeded(pi: Stripe.PaymentIntent) {
+  if (pi.metadata?.type !== 'one_time_package') return
+
+  const subscriptionId = pi.metadata?.subscriptionId
+  if (!subscriptionId) return
+
+  const sub = await prisma.subscription.findUnique({
+    where:   { id: subscriptionId },
+    include: { package: true, user: true },
+  })
+  if (!sub) {
+    console.warn('[webhook/stripe] One-time subscription not found:', subscriptionId)
+    throw new Error('Subscription not found — retryable')
+  }
+
+  // Idempotency — skip if credit already provisioned
+  const alreadyHandled = await prisma.userCredit.findFirst({
+    where: { subscriptionId: sub.id },
+  })
+  if (alreadyHandled) return
+
+  const periodEnd = sub.currentPeriodEnd
+
+  await prisma.$transaction(async (tx) => {
+    await tx.userCredit.create({
+      data: {
+        userId:           sub.userId,
+        packageId:        sub.packageId,
+        subscriptionId:   sub.id,
+        packageType:      sub.package.packageType,
+        isUnlimited:      sub.package.isUnlimited,
+        creditsRemaining: sub.package.isUnlimited ? 0 : sub.package.classCount,
+        creditsTotal:     sub.package.isUnlimited ? 0 : sub.package.classCount,
+        expiresAt:        endOfDay(periodEnd),
+        stripePaymentId:  pi.id,
+      },
+    })
+
+    await tx.subscription.update({
+      where: { id: sub.id },
+      data:  { stripeSubscriptionId: pi.id, status: 'ACTIVE' },
+    })
+  })
+
+  sendEmail({
+    to:       sub.user.email,
+    type:     'package_purchase',
+    language: (sub.user.language as any) ?? 'es',
+    userId:   sub.user.id,
+    vars: {
+      name:        sub.user.name ?? '',
+      packageName: sub.package.name,
+      classCount:  sub.package.isUnlimited ? '∞' : sub.package.classCount.toString(),
+      amount:      sub.package.price.toFixed(2),
+      renewsAt:    periodEnd.toLocaleDateString('es-ES'),
+    },
+  }).catch(err => console.error('[webhook/stripe] Failed to send one-time purchase email:', err))
 }

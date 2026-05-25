@@ -26,27 +26,75 @@ export async function POST(request: NextRequest) {
         classCount:       true,
         price:            true,
         active:           true,
+        durationDays:     true,
         isStudentPackage: true,
         stripePriceId:    true,
         packageType:      true,
         isUnlimited:      true,
+        isRecurring:      true,
       },
     })
 
     if (!pkg || !pkg.active) {
       return NextResponse.json({ error: 'Package not found' }, { status: 404 })
     }
-    if (!pkg.stripePriceId) {
+    if (!pkg.isRecurring && pkg.price === 0) {
+      return NextResponse.json({ error: 'This package is not available for purchase' }, { status: 400 })
+    }
+    if (pkg.isRecurring && !pkg.stripePriceId) {
       return NextResponse.json({ error: 'Package is not available for subscription' }, { status: 400 })
     }
 
     // Enforce student-only packages server-side
     if (pkg.isStudentPackage) {
-      const user = await prisma.user.findUnique({ where: { id: userId }, select: { isStudent: true } })
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { isStudent: true, email: true } })
       if (!user?.isStudent) {
         return NextResponse.json({ error: 'This package is only available to students.' }, { status: 403 })
       }
     }
+
+    // ── One-time payment (e.g. single class drop-in) ──────────────────────────
+    if (!pkg.isRecurring) {
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } })
+      const customerId = await getOrCreateStripeCustomer(userId)
+      const periodEnd  = new Date(Date.now() + pkg.durationDays * 24 * 60 * 60 * 1000)
+
+      // Create a placeholder subscription record so polling works unchanged
+      const subscription = await prisma.subscription.create({
+        data: {
+          userId,
+          packageId,
+          stripeSubscriptionId: `pending_${Date.now()}`,
+          status:               'ACTIVE',
+          currentPeriodStart:   new Date(),
+          currentPeriodEnd:     periodEnd,
+        },
+      })
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount:                    Math.round(pkg.price * 100),
+        currency:                  'eur',
+        customer:                  customerId,
+        receipt_email:             user?.email,
+        automatic_payment_methods: { enabled: true },
+        metadata: {
+          userId,
+          packageId,
+          subscriptionId: subscription.id,
+          type:           'one_time_package',
+        },
+      })
+
+      // Update placeholder with real PaymentIntent ID
+      await prisma.subscription.update({
+        where: { id: subscription.id },
+        data:  { stripeSubscriptionId: paymentIntent.id },
+      })
+
+      return NextResponse.json({ subscription, clientSecret: paymentIntent.client_secret })
+    }
+
+    // ── Recurring subscription ────────────────────────────────────────────────
 
     // Prevent duplicate active subscription for the same package
     const existing = await prisma.subscription.findFirst({
