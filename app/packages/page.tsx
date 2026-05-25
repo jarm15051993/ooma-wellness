@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
+import BottomNav from '@/app/components/BottomNav'
 
 const toastStyle = (border: string) => ({
   background: '#F4F0E8',
@@ -220,19 +221,13 @@ export default function PackagesPage() {
   )
 
   return (
-    <div className="min-h-screen bg-cream p-8">
+    <div className="min-h-screen bg-cream p-8 pb-20">
       <Toaster position="top-center" />
 
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="text-mgray hover:text-burg mb-4 flex items-center gap-2 text-sm tracking-wide"
-          >
-            ← Back to Dashboard
-          </button>
           <h1 className="text-4xl font-serif font-light text-ink mb-2 tracking-wide">
             Packages &amp; <em className="text-burg">Subscriptions</em>
           </h1>
@@ -423,6 +418,7 @@ export default function PackagesPage() {
           </>
         )}
       </div>
+      <BottomNav />
     </div>
   )
 }
