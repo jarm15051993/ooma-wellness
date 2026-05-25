@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     // Create Stripe subscription — stays incomplete until first payment is confirmed.
     const stripeSub = await stripe.subscriptions.create({
       customer:         customerId,
-      items:            [{ price: pkg.stripePriceId }],
+      items:            [{ price: pkg.stripePriceId! }],
       payment_behavior: 'default_incomplete',
       expand:           ['latest_invoice'],
       metadata:         { userId, packageId },
