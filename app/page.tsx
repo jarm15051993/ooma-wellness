@@ -1282,6 +1282,15 @@ export default function LandingPage() {
     }, { threshold: 0.08 })
     document.querySelectorAll('.rv').forEach(el => obs.observe(el))
 
+    // iOS: rewrite "Crea tu cuenta" links to point directly to the App Store
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      document.querySelectorAll<HTMLAnchorElement>('a[href="/signup"]').forEach(el => {
+        el.href = APP_STORE_URL
+        el.target = '_blank'
+        el.rel = 'noopener noreferrer'
+      })
+    }
+
     // Hamburger
     const ham = document.getElementById('ham')
     const mob = document.getElementById('mob')
@@ -1295,15 +1304,6 @@ export default function LandingPage() {
         ham.removeEventListener('click', toggle)
         obs.disconnect()
       }
-    }
-
-    // iOS: rewrite "Crea tu cuenta" links to point directly to the App Store
-    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-      document.querySelectorAll<HTMLAnchorElement>('a[href="/signup"]').forEach(el => {
-        el.href = APP_STORE_URL
-        el.target = '_blank'
-        el.rel = 'noopener noreferrer'
-      })
     }
 
     return () => obs.disconnect()
