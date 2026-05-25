@@ -345,9 +345,9 @@ function OnboardingContent() {
           {step === 0 && (
             <div className="grid grid-cols-1 gap-3">
               {([
-                { value: 'es', label: 'Español',  flag: '🇪🇸' },
+                { value: 'es', label: 'Español', flag: '🇪🇸' },
                 { value: 'en', label: 'English',  flag: '🇬🇧' },
-                { value: 'ca', label: 'Català',   flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
+                { value: 'ca', label: 'Català',   flag: null },
               ] as const).map(lang => (
                 <button
                   key={lang.value}
@@ -359,7 +359,17 @@ function OnboardingContent() {
                       : 'border-rule text-ink hover:border-burg hover:text-burg bg-warm-white'
                   }`}
                 >
-                  <span className="text-2xl">{lang.flag}</span>
+                  {lang.flag ? (
+                    <span className="text-2xl">{lang.flag}</span>
+                  ) : (
+                    <svg width="28" height="20" viewBox="0 0 9 6" className="rounded-sm flex-shrink-0">
+                      <rect width="9" height="6" fill="#FCDD09"/>
+                      <rect y="0.667" width="9" height="0.889" fill="#DA121A"/>
+                      <rect y="2.222" width="9" height="0.889" fill="#DA121A"/>
+                      <rect y="3.778" width="9" height="0.889" fill="#DA121A"/>
+                      <rect y="5.333" width="9" height="0.667" fill="#DA121A"/>
+                    </svg>
+                  )}
                   <span className="font-medium tracking-wide">{lang.label}</span>
                 </button>
               ))}
