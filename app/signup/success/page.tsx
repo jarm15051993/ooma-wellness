@@ -7,7 +7,7 @@ export default function SignupSuccessPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-      <div className="bg-warm-white rounded-2xl p-10 w-full max-w-md border border-rule text-center shadow-sm">
+      <div className="bg-warm-white rounded p-8 w-full max-w-md border border-rule text-center shadow-sm">
         <h1 className="text-3xl font-serif font-light text-burg mb-2 tracking-wide">OOMA Wellness Club</h1>
 
         {/* Envelope icon */}
@@ -25,7 +25,7 @@ export default function SignupSuccessPage() {
           Click the link in the email to activate your account and start booking classes.
         </p>
 
-        <div className="bg-bone rounded-lg px-4 py-3 mb-8 text-left space-y-1.5">
+        <div className="bg-bone rounded px-4 py-3 mb-8 text-left space-y-1.5">
           <p className="text-mgray text-sm">Didn&apos;t receive it?</p>
           <ul className="text-lgray text-xs space-y-1 list-disc list-inside">
             <li>Check your spam or junk folder</li>
@@ -36,7 +36,7 @@ export default function SignupSuccessPage() {
 
         <button
           onClick={() => router.push('/login')}
-          className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-lg transition tracking-wider text-sm uppercase"
+          className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-sm transition tracking-wider text-sm uppercase"
         >
           Go to Login
         </button>

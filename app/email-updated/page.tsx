@@ -14,7 +14,7 @@ export default function EmailUpdatedPage() {
         />
 
         <div style={styles.iconCircle}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F7F3EE" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FAF7F2" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
@@ -35,7 +35,7 @@ export default function EmailUpdatedPage() {
 const styles: Record<string, React.CSSProperties> = {
   page: {
     minHeight: '100vh',
-    backgroundColor: '#F7F3EE',
+    backgroundColor: '#FAF7F2',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -43,9 +43,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'system-ui, sans-serif',
   },
   card: {
-    backgroundColor: '#FAFAF7',
-    border: '1px solid #E0D8D0',
-    borderRadius: '8px',
+    backgroundColor: '#F4F0E8',
+    border: '1px solid #DAD3C8',
+    borderRadius: '4px',
     padding: '48px 40px',
     maxWidth: '420px',
     width: '100%',
@@ -58,7 +58,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: '64px',
     height: '64px',
     borderRadius: '50%',
-    backgroundColor: '#6B1D2E',
+    backgroundColor: '#9C7A52',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -67,20 +67,20 @@ const styles: Record<string, React.CSSProperties> = {
   title: {
     fontSize: '24px',
     fontWeight: '600',
-    color: '#1A1512',
+    color: '#1C1A14',
     margin: '0 0 12px',
     lineHeight: '1.3',
   },
   body: {
     fontSize: '15px',
-    color: '#9A8F87',
+    color: '#8A8070',
     lineHeight: '1.6',
     margin: '0 0 32px',
   },
   button: {
     display: 'inline-block',
-    backgroundColor: '#6B1D2E',
-    color: '#F7F3EE',
+    backgroundColor: '#9C7A52',
+    color: '#FAF7F2',
     textDecoration: 'none',
     padding: '14px 32px',
     borderRadius: '2px',

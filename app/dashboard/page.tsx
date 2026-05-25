@@ -148,7 +148,7 @@ function buildCalendarGrid(year: number, month: number) {
   return cells
 }
 
-const inputClass = 'bg-warm-white border border-rule text-ink rounded-lg px-3 py-1.5 text-base focus:outline-none focus:border-burg'
+const inputClass = 'bg-warm-white border border-rule text-ink rounded px-3 py-1.5 text-base focus:outline-none focus:border-burg'
 
 function PencilIcon() {
   return (
@@ -270,12 +270,12 @@ function FieldRow({
           <div className="flex gap-2">
             {hasChanged && (
               <button type="button" onClick={handleSave} disabled={fieldSaving}
-                className="px-3 py-1 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white text-sm font-medium rounded-lg transition tracking-wide">
+                className="px-3 py-1 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white text-sm font-medium rounded-sm transition tracking-wide">
                 {fieldSaving ? 'Saving…' : 'Save'}
               </button>
             )}
             <button type="button" onClick={() => { (document.activeElement as HTMLElement)?.blur(); onCancel() }} disabled={fieldSaving}
-              className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-sm rounded-lg transition">
+              className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-sm rounded-sm transition">
               Cancel
             </button>
           </div>
@@ -298,6 +298,10 @@ export default function DashboardPage() {
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading'>('idle')
   const [isDragging, setIsDragging] = useState(false)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
+
+  // Subscriptions state
+  const [subscriptions, setSubscriptions] = useState<any[]>([])
+  const [cancellingSubId, setCancellingSubId] = useState<string | null>(null)
 
   const [editingField, setEditingField] = useState<string | null>(null)
   const [fieldSaving, setFieldSaving] = useState(false)
@@ -346,7 +350,7 @@ export default function DashboardPage() {
     const fileName = file.name.toLowerCase()
     const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext))
     if (!hasValidExtension) {
-      toast.error('Only .png, .jpg, .jpeg, .heic, and .heif files are allowed', { style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' } })
+      toast.error('Only .png, .jpg, .jpeg, .heic, and .heif files are allowed', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
       return
     }
     setUploadStatus('uploading')
@@ -366,10 +370,10 @@ export default function DashboardPage() {
         localStorage.setItem('user', JSON.stringify(updated))
         setUser(updated)
       }
-      toast.success('Profile picture updated!', { style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #22c55e' } })
+      toast.success('Profile picture updated!', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' } })
     } catch (error: any) {
       setUploadStatus('idle')
-      toast.error(error.message || 'Upload failed. Please try again.', { style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' } })
+      toast.error(error.message || 'Upload failed. Please try again.', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
     }
   }, [user])
 
@@ -401,6 +405,9 @@ export default function DashboardPage() {
         await Promise.all([
           fetchClasses(parsedUser.id),
           fetchUpcomingBookings(parsedUser.id),
+          fetch(`/api/web/subscriptions?userId=${parsedUser.id}`)
+            .then(r => r.json())
+            .then(d => { if (d.subscriptions) setSubscriptions(d.subscriptions) }),
           fetch(`/api/user/goals?userId=${parsedUser.id}`)
             .then(r => r.json())
             .then(d => { if (d.userGoalIds) setUserGoalIds(d.userGoalIds) }),
@@ -463,17 +470,17 @@ export default function DashboardPage() {
       })
       const data = await response.json()
       if (!response.ok) {
-        toast.error(data.error || 'Booking failed', { style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' } })
+        toast.error(data.error || 'Booking failed', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
         return
       }
       toast.success(`Class booked! Your reformer is #${data.booking.stretcherNumber}`, {
         duration: 4000,
-        style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #22c55e' },
+        style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' },
       })
       setTotalCredits(c => Math.max(0, c - 1))
       await Promise.all([fetchClasses(user.id), fetchUpcomingBookings(user.id)])
     } catch {
-      toast.error('Network error. Please try again.', { style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' } })
+      toast.error('Network error. Please try again.', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
     } finally {
       setProcessingClass(null)
     }
@@ -489,17 +496,17 @@ export default function DashboardPage() {
       })
       const data = await response.json()
       if (!response.ok) {
-        toast.error(data.error || 'Cancellation failed', { style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' } })
+        toast.error(data.error || 'Cancellation failed', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
         return
       }
       toast.success('Booking cancelled. Your credit has been reinstated.', {
         duration: 4000,
-        style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #22c55e' },
+        style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' },
       })
       setTotalCredits(c => c + 1)
       await Promise.all([fetchClasses(user.id), fetchUpcomingBookings(user.id)])
     } catch {
-      toast.error('Network error. Please try again.', { style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' } })
+      toast.error('Network error. Please try again.', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
     } finally {
       setProcessingClass(null)
     }
@@ -581,6 +588,32 @@ export default function DashboardPage() {
     setCancellingId(null)
   }
 
+  const handleCancelSubscription = async (subId: string) => {
+    setCancellingSubId(subId)
+    try {
+      const response = await fetch(`/api/web/subscriptions/${subId}`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ userId: user.id }),
+      })
+      if (response.ok) {
+        setSubscriptions(prev =>
+          prev.map(s => s.id === subId ? { ...s, status: 'CANCELLED', cancelledAt: new Date().toISOString() } : s)
+        )
+        toast.success('Subscription cancelled. Access continues until the period ends.', {
+          duration: 4000,
+          style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' },
+        })
+      } else {
+        const data = await response.json()
+        toast.error(data.error || 'Cancellation failed', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
+      }
+    } catch {
+      toast.error('Network error. Please try again.', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
+    }
+    setCancellingSubId(null)
+  }
+
   const handleLogout = () => {
     localStorage.removeItem('user')
     router.push('/login')
@@ -618,13 +651,13 @@ export default function DashboardPage() {
             style={{ mixBlendMode: 'multiply' }}
           />
           <button onClick={handleLogout}
-            className="px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm border border-rule text-mgray hover:border-burg hover:text-burg rounded-lg transition tracking-wide">
+            className="px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm border border-rule text-mgray hover:border-burg hover:text-burg rounded-sm transition tracking-wide">
             Logout
           </button>
         </div>
 
         {/* 1. Profile Card */}
-        <div className="bg-warm-white rounded-2xl p-8 border border-rule mb-6">
+        <div className="bg-warm-white rounded p-6 border border-rule mb-6">
           <h2 className="text-4xl font-serif font-light text-ink mb-6 tracking-wide">My <em className="text-burg">Profile</em></h2>
 
           {/* Profile Picture + Fields */}
@@ -679,7 +712,7 @@ export default function DashboardPage() {
                   <p className="text-mgray text-sm mt-1">Purchase a package to start booking classes!</p>
                 )}
                 <button onClick={() => router.push('/packages')}
-                  className="mt-3 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-medium rounded-lg transition tracking-wider text-sm uppercase">
+                  className="mt-3 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase">
                   Buy More Classes
                 </button>
               </div>
@@ -728,11 +761,11 @@ export default function DashboardPage() {
                 {goalError && <p className="text-burg text-xs mb-2">{goalError}</p>}
                 <div className="flex gap-2">
                   <button type="button" onClick={saveGoals} disabled={goalsSaving}
-                    className="px-3 py-1 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white text-sm font-medium rounded-lg transition tracking-wide">
+                    className="px-3 py-1 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white text-sm font-medium rounded-sm transition tracking-wide">
                     {goalsSaving ? 'Saving…' : 'Save'}
                   </button>
                   <button type="button" onClick={() => { setEditingGoals(false); setGoalError(null) }} disabled={goalsSaving}
-                    className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-sm rounded-lg transition">
+                    className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-sm rounded-sm transition">
                     Cancel
                   </button>
                 </div>
@@ -750,26 +783,98 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* 2. QR Code */}
+        {/* 2. My Subscriptions */}
+        <div className="bg-warm-white rounded p-6 border border-rule mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-serif font-light text-ink tracking-wide">My <em className="text-burg">Subscriptions</em></h2>
+            <button onClick={() => router.push('/packages')}
+              className="text-sm text-burg hover:underline tracking-wide">
+              Browse packages →
+            </button>
+          </div>
+
+          {subscriptions.length === 0 ? (
+            <div className="text-center py-4">
+              <p className="text-mgray text-sm mb-3">No active subscriptions.</p>
+              <button onClick={() => router.push('/packages')}
+                className="px-5 py-2 bg-ink hover:bg-burg text-warm-white text-sm font-medium rounded-sm transition tracking-wider uppercase">
+                View Packages
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {subscriptions.map((sub: any) => {
+                const statusStyles: Record<string, string> = {
+                  ACTIVE:    'bg-green-50 text-green-700 border border-green-300',
+                  CANCELLED: 'bg-yellow-50 text-yellow-700 border border-yellow-300',
+                  PAST_DUE:  'bg-red-50 text-red-600 border border-red-300',
+                  EXPIRED:   'bg-bone text-lgray border border-rule',
+                }
+                const statusLabels: Record<string, string> = {
+                  ACTIVE:    'Active',
+                  CANCELLED: 'Cancels at period end',
+                  PAST_DUE:  'Payment past due',
+                  EXPIRED:   'Expired',
+                }
+                const credit = sub.credits?.[0]
+                const periodEnd = new Date(sub.currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+
+                return (
+                  <div key={sub.id} className="bg-bone rounded p-4 border border-rule">
+                    <div className="flex items-start justify-between mb-2 gap-3">
+                      <div>
+                        <p className="font-medium text-ink">{sub.package.name}</p>
+                        <p className="text-mgray text-sm">
+                          {credit
+                            ? sub.package.isUnlimited
+                              ? 'Unlimited classes'
+                              : `${credit.creditsRemaining} / ${credit.creditsTotal} classes remaining`
+                            : 'Credits loading…'}
+                        </p>
+                      </div>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${statusStyles[sub.status] ?? statusStyles.EXPIRED}`}>
+                        {statusLabels[sub.status] ?? sub.status}
+                      </span>
+                    </div>
+                    <p className="text-mgray text-xs mb-3">
+                      {sub.status === 'CANCELLED' ? `Access until ${periodEnd}` : `Renews ${periodEnd}`}
+                    </p>
+                    {sub.status === 'ACTIVE' && (
+                      <button
+                        onClick={() => handleCancelSubscription(sub.id)}
+                        disabled={cancellingSubId === sub.id}
+                        className="px-4 py-1.5 border border-rule hover:border-burg disabled:opacity-50 text-mgray hover:text-burg text-sm font-medium rounded-sm transition"
+                      >
+                        {cancellingSubId === sub.id ? 'Cancelling…' : 'Cancel Subscription'}
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* 3. QR Code */}
         {user.qrCode && (
-          <div className="bg-warm-white rounded-2xl p-8 border border-rule mb-6 flex flex-col items-center">
+          <div className="bg-warm-white rounded p-6 border border-rule mb-6 flex flex-col items-center">
             <h2 className="text-2xl font-serif font-light text-ink mb-2 tracking-wide self-start">My <em className="text-burg">QR Code</em></h2>
             <p className="text-mgray text-sm mb-6 self-start">Show this at the studio to check in.</p>
-            <div className="p-4 bg-white border border-rule rounded-xl">
+            <div className="p-4 bg-white border border-rule rounded">
               <QRCode value={user.qrCode} size={180} />
             </div>
           </div>
         )}
 
         {/* 4. My Upcoming Classes */}
-        <div className="bg-warm-white rounded-2xl p-8 border border-rule mb-6">
+        <div className="bg-warm-white rounded p-6 border border-rule mb-6">
           <h2 className="text-2xl font-serif font-light text-ink mb-4 tracking-wide">My Upcoming <em className="text-burg">Classes</em></h2>
           {upcomingBookings.length === 0 ? (
             <p className="text-mgray text-sm">No upcoming classes booked yet.</p>
           ) : (
             <div className="space-y-4">
               {upcomingBookings.map((booking) => (
-                <div key={booking.id} className="bg-bone rounded-lg p-4 border border-rule">
+                <div key={booking.id} className="bg-bone rounded p-4 border border-rule">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-serif font-light text-ink tracking-wide">{booking.class.title}</h3>
                     <span className="px-3 py-1 bg-burg text-warm-white text-xs font-medium rounded-full">
@@ -787,7 +892,7 @@ export default function DashboardPage() {
                     {booking.class.instructor && <p className="text-mgray">{booking.class.instructor}</p>}
                   </div>
                   <button onClick={() => handleCancelBooking(booking)} disabled={cancellingId === booking.id}
-                    className="px-4 py-1.5 border border-rule hover:border-burg disabled:opacity-50 text-mgray hover:text-burg text-sm font-medium rounded-lg transition">
+                    className="px-4 py-1.5 border border-rule hover:border-burg disabled:opacity-50 text-mgray hover:text-burg text-sm font-medium rounded-sm transition">
                     {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
                   </button>
                 </div>
@@ -797,18 +902,18 @@ export default function DashboardPage() {
         </div>
 
         {/* 5. Calendar */}
-        <div className="bg-warm-white rounded-2xl p-8 border border-rule">
+        <div className="bg-warm-white rounded p-6 border border-rule">
           <h2 className="text-2xl font-serif font-light text-ink mb-6 tracking-wide">My <em className="text-burg">Calendar</em></h2>
 
           {/* Month nav */}
           <div className="flex items-center justify-between mb-4">
-            <button onClick={goToPrevMonth} className="text-mgray hover:text-burg p-2 rounded-lg hover:bg-bone transition">
+            <button onClick={goToPrevMonth} className="text-mgray hover:text-burg p-2 rounded hover:bg-bone transition">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <h3 className="text-lg font-serif font-light text-ink tracking-wide">{monthLabel}</h3>
-            <button onClick={goToNextMonth} className="text-mgray hover:text-burg p-2 rounded-lg hover:bg-bone transition">
+            <button onClick={goToNextMonth} className="text-mgray hover:text-burg p-2 rounded hover:bg-bone transition">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -833,7 +938,7 @@ export default function DashboardPage() {
                 <button key={cell.dateKey}
                   onClick={() => hasClasses && setSelectedDay(cell.dateKey)}
                   disabled={!hasClasses}
-                  className={`relative flex items-center justify-center py-2 sm:py-3 rounded-lg transition-all ${
+                  className={`relative flex items-center justify-center py-2 sm:py-3 rounded transition-all ${
                     isSelected
                       ? 'bg-burg-pale/30 border border-burg text-burg'
                       : isToday
@@ -851,7 +956,7 @@ export default function DashboardPage() {
 
           {/* Classes for selected day */}
           {!selectedDay ? (
-            <div className="bg-bone rounded-xl p-6 text-center">
+            <div className="bg-bone rounded p-6 text-center">
               <p className="text-mgray text-sm">Select a day to see available classes.</p>
             </div>
           ) : (
@@ -860,7 +965,7 @@ export default function DashboardPage() {
                 {new Date(selectedDay + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
               </h3>
               {selectedClasses.length === 0 ? (
-                <div className="bg-bone rounded-xl p-6 text-center">
+                <div className="bg-bone rounded p-6 text-center">
                   <p className="text-mgray text-sm">No classes available on this day.</p>
                 </div>
               ) : (
@@ -879,7 +984,7 @@ export default function DashboardPage() {
                       : cls.isFull ? 'Full' : `${cls.availableSpots} spots left`
 
                     return (
-                      <div key={cls.id} className={`bg-bone rounded-xl p-6 border ${cls.isBooked ? 'border-burg/40' : 'border-rule'}`}>
+                      <div key={cls.id} className={`bg-bone rounded p-6 border ${cls.isBooked ? 'border-burg/40' : 'border-rule'}`}>
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h4 className="text-xl font-serif font-light text-ink mb-1 tracking-wide">{cls.title}</h4>
@@ -909,7 +1014,7 @@ export default function DashboardPage() {
                         </div>
                         {cls.isBooked ? (
                           <button onClick={() => handleCancelClass(cls.id)} disabled={isProcessing}
-                            className={`w-full py-3 rounded-lg font-medium transition tracking-wider text-sm uppercase ${
+                            className={`w-full py-3 rounded-sm font-medium transition tracking-wider text-sm uppercase ${
                               isProcessing ? 'bg-bone text-lgray cursor-not-allowed' : 'border border-rule text-mgray hover:border-burg hover:text-burg'
                             }`}>
                             {isProcessing ? 'Cancelling...' : 'Cancel Booking'}
@@ -918,7 +1023,7 @@ export default function DashboardPage() {
                           <button
                             onClick={() => totalCredits === 0 ? router.push('/packages') : handleBookClass(cls.id)}
                             disabled={cls.isFull || isProcessing}
-                            className={`w-full py-3 rounded-lg font-medium transition tracking-wider text-sm uppercase ${
+                            className={`w-full py-3 rounded-sm font-medium transition tracking-wider text-sm uppercase ${
                               cls.isFull ? 'bg-bone text-lgray cursor-not-allowed'
                               : isProcessing ? 'bg-burg-soft text-warm-white cursor-not-allowed'
                               : 'bg-ink hover:bg-burg text-warm-white'

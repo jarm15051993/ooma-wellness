@@ -74,15 +74,53 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
   if (!stripeSubId) return // one-time invoice, not a subscription
 
-  const sub = await prisma.subscription.findUnique({
+  let sub = await prisma.subscription.findUnique({
     where:   { stripeSubscriptionId: stripeSubId },
     include: { package: true, user: true },
   })
 
   if (!sub) {
-    // Race condition: subscribe route hasn't committed yet. Stripe will retry.
-    console.warn('[webhook/stripe] Subscription not found for', stripeSubId, '— will retry')
-    throw new Error('Subscription not found — retryable')
+    // Subscription record not found — user likely paid but didn't visit the
+    // success page (closed browser, network error, etc.). Try to self-recover
+    // using metadata stored on the Stripe subscription itself.
+    const stripeSub = await stripe.subscriptions.retrieve(stripeSubId)
+    const metaUserId    = stripeSub.metadata?.userId
+    const metaPackageId = stripeSub.metadata?.packageId
+
+    if (!metaUserId || !metaPackageId || stripeSub.metadata?.type !== 'web_subscription') {
+      // Not a web subscription or missing metadata — cannot recover automatically.
+      console.warn('[webhook/stripe] Subscription not found and cannot recover for', stripeSubId)
+      throw new Error('Subscription not found — retryable')
+    }
+
+    const pkg = await prisma.package.findUnique({
+      where: { id: metaPackageId },
+    })
+    const user = await prisma.user.findUnique({ where: { id: metaUserId } })
+    if (!pkg || !user) {
+      console.error('[webhook/stripe] Cannot recover — package or user not found for', stripeSubId)
+      return
+    }
+
+    const rPeriodStart  = new Date(invoice.period_start * 1000)
+    const rRawPeriodEnd = new Date(invoice.period_end   * 1000)
+    const rPeriodEnd    = (rRawPeriodEnd.getTime() - rPeriodStart.getTime()) < 86_400_000
+      ? new Date(new Date(rPeriodStart).setMonth(rPeriodStart.getMonth() + 1))
+      : rRawPeriodEnd
+
+    sub = await prisma.subscription.create({
+      data: {
+        userId:              metaUserId,
+        packageId:           metaPackageId,
+        stripeSubscriptionId: stripeSubId,
+        status:              'ACTIVE',
+        currentPeriodStart:  rPeriodStart,
+        currentPeriodEnd:    rPeriodEnd,
+      },
+      include: { package: true, user: true },
+    })
+
+    console.log('[webhook/stripe] Self-recovered subscription', sub.id, 'for user', metaUserId)
   }
 
   // Use invoice period dates — period_start/end are present on Invoice in all API versions.

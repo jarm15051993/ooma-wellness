@@ -17,7 +17,7 @@ function validatePassword(password: string): string {
   return ''
 }
 
-const inputClass = 'w-full px-4 py-2 bg-warm-white border border-rule rounded-lg focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray'
+const inputClass = 'w-full px-4 py-2 bg-warm-white border border-rule rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray'
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
@@ -77,10 +77,10 @@ function ResetPasswordContent() {
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-        <div className="bg-warm-white rounded-2xl p-10 w-full max-w-md border border-rule text-center shadow-sm">
+        <div className="bg-warm-white rounded p-8 w-full max-w-md border border-rule text-center shadow-sm">
           <h1 className="text-3xl font-serif font-light text-burg mb-4 tracking-wide">OOMA Wellness Club</h1>
           <p className="text-burg">Invalid or missing reset link.</p>
-          <button onClick={() => router.push('/login')} className="mt-6 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-medium rounded-lg transition tracking-wider text-sm uppercase">
+          <button onClick={() => router.push('/login')} className="mt-6 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase">
             Go to Login
           </button>
         </div>
@@ -91,7 +91,7 @@ function ResetPasswordContent() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
       <Toaster position="top-center" />
-      <div className="bg-warm-white rounded-2xl shadow-sm p-8 w-full max-w-md border border-rule">
+      <div className="bg-warm-white rounded shadow-sm p-6 w-full max-w-md border border-rule">
         <h1 className="text-3xl font-serif font-light text-center mb-2 text-burg tracking-wide">OOMA Wellness Club</h1>
         <p className="text-center text-mgray mb-6 text-sm tracking-wider uppercase">Set a new password</p>
 
@@ -142,7 +142,7 @@ function ResetPasswordContent() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
+            className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-sm transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
           >
             {loading ? 'Resetting…' : 'Reset Password'}
           </button>
