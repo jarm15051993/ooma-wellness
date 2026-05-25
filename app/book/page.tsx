@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
+import BottomNav from '@/app/components/BottomNav'
 
 interface Class {
   id: string
@@ -200,17 +201,10 @@ export default function BookClassPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream p-4 sm:p-8">
+    <div className="min-h-screen bg-cream p-4 sm:p-8 pb-20">
       <Toaster position="top-center" />
 
       <div className="max-w-3xl mx-auto">
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="text-mgray hover:text-burg mb-4 flex items-center gap-2 text-sm tracking-wide"
-        >
-          ← Back to Dashboard
-        </button>
-
         <h1 className="text-4xl font-serif font-light text-ink mb-2 tracking-wide">Book a <em className="text-burg">Class</em></h1>
         <p className="text-mgray mb-6 text-sm">Select a day to see available classes</p>
 
@@ -386,6 +380,7 @@ export default function BookClassPage() {
           </div>
         )}
       </div>
+      <BottomNav />
     </div>
   )
 }
