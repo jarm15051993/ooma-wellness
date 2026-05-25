@@ -1297,15 +1297,13 @@ export default function LandingPage() {
       }
     }
 
-    // iOS: intercept "Crea tu cuenta" clicks → App Store
+    // iOS: rewrite "Crea tu cuenta" links to point directly to the App Store
     if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-      const handlers: Array<{ el: Element; fn: (e: Event) => void }> = []
-      document.querySelectorAll('a[href="/signup"]').forEach(el => {
-        const fn = (e: Event) => { e.preventDefault(); window.location.href = APP_STORE_URL }
-        el.addEventListener('click', fn)
-        handlers.push({ el, fn })
+      document.querySelectorAll<HTMLAnchorElement>('a[href="/signup"]').forEach(el => {
+        el.href = APP_STORE_URL
+        el.target = '_blank'
+        el.rel = 'noopener noreferrer'
       })
-      return () => { handlers.forEach(({ el, fn }) => el.removeEventListener('click', fn)); obs.disconnect() }
     }
 
     return () => obs.disconnect()
