@@ -116,6 +116,7 @@ model Package {
   stripePriceId        String?  @unique
   isStudentPackage     Boolean  @default(false)
   studentStripePriceId String?  @unique
+  isRecurring          Boolean  @default(true)
   createdAt            DateTime @default(now())
   updatedAt     DateTime @updatedAt
   user_id       String?  @db.Uuid
