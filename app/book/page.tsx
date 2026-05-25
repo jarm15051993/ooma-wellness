@@ -142,19 +142,19 @@ export default function BookClassPage() {
       const data = await response.json()
       if (!response.ok) {
         toast.error(data.error || 'Booking failed', {
-          style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' },
+          style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' },
         })
         return
       }
       toast.success(`Class booked! Your reformer is #${data.booking.stretcherNumber}`, {
         duration: 4000,
-        style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #22c55e' },
+        style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' },
       })
       setTotalCredits(c => Math.max(0, c - 1))
       await fetchClasses(user.id)
     } catch (error) {
       toast.error('Network error. Please try again.', {
-        style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' },
+        style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' },
       })
     } finally {
       setProcessingClass(null)
@@ -172,19 +172,19 @@ export default function BookClassPage() {
       const data = await response.json()
       if (!response.ok) {
         toast.error(data.error || 'Cancellation failed', {
-          style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' },
+          style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' },
         })
         return
       }
       toast.success('Booking cancelled. Your credit has been reinstated.', {
         duration: 4000,
-        style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #22c55e' },
+        style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' },
       })
       setTotalCredits(c => c + 1)
       await fetchClasses(user.id)
     } catch (error) {
       toast.error('Network error. Please try again.', {
-        style: { background: '#FAFAF7', color: '#1A1512', border: '1px solid #ef4444' },
+        style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' },
       })
     } finally {
       setProcessingClass(null)
@@ -215,16 +215,16 @@ export default function BookClassPage() {
         <p className="text-mgray mb-6 text-sm">Select a day to see available classes</p>
 
         {/* Calendar */}
-        <div className="bg-warm-white rounded-2xl border border-rule p-4 sm:p-6 mb-8">
+        <div className="bg-warm-white rounded border border-rule p-4 sm:p-6 mb-8">
           {/* Month nav */}
           <div className="flex items-center justify-between mb-4">
-            <button onClick={goToPrevMonth} className="text-mgray hover:text-burg p-2 rounded-lg hover:bg-bone transition">
+            <button onClick={goToPrevMonth} className="text-mgray hover:text-burg p-2 rounded hover:bg-bone transition">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <h2 className="text-lg font-serif font-light text-ink tracking-wide">{monthLabel}</h2>
-            <button onClick={goToNextMonth} className="text-mgray hover:text-burg p-2 rounded-lg hover:bg-bone transition">
+            <button onClick={goToNextMonth} className="text-mgray hover:text-burg p-2 rounded hover:bg-bone transition">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -252,7 +252,7 @@ export default function BookClassPage() {
                   key={cell.dateKey}
                   onClick={() => hasClasses && setSelectedDay(cell.dateKey)}
                   disabled={!hasClasses}
-                  className={`relative flex items-center justify-center py-2 sm:py-3 rounded-lg transition-all ${
+                  className={`relative flex items-center justify-center py-2 sm:py-3 rounded transition-all ${
                     isSelected
                       ? 'bg-burg-pale/30 border border-burg text-burg'
                       : isToday
@@ -271,7 +271,7 @@ export default function BookClassPage() {
 
         {/* Classes section */}
         {!selectedDay ? (
-          <div className="bg-warm-white rounded-2xl p-8 border border-rule text-center">
+          <div className="bg-warm-white rounded p-6 border border-rule text-center">
             {todayHasNoMoreClasses ? (
               <p className="text-mgray text-sm">No more classes available for today. Select a day to see upcoming classes.</p>
             ) : (
@@ -290,7 +290,7 @@ export default function BookClassPage() {
             </h2>
 
             {selectedClasses.length === 0 ? (
-              <div className="bg-warm-white rounded-2xl p-8 border border-rule text-center">
+              <div className="bg-warm-white rounded p-6 border border-rule text-center">
                 <p className="text-mgray text-sm">No classes available on this day.</p>
               </div>
             ) : (
@@ -315,7 +315,7 @@ export default function BookClassPage() {
                   return (
                     <div
                       key={cls.id}
-                      className={`bg-warm-white rounded-2xl p-6 border ${cls.isBooked ? 'border-burg/40' : 'border-rule'}`}
+                      className={`bg-warm-white rounded p-5 border ${cls.isBooked ? 'border-burg/40' : 'border-rule'}`}
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -355,7 +355,7 @@ export default function BookClassPage() {
                         <button
                           onClick={() => handleCancelClass(cls.id)}
                           disabled={isProcessing}
-                          className={`w-full py-3 rounded-lg font-medium transition tracking-wider text-sm uppercase ${
+                          className={`w-full py-3 rounded-sm font-medium transition tracking-wider text-sm uppercase ${
                             isProcessing
                               ? 'bg-bone text-lgray cursor-not-allowed'
                               : 'border border-rule text-mgray hover:border-burg hover:text-burg'
@@ -367,7 +367,7 @@ export default function BookClassPage() {
                         <button
                           onClick={() => totalCredits === 0 ? router.push('/packages') : handleBookClass(cls.id)}
                           disabled={cls.isFull || isProcessing}
-                          className={`w-full py-3 rounded-lg font-medium transition tracking-wider text-sm uppercase ${
+                          className={`w-full py-3 rounded-sm font-medium transition tracking-wider text-sm uppercase ${
                             cls.isFull
                               ? 'bg-bone text-lgray cursor-not-allowed'
                               : isProcessing

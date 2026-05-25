@@ -67,7 +67,7 @@ function ActivateContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-      <div className="bg-warm-white rounded-2xl p-10 w-full max-w-md border border-rule text-center shadow-sm">
+      <div className="bg-warm-white rounded p-8 w-full max-w-md border border-rule text-center shadow-sm">
         <h1 className="text-3xl font-serif font-light text-burg mb-6 tracking-wide">OOMA Wellness Club</h1>
 
         {status === 'loading' && (
@@ -88,7 +88,7 @@ function ActivateContent() {
             {appDeepLink ? (
               <a
                 href={appDeepLink}
-                className="mt-6 inline-block px-8 py-3 bg-ink text-white font-medium rounded-lg tracking-widest text-sm uppercase hover:bg-burg transition"
+                className="mt-6 inline-block px-8 py-3 bg-ink text-white font-medium rounded-sm tracking-widest text-sm uppercase hover:bg-burg transition"
               >
                 Open Ooma App
               </a>
@@ -108,7 +108,7 @@ function ActivateContent() {
             <p className="text-burg font-medium text-lg">{message}</p>
             <button
               onClick={() => router.push('/login')}
-              className="mt-6 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-medium rounded-lg transition tracking-wider text-sm uppercase"
+              className="mt-6 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase"
             >
               Go to Login
             </button>

@@ -20,7 +20,25 @@ export async function POST(request: NextRequest) {
 
     // Find user — case-insensitive so "User@Email.com" matches "user@email.com"
     const user = await prisma.user.findFirst({
-      where: { email: { equals: email.trim(), mode: 'insensitive' } }
+      where: { email: { equals: email.trim(), mode: 'insensitive' } },
+      select: {
+        id:                  true,
+        email:               true,
+        name:                true,
+        lastName:            true,
+        phone:               true,
+        birthday:            true,
+        goals:               true,
+        profilePicture:      true,
+        onboardingCompleted: true,
+        qrCode:              true,
+        isClubMember:        true,
+        role:                true,
+        language:            true,
+        createdAt:           true,
+        password:            true,
+        activatedAt:         true,
+      },
     })
 
     if (!user) {
@@ -68,15 +86,20 @@ export async function POST(request: NextRequest) {
       {
         message: 'Login successful',
         user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          lastName: user.lastName,
-          phone: user.phone,
-          profilePicture: user.profilePicture,
+          id:                  user.id,
+          email:               user.email,
+          name:                user.name,
+          lastName:            user.lastName,
+          phone:               user.phone,
+          birthday:            user.birthday,
+          goals:               user.goals,
+          profilePicture:      user.profilePicture,
           onboardingCompleted: user.onboardingCompleted,
-          createdAt: user.createdAt,
           qrCode,
+          isClubMember:        user.isClubMember,
+          role:                user.role,
+          language:            user.language,
+          createdAt:           user.createdAt,
         },
       },
       { status: 200 }

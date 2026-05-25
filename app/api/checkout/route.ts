@@ -1,64 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { prisma } from '@/lib/prisma'
+import { getOrCreateStripeCustomer } from '@/lib/stripe-customer'
 import { getAppUrl } from '@/lib/app-url'
 
-const PACKAGES = [
-  { id: '1', name: '1 Class', classes: 1, price: 10 },
-  { id: '2', name: '2 Classes', classes: 2, price: 15 },
-  { id: '3', name: '5 Classes', classes: 5, price: 35 }
-]
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2026-01-28.clover' as any,
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2026-01-28.clover'
-    })
-
     const { packageId, userId, userEmail } = await request.json()
 
-    // Find the package
-    const selectedPackage = PACKAGES.find(pkg => pkg.id === packageId)
-    
-    if (!selectedPackage) {
-      return NextResponse.json(
-        { error: 'Package not found' },
-        { status: 404 }
-      )
+    if (!packageId || !userId) {
+      return NextResponse.json({ error: 'packageId and userId required' }, { status: 400 })
     }
 
-    // Create Stripe checkout session
+    const pkg = await prisma.package.findUnique({
+      where:  { id: packageId, active: true },
+      select: { id: true, name: true, classCount: true, price: true, packageType: true },
+    })
+
+    if (!pkg) {
+      return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+    }
+
+    const customerId = await getOrCreateStripeCustomer(userId)
+    const appUrl     = getAppUrl()
+
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      mode:     'payment',
+      customer: customerId,
       line_items: [
         {
           price_data: {
-            currency: 'eur',
+            currency:     'eur',
             product_data: {
-              name: selectedPackage.name,
-              description: `${selectedPackage.classes} pilates ${selectedPackage.classes === 1 ? 'class' : 'classes'} at OOMA Wellness Club`,
+              name:        pkg.name,
+              description: `${pkg.classCount} ${pkg.classCount === 1 ? 'class' : 'classes'} at OOMA Wellness Club`,
             },
-            unit_amount: selectedPackage.price * 100, // Stripe uses cents
+            unit_amount: Math.round(pkg.price * 100),
           },
           quantity: 1,
         },
       ],
-      mode: 'payment',
-      success_url: `${getAppUrl()}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${getAppUrl()}/packages`,
-      customer_email: userEmail,
+      customer_email: customerId ? undefined : userEmail,
       metadata: {
-        userId: userId,
-        packageId: packageId,
-        classes: selectedPackage.classes.toString(),
+        userId,
+        packageId: pkg.id,
+        classes:   pkg.classCount.toString(),
       },
+      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${appUrl}/packages`,
     })
 
     return NextResponse.json({ sessionId: session.id, url: session.url })
   } catch (error: any) {
-    console.error('Stripe error:', error)
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    )
+    console.error('[api/checkout] Error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

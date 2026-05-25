@@ -6,24 +6,27 @@
   --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
 
   /* Backgrounds */
-  --color-cream: #F7F3EE;
-  --color-warm-white: #FAFAF7;
-  --color-bone: #EDE5D8;
-  --color-bone-dk: #DDD3C2;
+  --color-cream: #FAF7F2;
+  --color-warm-white: #F4F0E8;
+  --color-bone: #EBE5DA;
+  --color-bone-dk: #DAD3C8;
 
   /* Text */
-  --color-ink: #1A1512;
-  --color-mgray: #9A8F87;
-  --color-lgray: #C8BEB6;
+  --color-ink: #1C1A14;
+  --color-mgray: #8A8070;
+  --color-lgray: #BDB3A8;
 
-  /* Burgundy scale */
-  --color-burg: #6B1D2E;
-  --color-burg-mid: #8C2D40;
-  --color-burg-soft: #B05A6E;
-  --color-burg-pale: #E8C5CE;
+  /* Terra scale */
+  --color-burg: #9C7A52;
+  --color-burg-mid: #B8956A;
+  --color-burg-soft: #C8A96A;
+  --color-burg-pale: #DFC9A8;
 
   /* Borders */
-  --color-rule: #E0D8D0;
+  --color-rule: #DAD3C8;
+
+  /* Sage */
+  --color-sage: #6E7B6A;
 
   /* Status */
   --color-status-green: #22c55e;

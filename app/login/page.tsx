@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
 
 const toastStyle = (border: string) => ({
-  background: '#FAFAF7',
-  color: '#1A1512',
+  background: '#F4F0E8',
+  color: '#1C1A14',
   border: `1px solid ${border}`,
 })
 
@@ -122,13 +122,13 @@ export default function LoginPage() {
     setForgotSent(false)
   }
 
-  const inputClass = 'w-full px-4 py-2 bg-warm-white border border-rule rounded-lg focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray'
+  const inputClass = 'w-full px-4 py-2 bg-warm-white border border-rule rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray'
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
       <Toaster position="top-center" />
 
-      <div className="bg-warm-white rounded-2xl shadow-sm p-8 w-full max-w-md border border-rule">
+      <div className="bg-warm-white rounded shadow-sm p-6 w-full max-w-md border border-rule">
         <h1 className="text-3xl font-serif font-light text-center mb-2 text-burg tracking-wide">OOMA Wellness Club</h1>
         <p className="text-center text-mgray mb-6 text-sm tracking-wider uppercase">Welcome back</p>
 
@@ -187,7 +187,7 @@ export default function LoginPage() {
 
           {/* Account not activated banner */}
           {notActivated && (
-            <div className="bg-burg-pale/20 border border-burg-pale rounded-lg px-4 py-3 space-y-2">
+            <div className="bg-burg-pale/20 border border-burg-pale rounded px-4 py-3 space-y-2">
               <p className="text-burg text-sm font-medium">Account not activated</p>
               <p className="text-mgray text-xs">
                 Please check your email for the activation link before logging in.
@@ -209,7 +209,7 @@ export default function LoginPage() {
 
           {/* Onboarding not complete banner */}
           {onboardingIncomplete && (
-            <div className="bg-burg-pale/20 border border-burg-pale rounded-lg px-4 py-3 space-y-2">
+            <div className="bg-burg-pale/20 border border-burg-pale rounded px-4 py-3 space-y-2">
               <p className="text-burg text-sm font-medium">Profile setup incomplete</p>
               <p className="text-mgray text-xs">
                 You haven&apos;t finished setting up your profile yet.
@@ -226,7 +226,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
+            className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-sm transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
@@ -243,7 +243,7 @@ export default function LoginPage() {
       {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-warm-white rounded-2xl p-8 w-full max-w-sm border border-rule shadow-sm">
+          <div className="bg-warm-white rounded p-6 w-full max-w-sm border border-rule shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-serif font-light text-burg tracking-wide">Reset Password</h2>
               <button onClick={closeForgotModal} className="text-lgray hover:text-ink transition">
@@ -266,7 +266,7 @@ export default function LoginPage() {
                 </p>
                 <button
                   onClick={closeForgotModal}
-                  className="mt-5 w-full bg-ink hover:bg-burg text-warm-white font-medium py-2 rounded-lg transition tracking-wider text-sm uppercase"
+                  className="mt-5 w-full bg-ink hover:bg-burg text-warm-white font-medium py-2 rounded-sm transition tracking-wider text-sm uppercase"
                 >
                   Close
                 </button>
@@ -290,7 +290,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={forgotLoading}
-                  className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-2 rounded-lg transition disabled:opacity-50 tracking-wider text-sm uppercase"
+                  className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-2 rounded-sm transition disabled:opacity-50 tracking-wider text-sm uppercase"
                 >
                   {forgotLoading ? 'Sending…' : 'Send Reset Link'}
                 </button>

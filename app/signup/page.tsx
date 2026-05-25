@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
 
 const toastStyle = (border: string) => ({
-  background: '#FAFAF7',
-  color: '#1A1512',
+  background: '#F4F0E8',
+  color: '#1C1A14',
   border: `1px solid ${border}`,
 })
 
@@ -41,7 +41,7 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
       <Toaster position="top-center" />
 
-      <div className="bg-warm-white rounded-2xl shadow-sm p-8 w-full max-w-md border border-rule">
+      <div className="bg-warm-white rounded shadow-sm p-6 w-full max-w-md border border-rule">
         <h1 className="text-3xl font-serif font-light text-center mb-2 text-burg tracking-wide">OOMA Wellness Club</h1>
         <p className="text-center text-mgray mb-8 text-sm tracking-wider uppercase">Create your account</p>
 
@@ -54,13 +54,13 @@ export default function SignupPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-4 py-2 bg-warm-white border border-rule rounded-lg focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray"
+              className="w-full px-4 py-2 bg-warm-white border border-rule rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
+            className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-sm transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
           >
             {loading ? 'Sending link…' : 'Continue'}
           </button>

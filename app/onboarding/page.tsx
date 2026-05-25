@@ -4,10 +4,11 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
 import { COUNTRY_CODES, PHONE_LENGTHS } from '@/lib/constants'
+import { validateDNI } from '@/utils/validateDNI'
 
 const toastStyle = (border: string) => ({
-  background: '#FAFAF7',
-  color: '#1A1512',
+  background: '#F4F0E8',
+  color: '#1C1A14',
   border: `1px solid ${border}`,
 })
 
@@ -56,10 +57,12 @@ function BirthdayPicker({ value, onChange, className }: { value: string; onChang
 }
 
 interface FormState {
+  language: 'es' | 'en' | 'ca'
   password: string
   confirmPassword: string
   name: string
   lastName: string
+  dni: string
   countryCode: string
   phone: string
   birthday: string
@@ -91,10 +94,12 @@ function OnboardingContent() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [phoneError, setPhoneError] = useState('')
   const [form, setForm] = useState<FormState>({
+    language: 'es',
     password: '',
     confirmPassword: '',
     name: '',
     lastName: '',
+    dni: '',
     countryCode: '+52',
     phone: '',
     birthday: '',
@@ -150,17 +155,20 @@ function OnboardingContent() {
   }
 
   const validateStep = (): string | null => {
-    if (step === 0) {
+    // step 0: language — always valid
+    if (step === 1) {
       if (form.password.length < 8) return 'Password must be at least 8 characters'
       if (!/[A-Z]/.test(form.password)) return 'Password must contain at least one capital letter'
       if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.password)) return 'Password must contain at least one special character'
       if (form.password !== form.confirmPassword) return 'Passwords do not match'
     }
-    if (step === 1) {
+    if (step === 2) {
       if (!form.name.trim()) return 'First name is required'
       if (!form.lastName.trim()) return 'Last name is required'
+      if (!form.dni.trim()) return 'DNI/NIE is required'
+      if (!validateDNI(form.dni.trim())) return 'Invalid DNI/NIE format (e.g. 12345678Z or X1234567L)'
     }
-    if (step === 2) {
+    if (step === 3) {
       if (!form.phone.trim()) {
         setPhoneError('Phone number is required')
         return 'Phone number is required'
@@ -180,11 +188,11 @@ function OnboardingContent() {
         }
       }
     }
-    if (step === 3) {
+    if (step === 4) {
       if (selectedGoalIds.length === 0) return 'Please select at least one goal'
     }
-    // step 4 (disclaimer) is handled separately in handleNext
-    if (step === 5) {
+    // step 5 (disclaimer) is handled separately in handleNext
+    if (step === 6) {
       if (!form.birthday) return 'Birthday is required'
       if (hasConditions === null) return 'Please answer the health conditions question'
       if (hasConditions && conditions.length === 0) return 'Please select at least one condition'
@@ -201,6 +209,22 @@ function OnboardingContent() {
     }
 
     if (step === 2) {
+      setLoading(true)
+      try {
+        const res = await fetch(`/api/user/check-dni?dni=${encodeURIComponent(form.dni.trim())}&excludeUserId=${userId}`)
+        const data = await res.json()
+        if (!data.available) {
+          toast.error(data.message || 'Invalid DNI/NIE', { duration: 3000, style: toastStyle('#ef4444') })
+          setLoading(false)
+          return
+        }
+      } catch {
+        // network error — let it pass; API will catch it at submit
+      }
+      setLoading(false)
+    }
+
+    if (step === 3) {
       const fullPhone = form.countryCode + form.phone
       try {
         const res = await fetch(`/api/user/check-phone?phone=${encodeURIComponent(fullPhone)}&excludeUserId=${userId}`)
@@ -216,14 +240,14 @@ function OnboardingContent() {
       }
     }
 
-    // Steps 0–3: just advance
-    if (step < 4) {
+    // Steps 0–4: just advance
+    if (step < 5) {
       setStep(s => s + 1)
       return
     }
 
-    // Step 4: disclaimer — call API then advance
-    if (step === 4) {
+    // Step 5: disclaimer — call API then advance
+    if (step === 5) {
       setLoading(true)
       try {
         await fetch('/api/user/accept-disclaimer', {
@@ -231,7 +255,7 @@ function OnboardingContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId, disclaimerVersion: 'v1' }),
         })
-        setStep(5)
+        setStep(6)
       } catch {
         toast.error('Network error. Please try again.', { duration: 4000, style: toastStyle('#ef4444') })
       } finally {
@@ -240,7 +264,7 @@ function OnboardingContent() {
       return
     }
 
-    // Step 5: final submit
+    // Step 6: final submit
     setLoading(true)
     try {
       const fullPhone = form.countryCode + form.phone
@@ -252,9 +276,11 @@ function OnboardingContent() {
           password: form.password,
           name: form.name.trim(),
           lastName: form.lastName.trim(),
+          dni: form.dni.trim().toUpperCase(),
           phone: fullPhone,
           goalIds: selectedGoalIds,
           birthday: form.birthday,
+          language: form.language,
           additionalInfo: (() => {
             if (!hasConditions) return null
             const parts = conditions.filter(c => c !== 'Other')
@@ -279,9 +305,10 @@ function OnboardingContent() {
   }
 
   const inputClass = (hasError = false) =>
-    `w-full px-4 py-2 bg-warm-white border ${hasError ? 'border-burg' : 'border-rule'} rounded-lg focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray`
+    `w-full px-4 py-2 bg-warm-white border ${hasError ? 'border-burg' : 'border-rule'} rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray`
 
   const STEPS = [
+    'Your language',
     'Create your password',
     'Yourself',
     'How can we reach you?',
@@ -296,7 +323,7 @@ function OnboardingContent() {
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
       <Toaster position="top-center" />
 
-      <div className="bg-warm-white rounded-2xl shadow-sm p-8 w-full max-w-md border border-rule">
+      <div className="bg-warm-white rounded shadow-sm p-6 w-full max-w-md border border-rule">
         <h1 className="text-2xl font-serif font-light text-center text-burg mb-1 tracking-wide">OOMA Wellness Club</h1>
 
         {/* Progress dots */}
@@ -316,6 +343,30 @@ function OnboardingContent() {
         <div className="space-y-4">
 
           {step === 0 && (
+            <div className="grid grid-cols-1 gap-3">
+              {([
+                { value: 'es', label: 'Español',  flag: '🇪🇸' },
+                { value: 'en', label: 'English',  flag: '🇬🇧' },
+                { value: 'ca', label: 'Català',   flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
+              ] as const).map(lang => (
+                <button
+                  key={lang.value}
+                  type="button"
+                  onClick={() => set('language', lang.value)}
+                  className={`flex items-center gap-4 px-5 py-4 rounded border text-left transition ${
+                    form.language === lang.value
+                      ? 'bg-burg border-burg text-warm-white'
+                      : 'border-rule text-ink hover:border-burg hover:text-burg bg-warm-white'
+                  }`}
+                >
+                  <span className="text-2xl">{lang.flag}</span>
+                  <span className="font-medium tracking-wide">{lang.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {step === 1 && (
             <>
               <div>
                 <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Password *</label>
@@ -362,7 +413,7 @@ function OnboardingContent() {
             </>
           )}
 
-          {step === 1 && (
+          {step === 2 && (
             <>
               <div>
                 <label className="block text-sm font-medium text-ink mb-1 tracking-wide">First Name *</label>
@@ -372,17 +423,33 @@ function OnboardingContent() {
                 <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Last Name *</label>
                 <input type="text" value={form.lastName} onChange={e => set('lastName', e.target.value)} placeholder="García" className={inputClass()} />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">DNI / NIE *</label>
+                <input
+                  type="text"
+                  value={form.dni}
+                  onChange={e => set('dni', e.target.value.toUpperCase())}
+                  placeholder="12345678Z"
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  className={inputClass(!!form.dni && !validateDNI(form.dni.trim()))}
+                />
+                {form.dni && !validateDNI(form.dni.trim()) && (
+                  <p className="text-xs text-burg mt-1">Invalid format — DNI: 8 digits + letter (e.g. 12345678Z) · NIE: X/Y/Z + 7 digits + letter</p>
+                )}
+              </div>
             </>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <div>
               <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Phone Number *</label>
               <div className="flex gap-2">
                 <select
                   value={form.countryCode}
                   onChange={e => set('countryCode', e.target.value)}
-                  className="px-3 py-2 bg-warm-white border border-rule rounded-lg focus:ring-2 focus:ring-burg focus:border-transparent text-ink text-sm"
+                  className="px-3 py-2 bg-warm-white border border-rule rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink text-sm"
                 >
                   {COUNTRY_CODES.map(c => (
                     <option key={c.code} value={c.code}>{c.flag} {c.label}</option>
@@ -413,7 +480,7 @@ function OnboardingContent() {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div>
               {availableGoals.length === 0 ? (
                 <p className="text-mgray text-sm">Loading goals…</p>
@@ -443,10 +510,10 @@ function OnboardingContent() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div>
               <div
-                className="h-64 overflow-y-auto border border-rule rounded-lg p-4 bg-warm-white text-sm text-ink space-y-4 mb-4"
+                className="h-64 overflow-y-auto border border-rule rounded p-4 bg-warm-white text-sm text-ink space-y-4 mb-4"
                 onScroll={e => {
                   if (disclaimerScrolled) return
                   const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
@@ -498,7 +565,7 @@ function OnboardingContent() {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <>
               <div>
                 <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Birthday *</label>
@@ -511,7 +578,7 @@ function OnboardingContent() {
                   <button
                     type="button"
                     onClick={() => setHasConditions(false)}
-                    className={`flex-1 py-2.5 rounded-lg border font-medium text-sm tracking-wider uppercase transition ${
+                    className={`flex-1 py-2.5 rounded-sm border font-medium text-sm tracking-wider uppercase transition ${
                       hasConditions === false
                         ? 'bg-ink text-warm-white border-ink'
                         : 'border-rule text-mgray hover:border-burg hover:text-burg'
@@ -522,7 +589,7 @@ function OnboardingContent() {
                   <button
                     type="button"
                     onClick={() => setHasConditions(true)}
-                    className={`flex-1 py-2.5 rounded-lg border font-medium text-sm tracking-wider uppercase transition ${
+                    className={`flex-1 py-2.5 rounded-sm border font-medium text-sm tracking-wider uppercase transition ${
                       hasConditions === true
                         ? 'bg-ink text-warm-white border-ink'
                         : 'border-rule text-mgray hover:border-burg hover:text-burg'
@@ -544,7 +611,7 @@ function OnboardingContent() {
                           key={c}
                           type="button"
                           onClick={() => toggleCondition(c)}
-                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-sm text-left transition ${
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded border text-sm text-left transition ${
                             selected ? 'bg-burg border-burg text-warm-white' : 'border-rule text-ink hover:border-burg'
                           }`}
                         >
@@ -564,7 +631,7 @@ function OnboardingContent() {
                     <button
                       type="button"
                       onClick={() => toggleCondition('Other')}
-                      className={`col-span-2 flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-sm text-left transition ${
+                      className={`col-span-2 flex items-center gap-2.5 px-3 py-2.5 rounded border text-sm text-left transition ${
                         conditions.includes('Other') ? 'bg-burg border-burg text-warm-white' : 'border-rule text-ink hover:border-burg'
                       }`}
                     >
@@ -586,7 +653,7 @@ function OnboardingContent() {
                       onChange={e => setConditionOther(e.target.value)}
                       rows={2}
                       placeholder="Please describe your condition…"
-                      className="w-full mt-2 px-4 py-2 bg-warm-white border border-rule rounded-lg focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray resize-none text-sm"
+                      className="w-full mt-2 px-4 py-2 bg-warm-white border border-rule rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray resize-none text-sm"
                     />
                   )}
                 </div>
@@ -600,7 +667,7 @@ function OnboardingContent() {
             <button
               type="button"
               onClick={() => setStep(s => s - 1)}
-              className="flex-1 py-3 border border-rule text-mgray font-medium rounded-lg hover:border-burg hover:text-burg transition tracking-wider text-sm uppercase"
+              className="flex-1 py-3 border border-rule text-mgray font-medium rounded-sm hover:border-burg hover:text-burg transition tracking-wider text-sm uppercase"
             >
               Back
             </button>
@@ -610,12 +677,12 @@ function OnboardingContent() {
             onClick={handleNext}
             disabled={
               loading ||
-              (step === 4 && (!disclaimerScrolled || !disclaimerChecked)) ||
-              (step === 5 && (hasConditions === null || (hasConditions === true && conditions.length === 0)))
+              (step === 5 && (!disclaimerScrolled || !disclaimerChecked)) ||
+              (step === 6 && (hasConditions === null || (hasConditions === true && conditions.length === 0)))
             }
-            className="flex-1 bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
+            className="flex-1 bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-sm transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
           >
-            {loading ? 'Saving…' : step === 5 ? "Let's go!" : 'Continue'}
+            {loading ? 'Saving…' : step === 6 ? "Let's go!" : 'Continue'}
           </button>
         </div>
       </div>

@@ -59,7 +59,7 @@ function CheckoutSuccessContent() {
   if (status === 'verifying') {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-        <div className="bg-warm-white rounded-2xl p-8 border border-rule text-center max-w-md shadow-sm">
+        <div className="bg-warm-white rounded p-6 border border-rule text-center max-w-md shadow-sm">
           <div className="w-10 h-10 border-4 border-burg border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <h1 className="text-2xl font-serif font-light text-burg mb-4 tracking-wide">Verifying Payment…</h1>
           <p className="text-mgray text-sm">Please wait while we confirm your purchase.</p>
@@ -71,7 +71,7 @@ function CheckoutSuccessContent() {
   if (status === 'error') {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-        <div className="bg-warm-white rounded-2xl p-8 border border-rule text-center max-w-md shadow-sm">
+        <div className="bg-warm-white rounded p-6 border border-rule text-center max-w-md shadow-sm">
           <div className="w-14 h-14 bg-burg-pale/20 border border-burg-pale rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-7 h-7 text-burg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
@@ -83,7 +83,7 @@ function CheckoutSuccessContent() {
           </p>
           <button
             onClick={() => router.push('/dashboard')}
-            className="px-6 py-3 bg-ink hover:bg-burg text-warm-white font-medium rounded-lg transition tracking-wider text-sm uppercase"
+            className="px-6 py-3 bg-ink hover:bg-burg text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase"
           >
             Go to Dashboard
           </button>
@@ -94,7 +94,7 @@ function CheckoutSuccessContent() {
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-      <div className="bg-warm-white rounded-2xl p-8 border border-rule text-center max-w-md shadow-sm">
+      <div className="bg-warm-white rounded p-6 border border-rule text-center max-w-md shadow-sm">
         <div className="w-14 h-14 bg-bone rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -111,7 +111,7 @@ function CheckoutSuccessContent() {
         </p>
         <button
           onClick={() => router.push('/dashboard')}
-          className="px-6 py-3 bg-ink hover:bg-burg text-warm-white font-medium rounded-lg transition tracking-wider text-sm uppercase"
+          className="px-6 py-3 bg-ink hover:bg-burg text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase"
         >
           Go to Dashboard Now
         </button>
