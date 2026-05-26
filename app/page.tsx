@@ -1215,7 +1215,7 @@ const bodyHtml = `
     <h2 class="cierre-h2 rv">Empieza cuando<br>quieras, <em>a tu ritmo</em>.</h2>
     <p class="cierre-body rv">Sin permanencias. Sin presión.<br>Solo tú, el movimiento y el tiempo que necesitas.</p>
     <div class="cierre-btns rv">
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdNJKcAxlZgFPAfZhTcjF57bQTu4iPp9iYn6AAjmml5GxaWZQ/viewform" class="btn-hero-p" target="_blank" rel="noopener noreferrer">Únete a OOMA</a>
+      <a href="/signup" class="btn-hero-p">Únete a OOMA</a>
     </div>
   </div>
 </section>
@@ -1267,8 +1267,6 @@ const bodyHtml = `
 </footer>
 `
 
-const APP_STORE_URL = 'https://apps.apple.com/app/id6761262370'
-
 export default function LandingPage() {
   useEffect(() => {
     // Scroll reveal
@@ -1281,15 +1279,6 @@ export default function LandingPage() {
       })
     }, { threshold: 0.08 })
     document.querySelectorAll('.rv').forEach(el => obs.observe(el))
-
-    // iOS: rewrite "Crea tu cuenta" links to point directly to the App Store
-    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-      document.querySelectorAll<HTMLAnchorElement>('a[href="/signup"]').forEach(el => {
-        el.href = APP_STORE_URL
-        el.target = '_blank'
-        el.rel = 'noopener noreferrer'
-      })
-    }
 
     // Hamburger
     const ham = document.getElementById('ham')
