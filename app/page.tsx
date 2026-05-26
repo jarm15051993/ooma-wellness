@@ -1267,7 +1267,7 @@ const bodyHtml = `
 </footer>
 `
 
-const APP_STORE_URL = 'https://apps.apple.com/mx/app/ooma-wellness/id6761262370?l=en-GB'
+const APP_STORE_URL = 'https://apps.apple.com/app/id6761262370'
 
 export default function LandingPage() {
   useEffect(() => {
