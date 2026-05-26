@@ -273,7 +273,7 @@ export default function PackagesPage() {
                 <h2 className="text-2xl font-serif font-light text-ink mb-1 tracking-wide">
                   Monthly <em className="text-burg">Subscriptions</em>
                 </h2>
-                <p className="text-mgray text-sm mb-6">Auto-renews each month. Cancel anytime.</p>
+                <p className="text-mgray text-sm mb-6">Auto-renews each month.</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {recurringPackages.map(pkg => {
@@ -310,10 +310,6 @@ export default function PackagesPage() {
                               <span>€{pricePerClass} per class</span>
                             </div>
                           )}
-                          <div className="flex items-center gap-2 text-ink text-sm">
-                            <CheckIcon />
-                            <span>Cancel anytime</span>
-                          </div>
                         </div>
 
                         {alreadySubscribed ? (
