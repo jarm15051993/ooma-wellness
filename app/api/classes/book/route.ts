@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
         select: { stretcherNumber: true }
       })
       const takenNumbers = takenStretchers.map(b => b.stretcherNumber as number)
-      const availableReformer = [1, 2, 3, 4, 5, 6].find(num => !takenNumbers.includes(num))
+      const availableReformer = Array.from({ length: 20 }, (_, i) => i + 1).find(num => !takenNumbers.includes(num))
 
       if (!availableReformer) {
         throw new Error('No reformers available')

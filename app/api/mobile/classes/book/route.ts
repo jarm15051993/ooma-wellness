@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
 
     // Find available reformer number
     const bookedNumbers = cls.bookings.map(b => b.stretcherNumber)
-    const availableReformer = [1, 2, 3, 4, 5, 6].find(num => !bookedNumbers.includes(num))
+    const availableReformer = Array.from({ length: 20 }, (_, i) => i + 1).find(num => !bookedNumbers.includes(num))
 
     if (!availableReformer) {
       return NextResponse.json({ error: 'No reformers available' }, { status: 400 })
