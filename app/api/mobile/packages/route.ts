@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
         isStudentPackage: true,
         packageType: true,
         isUnlimited: true,
+        isRecurring: true,
       },
     })
 
