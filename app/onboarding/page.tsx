@@ -229,7 +229,7 @@ function OnboardingContent() {
     name: '',
     lastName: '',
     dni: '',
-    countryCode: '+52',
+    countryCode: '+34',
     phone: '',
     birthday: '',
   })
