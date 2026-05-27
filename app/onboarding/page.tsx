@@ -68,7 +68,106 @@ interface FormState {
   birthday: string
 }
 
-const CONDITIONS = ['Pregnancy', 'Post-Surgery', 'Hernia', 'Chronic Condition'] as const
+const CONDITIONS_EN = ['Pregnancy', 'Post-Surgery', 'Hernia', 'Chronic Condition'] as const
+
+const TR = {
+  en: {
+    steps: ['Your language', 'Create your password', 'Yourself', 'How can we reach you?', 'What do you want to accomplish?', 'Health & Liability Disclaimer', 'Tell us about yourself'],
+    password: 'Password', passwordHint: '8+ characters, one capital, one special character',
+    confirmPassword: 'Confirm Password',
+    firstName: 'First Name', lastName: 'Last Name', dni: 'DNI / NIE',
+    phone: 'Phone Number',
+    birthday: 'Birthday',
+    conditions: 'Do you have any injuries or special conditions?',
+    conditionsSelect: 'Select all that apply',
+    conditionsList: ['Pregnancy', 'Post-Surgery', 'Hernia', 'Chronic Condition'],
+    conditionOther: 'Other (specify)', conditionOtherPlaceholder: 'Please describe your condition…',
+    goalsHint: (n: number) => `Select at least 1 and up to 3 goals (${n} selected)`,
+    disclaimerScroll: '↓ Scroll to the bottom to continue',
+    disclaimerAccept: 'I have read and accept the OOMA Wellness Club Health & Liability Disclaimer',
+    back: 'Back', continue: 'Continue', letsGo: "Let's go!", saving: 'Saving…',
+    welcome: 'Welcome to OOMA Wellness!',
+    pwMin: 'Password must be at least 8 characters',
+    pwCap: 'Password must contain at least one capital letter',
+    pwSpec: 'Password must contain at least one special character',
+    pwMatch: 'Passwords do not match',
+    pwNoMatch: 'Passwords do not match',
+    nameReq: 'First name is required', lastNameReq: 'Last name is required',
+    dniReq: 'DNI/NIE is required', dniInvalid: 'Invalid DNI/NIE format (e.g. 12345678Z or X1234567L)',
+    dniInvalidFmt: 'Invalid format — DNI: 8 digits + letter (e.g. 12345678Z) · NIE: X/Y/Z + 7 digits + letter',
+    phoneReq: 'Phone number is required', phoneDigits: 'Only digits are allowed — no spaces, dashes, or symbols',
+    phoneMustBe: (n: number) => `Phone must be exactly ${n} digits for`,
+    phoneAtLeast: (n: number) => `Phone must be at least ${n} digits for`,
+    goalReq: 'Please select at least one goal',
+    birthdayReq: 'Birthday is required', conditionsReq: 'Please answer the health conditions question',
+    conditionsSelectReq: 'Please select at least one condition', conditionOtherReq: 'Please describe your other condition',
+    digitsOnly: 'Digits only, no spaces or dashes',
+  },
+  es: {
+    steps: ['Tu idioma', 'Crea tu contraseña', 'Sobre ti', '¿Cómo contactarte?', '¿Qué quieres lograr?', 'Aviso de Salud y Responsabilidad', 'Cuéntanos más'],
+    password: 'Contraseña', passwordHint: '8+ caracteres, una mayúscula, un carácter especial',
+    confirmPassword: 'Confirmar contraseña',
+    firstName: 'Nombre', lastName: 'Apellido', dni: 'DNI / NIE',
+    phone: 'Número de teléfono',
+    birthday: 'Fecha de nacimiento',
+    conditions: '¿Tienes alguna lesión o condición especial?',
+    conditionsSelect: 'Selecciona todas las que apliquen',
+    conditionsList: ['Embarazo', 'Post-operatorio', 'Hernia', 'Condición crónica'],
+    conditionOther: 'Otro (especificar)', conditionOtherPlaceholder: 'Describe tu condición…',
+    goalsHint: (n: number) => `Selecciona entre 1 y 3 objetivos (${n} seleccionados)`,
+    disclaimerScroll: '↓ Desplázate hasta el final para continuar',
+    disclaimerAccept: 'He leído y acepto el Aviso de Salud y Responsabilidad de OOMA Wellness Club',
+    back: 'Atrás', continue: 'Continuar', letsGo: '¡Vamos!', saving: 'Guardando…',
+    welcome: '¡Bienvenido/a a OOMA Wellness!',
+    pwMin: 'La contraseña debe tener al menos 8 caracteres',
+    pwCap: 'La contraseña debe tener al menos una mayúscula',
+    pwSpec: 'La contraseña debe tener al menos un carácter especial',
+    pwMatch: 'Las contraseñas no coinciden',
+    pwNoMatch: 'Las contraseñas no coinciden',
+    nameReq: 'El nombre es obligatorio', lastNameReq: 'El apellido es obligatorio',
+    dniReq: 'El DNI/NIE es obligatorio', dniInvalid: 'Formato de DNI/NIE inválido (ej. 12345678Z o X1234567L)',
+    dniInvalidFmt: 'Formato inválido — DNI: 8 dígitos + letra (ej. 12345678Z) · NIE: X/Y/Z + 7 dígitos + letra',
+    phoneReq: 'El teléfono es obligatorio', phoneDigits: 'Solo dígitos — sin espacios, guiones o símbolos',
+    phoneMustBe: (n: number) => `El teléfono debe tener exactamente ${n} dígitos para`,
+    phoneAtLeast: (n: number) => `El teléfono debe tener al menos ${n} dígitos para`,
+    goalReq: 'Selecciona al menos un objetivo',
+    birthdayReq: 'La fecha de nacimiento es obligatoria', conditionsReq: 'Por favor responde la pregunta de salud',
+    conditionsSelectReq: 'Selecciona al menos una condición', conditionOtherReq: 'Describe tu otra condición',
+    digitsOnly: 'Solo dígitos, sin espacios ni guiones',
+  },
+  ca: {
+    steps: ['El teu idioma', 'Crea la teva contrasenya', 'Sobre tu', 'Com contactar-te?', 'Què vols aconseguir?', 'Avís de Salut i Responsabilitat', "Explica'ns més"],
+    password: 'Contrasenya', passwordHint: '8+ caràcters, una majúscula, un caràcter especial',
+    confirmPassword: 'Confirmar contrasenya',
+    firstName: 'Nom', lastName: 'Cognom', dni: 'DNI / NIE',
+    phone: 'Número de telèfon',
+    birthday: 'Data de naixement',
+    conditions: 'Tens alguna lesió o condició especial?',
+    conditionsSelect: 'Selecciona totes les que apliquen',
+    conditionsList: ['Embaràs', 'Post-operatori', 'Hèrnia', 'Condició crònica'],
+    conditionOther: "Altra (especificar)", conditionOtherPlaceholder: 'Descriu la teva condició…',
+    goalsHint: (n: number) => `Selecciona entre 1 i 3 objectius (${n} seleccionats)`,
+    disclaimerScroll: "↓ Desplaça't fins al final per continuar",
+    disclaimerAccept: "He llegit i accepto l'Avís de Salut i Responsabilitat d'OOMA Wellness Club",
+    back: 'Enrere', continue: 'Continua', letsGo: 'Endavant!', saving: 'Guardant…',
+    welcome: 'Benvingut/da a OOMA Wellness!',
+    pwMin: 'La contrasenya ha de tenir almenys 8 caràcters',
+    pwCap: 'La contrasenya ha de tenir almenys una majúscula',
+    pwSpec: 'La contrasenya ha de tenir almenys un caràcter especial',
+    pwMatch: 'Les contrasenyes no coincideixen',
+    pwNoMatch: 'Les contrasenyes no coincideixen',
+    nameReq: 'El nom és obligatori', lastNameReq: 'El cognom és obligatori',
+    dniReq: 'El DNI/NIE és obligatori', dniInvalid: 'Format de DNI/NIE invàlid (p. ex. 12345678Z o X1234567L)',
+    dniInvalidFmt: 'Format invàlid — DNI: 8 dígits + lletra (p. ex. 12345678Z) · NIE: X/Y/Z + 7 dígits + lletra',
+    phoneReq: 'El telèfon és obligatori', phoneDigits: 'Només dígits — sense espais, guions o símbols',
+    phoneMustBe: (n: number) => `El telèfon ha de tenir exactament ${n} dígits per a`,
+    phoneAtLeast: (n: number) => `El telèfon ha de tenir almenys ${n} dígits per a`,
+    goalReq: 'Selecciona almenys un objectiu',
+    birthdayReq: 'La data de naixement és obligatòria', conditionsReq: 'Si us plau respon la pregunta de salut',
+    conditionsSelectReq: 'Selecciona almenys una condició', conditionOtherReq: 'Descriu la teva altra condició',
+    digitsOnly: 'Només dígits, sense espais ni guions',
+  },
+} as const
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
@@ -135,9 +234,11 @@ function OnboardingContent() {
   const set = (field: keyof FormState, value: string) =>
     setForm(prev => ({ ...prev, [field]: value }))
 
+  const tr = TR[form.language]
+
   const handlePhoneInput = (value: string) => {
     if (!/^\d*$/.test(value)) {
-      setPhoneError('Only digits are allowed — no spaces, dashes, or symbols')
+      setPhoneError(tr.phoneDigits)
       return
     }
     setPhoneError('')
@@ -148,7 +249,7 @@ function OnboardingContent() {
 
   const handlePhoneBlur = () => {
     if (!form.phone.trim()) {
-      setPhoneError('Phone number is required')
+      setPhoneError(tr.phoneReq)
     } else {
       setPhoneError('')
     }
@@ -157,46 +258,46 @@ function OnboardingContent() {
   const validateStep = (): string | null => {
     // step 0: language — always valid
     if (step === 1) {
-      if (form.password.length < 8) return 'Password must be at least 8 characters'
-      if (!/[A-Z]/.test(form.password)) return 'Password must contain at least one capital letter'
-      if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.password)) return 'Password must contain at least one special character'
-      if (form.password !== form.confirmPassword) return 'Passwords do not match'
+      if (form.password.length < 8) return tr.pwMin
+      if (!/[A-Z]/.test(form.password)) return tr.pwCap
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.password)) return tr.pwSpec
+      if (form.password !== form.confirmPassword) return tr.pwMatch
     }
     if (step === 2) {
-      if (!form.name.trim()) return 'First name is required'
-      if (!form.lastName.trim()) return 'Last name is required'
-      if (!form.dni.trim()) return 'DNI/NIE is required'
-      if (!validateDNI(form.dni.trim())) return 'Invalid DNI/NIE format (e.g. 12345678Z or X1234567L)'
+      if (!form.name.trim()) return tr.nameReq
+      if (!form.lastName.trim()) return tr.lastNameReq
+      if (!form.dni.trim()) return tr.dniReq
+      if (!validateDNI(form.dni.trim())) return tr.dniInvalid
     }
     if (step === 3) {
       if (!form.phone.trim()) {
-        setPhoneError('Phone number is required')
-        return 'Phone number is required'
+        setPhoneError(tr.phoneReq)
+        return tr.phoneReq
       }
       if (!/^\d+$/.test(form.phone)) {
-        setPhoneError('Only digits are allowed — no spaces, dashes, or symbols')
-        return 'Phone must contain digits only'
+        setPhoneError(tr.phoneDigits)
+        return tr.phoneDigits
       }
       const lengths = PHONE_LENGTHS[form.countryCode]
       if (lengths) {
         if (form.phone.length < lengths.min) {
           const msg = lengths.min === lengths.max
-            ? `Phone must be exactly ${lengths.min} digits for ${form.countryCode}`
-            : `Phone must be at least ${lengths.min} digits for ${form.countryCode}`
+            ? `${tr.phoneMustBe(lengths.min)} ${form.countryCode}`
+            : `${tr.phoneAtLeast(lengths.min)} ${form.countryCode}`
           setPhoneError(msg)
           return msg
         }
       }
     }
     if (step === 4) {
-      if (selectedGoalIds.length === 0) return 'Please select at least one goal'
+      if (selectedGoalIds.length === 0) return tr.goalReq
     }
     // step 5 (disclaimer) is handled separately in handleNext
     if (step === 6) {
-      if (!form.birthday) return 'Birthday is required'
-      if (hasConditions === null) return 'Please answer the health conditions question'
-      if (hasConditions && conditions.length === 0) return 'Please select at least one condition'
-      if (hasConditions && conditions.includes('Other') && !conditionOther.trim()) return 'Please describe your other condition'
+      if (!form.birthday) return tr.birthdayReq
+      if (hasConditions === null) return tr.conditionsReq
+      if (hasConditions && conditions.length === 0) return tr.conditionsSelectReq
+      if (hasConditions && conditions.includes('Other') && !conditionOther.trim()) return tr.conditionOtherReq
     }
     return null
   }
@@ -296,7 +397,7 @@ function OnboardingContent() {
         return
       }
       localStorage.setItem('user', JSON.stringify(data.user))
-      toast.success('Welcome to OOMA Wellness!', { duration: 2000, style: toastStyle('#22c55e') })
+      toast.success(tr.welcome, { duration: 2000, style: toastStyle('#22c55e') })
       setTimeout(() => router.push('/dashboard'), 1200)
     } catch {
       toast.error('Network error. Please try again.', { duration: 4000, style: toastStyle('#ef4444') })
@@ -307,15 +408,7 @@ function OnboardingContent() {
   const inputClass = (hasError = false) =>
     `w-full px-4 py-2 bg-warm-white border ${hasError ? 'border-burg' : 'border-rule'} rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray`
 
-  const STEPS = [
-    'Your language',
-    'Create your password',
-    'Yourself',
-    'How can we reach you?',
-    'What do you want to accomplish?',
-    'Health & Liability Disclaimer',
-    'Tell us about yourself',
-  ]
+  const STEPS = tr.steps
 
   if (!userId) return null
 
@@ -379,7 +472,7 @@ function OnboardingContent() {
           {step === 1 && (
             <>
               <div>
-                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Password *</label>
+                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.password} *</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -396,10 +489,10 @@ function OnboardingContent() {
                     <EyeIcon open={showPassword} />
                   </button>
                 </div>
-                <p className="text-xs text-mgray mt-1">8+ characters, one capital, one special character</p>
+                <p className="text-xs text-mgray mt-1">{tr.passwordHint}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Confirm Password *</label>
+                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.confirmPassword} *</label>
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
@@ -417,7 +510,7 @@ function OnboardingContent() {
                   </button>
                 </div>
                 {form.confirmPassword.length > 0 && form.password !== form.confirmPassword && (
-                  <p className="text-xs text-burg mt-1">Passwords do not match</p>
+                  <p className="text-xs text-burg mt-1">{tr.pwNoMatch}</p>
                 )}
               </div>
             </>
@@ -426,15 +519,15 @@ function OnboardingContent() {
           {step === 2 && (
             <>
               <div>
-                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">First Name *</label>
+                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.firstName} *</label>
                 <input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Maria" className={inputClass()} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Last Name *</label>
+                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.lastName} *</label>
                 <input type="text" value={form.lastName} onChange={e => set('lastName', e.target.value)} placeholder="García" className={inputClass()} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">DNI / NIE *</label>
+                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.dni} *</label>
                 <input
                   type="text"
                   value={form.dni}
@@ -446,7 +539,7 @@ function OnboardingContent() {
                   className={inputClass(!!form.dni && !validateDNI(form.dni.trim()))}
                 />
                 {form.dni && !validateDNI(form.dni.trim()) && (
-                  <p className="text-xs text-burg mt-1">Invalid format — DNI: 8 digits + letter (e.g. 12345678Z) · NIE: X/Y/Z + 7 digits + letter</p>
+                  <p className="text-xs text-burg mt-1">{tr.dniInvalidFmt}</p>
                 )}
               </div>
             </>
@@ -454,7 +547,7 @@ function OnboardingContent() {
 
           {step === 3 && (
             <div>
-              <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Phone Number *</label>
+              <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.phone} *</label>
               <div className="flex gap-2">
                 <select
                   value={form.countryCode}
@@ -480,7 +573,7 @@ function OnboardingContent() {
                 <p className="text-xs text-mgray mt-1">
                   {(() => {
                     const l = PHONE_LENGTHS[form.countryCode]
-                    if (!l) return 'Digits only, no spaces or dashes'
+                    if (!l) return tr.digitsOnly
                     return l.min === l.max
                       ? `${l.min} digits required`
                       : `${l.min}–${l.max} digits required`
@@ -516,7 +609,7 @@ function OnboardingContent() {
                   })}
                 </div>
               )}
-              <p className="text-xs text-mgray mt-3">Select at least 1 and up to 3 goals ({selectedGoalIds.length} selected)</p>
+              <p className="text-xs text-mgray mt-3">{tr.goalsHint(selectedGoalIds.length)}</p>
             </div>
           )}
 
@@ -553,7 +646,7 @@ function OnboardingContent() {
                 <p className="text-xs text-mgray pt-2 border-t border-rule">OOMA Wellness Club · Barcelona, Catalunya · Aviso de Salud y Responsabilidad · v1.0 · 2026</p>
               </div>
               {!disclaimerScrolled && (
-                <p className="text-xs text-mgray mb-3 text-center">↓ Scroll to the bottom to continue</p>
+                <p className="text-xs text-mgray mb-3 text-center">{tr.disclaimerScroll}</p>
               )}
               <label className={`flex items-start gap-3 cursor-pointer ${!disclaimerScrolled ? 'opacity-40 pointer-events-none' : ''}`}>
                 <div
@@ -569,7 +662,7 @@ function OnboardingContent() {
                   )}
                 </div>
                 <span className="text-sm text-mgray leading-snug" onClick={() => disclaimerScrolled && setDisclaimerChecked(v => !v)}>
-                  He leído y acepto el Aviso de Salud y Responsabilidad de OOMA Wellness Club
+                  {tr.disclaimerAccept}
                 </span>
               </label>
             </div>
@@ -578,12 +671,12 @@ function OnboardingContent() {
           {step === 6 && (
             <>
               <div>
-                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Birthday *</label>
+                <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.birthday} *</label>
                 <BirthdayPicker value={form.birthday} onChange={v => set('birthday', v)} className={inputClass()} />
               </div>
 
               <div>
-                <p className="block text-sm font-medium text-ink mb-3 tracking-wide">Do you have any injuries or special conditions? *</p>
+                <p className="block text-sm font-medium text-ink mb-3 tracking-wide">{tr.conditions} *</p>
                 <div className="flex gap-3">
                   <button
                     type="button"
@@ -612,9 +705,10 @@ function OnboardingContent() {
 
               {hasConditions === true && (
                 <div>
-                  <p className="text-xs font-medium text-mgray tracking-wider uppercase mb-3">Select all that apply</p>
+                  <p className="text-xs font-medium text-mgray tracking-wider uppercase mb-3">{tr.conditionsSelect}</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {CONDITIONS.map(c => {
+                    {CONDITIONS_EN.map((c, idx) => {
+                      const label = tr.conditionsList[idx]
                       const selected = conditions.includes(c)
                       return (
                         <button
@@ -634,7 +728,7 @@ function OnboardingContent() {
                               </svg>
                             )}
                           </span>
-                          {c}
+                          {label}
                         </button>
                       )
                     })}
@@ -654,7 +748,7 @@ function OnboardingContent() {
                           </svg>
                         )}
                       </span>
-                      Other (specify)
+                      {tr.conditionOther}
                     </button>
                   </div>
                   {conditions.includes('Other') && (
@@ -662,7 +756,7 @@ function OnboardingContent() {
                       value={conditionOther}
                       onChange={e => setConditionOther(e.target.value)}
                       rows={2}
-                      placeholder="Please describe your condition…"
+                      placeholder={tr.conditionOtherPlaceholder}
                       className="w-full mt-2 px-4 py-2 bg-warm-white border border-rule rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray resize-none text-sm"
                     />
                   )}
@@ -679,7 +773,7 @@ function OnboardingContent() {
               onClick={() => setStep(s => s - 1)}
               className="flex-1 py-3 border border-rule text-mgray font-medium rounded-sm hover:border-burg hover:text-burg transition tracking-wider text-sm uppercase"
             >
-              Back
+              {tr.back}
             </button>
           )}
           <button
@@ -692,7 +786,7 @@ function OnboardingContent() {
             }
             className="flex-1 bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-sm transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
           >
-            {loading ? 'Saving…' : step === 6 ? "Let's go!" : 'Continue'}
+            {loading ? tr.saving : step === 6 ? tr.letsGo : tr.continue}
           </button>
         </div>
       </div>
