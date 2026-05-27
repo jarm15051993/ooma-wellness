@@ -1,7 +1,9 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
+import { APP_TR, getLang } from '@/lib/app-translations'
 
 function CalendarIcon() {
   return (
@@ -35,16 +37,27 @@ function ProfileIcon() {
   )
 }
 
-const tabs = [
-  { label: 'Calendar',      href: '/book',     icon: CalendarIcon  },
-  { label: 'My Classes',    href: '/classes',  icon: ClassesIcon   },
-  { label: 'Subscriptions', href: '/packages', icon: PackagesIcon  },
-  { label: 'Profile',       href: '/profile',  icon: ProfileIcon   },
-]
-
 export default function BottomNav() {
   const pathname = usePathname()
   const router   = useRouter()
+  const [tr, setTr] = useState(APP_TR['es'])
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('user')
+      if (stored) {
+        const user = JSON.parse(stored)
+        setTr(APP_TR[getLang(user)])
+      }
+    } catch {}
+  }, [])
+
+  const tabs = [
+    { label: tr.navCalendar, href: '/book',     icon: CalendarIcon  },
+    { label: tr.navMyClasses, href: '/classes', icon: ClassesIcon   },
+    { label: tr.navSubs,     href: '/packages', icon: PackagesIcon  },
+    { label: tr.navProfile,  href: '/profile',  icon: ProfileIcon   },
+  ]
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-warm-white border-t border-rule pb-safe">

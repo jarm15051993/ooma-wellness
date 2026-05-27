@@ -6,6 +6,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import QRCode from 'react-qr-code'
 import { FieldRow, PencilIcon, ALLOWED_EXTENSIONS } from '@/app/components/ProfileFields'
 import BottomNav from '@/app/components/BottomNav'
+import { APP_TR, getLang, LOCALE } from '@/lib/app-translations'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -30,11 +31,16 @@ export default function ProfilePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const lang = getLang(user)
+  const tr = APP_TR[lang]
+  const locale = LOCALE[lang]
+
   const handleFileUpload = useCallback(async (file: File) => {
+    const pageTr = APP_TR[getLang(user)]
     const fileName = file.name.toLowerCase()
     const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext))
     if (!hasValidExtension) {
-      toast.error('Only .png, .jpg, .jpeg, .heic, and .heif files are allowed', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
+      toast.error(pageTr.invalidFileType, { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
       return
     }
     setUploadStatus('uploading')
@@ -44,7 +50,7 @@ export default function ProfilePage() {
     try {
       const response = await fetch('/api/user/profile-picture', { method: 'POST', body: formData })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Upload failed')
+      if (!response.ok) throw new Error(data.error || pageTr.uploadFailed)
       setProfilePicture(data.profilePicture)
       setPictureVersion(v => v + 1)
       setUploadStatus('idle')
@@ -54,10 +60,10 @@ export default function ProfilePage() {
         localStorage.setItem('user', JSON.stringify(updated))
         setUser(updated)
       }
-      toast.success('Profile picture updated!', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' } })
+      toast.success(pageTr.profilePicUpdated, { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' } })
     } catch (error: any) {
       setUploadStatus('idle')
-      toast.error(error.message || 'Upload failed. Please try again.', { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
+      toast.error(error.message || pageTr.uploadFailed, { style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' } })
     }
   }, [user])
 
@@ -127,20 +133,20 @@ export default function ProfilePage() {
         body: JSON.stringify({ userId: user.id, [field]: value }),
       })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Update failed')
+      if (!response.ok) throw new Error(data.error || tr.updateFailed)
       const updated = { ...user, ...data.user }
       setUser(updated)
       localStorage.setItem('user', JSON.stringify(updated))
       setEditingField(null)
     } catch (error: any) {
-      setFieldError(error.message || 'Update failed. Please try again.')
+      setFieldError(error.message || tr.updateFailed)
     } finally {
       setFieldSaving(false)
     }
   }
 
   const saveGoals = async () => {
-    if (editGoalIds.length === 0) { setGoalError('Please select at least one goal.'); return }
+    if (editGoalIds.length === 0) { setGoalError(tr.pleaseSelectGoal); return }
     setGoalsSaving(true)
     setGoalError(null)
     try {
@@ -150,7 +156,7 @@ export default function ProfilePage() {
         body: JSON.stringify({ userId: user.id, goalIds: editGoalIds }),
       })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Update failed')
+      if (!response.ok) throw new Error(data.error || tr.updateFailed)
       const goalsDisplay = availableGoals.filter(g => editGoalIds.includes(g.id)).map(g => g.label).join(', ')
       const updated = { ...user, goals: goalsDisplay }
       setUser(updated)
@@ -158,7 +164,7 @@ export default function ProfilePage() {
       setUserGoalIds(editGoalIds)
       setEditingGoals(false)
     } catch (error: any) {
-      setGoalError(error.message || 'Update failed. Please try again.')
+      setGoalError(error.message || tr.updateFailed)
     } finally {
       setGoalsSaving(false)
     }
@@ -202,13 +208,15 @@ export default function ProfilePage() {
           />
           <button onClick={handleLogout}
             className="px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm border border-rule text-mgray hover:border-burg hover:text-burg rounded-sm transition tracking-wide">
-            Logout
+            {tr.logout}
           </button>
         </div>
 
         {/* Profile Card */}
         <div className="bg-warm-white rounded p-6 border border-rule mb-6">
-          <h2 className="text-4xl font-serif font-light text-ink mb-6 tracking-wide">My <em className="text-burg">Profile</em></h2>
+          <h2 className="text-4xl font-serif font-light text-ink mb-6 tracking-wide">
+            {tr.myProfileH2.pre}<em className="text-burg">{tr.myProfileH2.em}</em>
+          </h2>
 
           <div className="flex flex-col sm:flex-row items-start gap-8 mb-6">
             <div className="flex-shrink-0">
@@ -246,23 +254,23 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 min-w-0 w-full">
-              <FieldRow key={editingField === 'name' ? 'name-e' : 'name'} {...fieldRowShared} field="name" label="First Name" display={<span className="break-words">{user.name}</span>} initialValue={user.name || ''} isEditing={editingField === 'name'} />
-              <FieldRow key={editingField === 'lastName' ? 'lastName-e' : 'lastName'} {...fieldRowShared} field="lastName" label="Last Name" display={<span className="break-words">{user.lastName}</span>} initialValue={user.lastName || ''} isEditing={editingField === 'lastName'} />
-              <FieldRow key={editingField === 'email' ? 'email-e' : 'email'} {...fieldRowShared} field="email" label="Email" display={<span className="break-all">{user.email}</span>} initialValue={user.email || ''} isEditing={editingField === 'email'} />
-              <FieldRow key={editingField === 'phone' ? 'phone-e' : 'phone'} {...fieldRowShared} field="phone" label="Phone" display={<span className="break-words">{user.phone}</span>} initialValue={user.phone || ''} isEditing={editingField === 'phone'} />
-              <FieldRow key={editingField === 'birthday' ? 'birthday-e' : 'birthday'} {...fieldRowShared} field="birthday" label="Birthday" display={user.birthday ? new Date(user.birthday).toLocaleDateString('en-US', { timeZone: 'UTC' }) : '—'} initialValue={user.birthday || ''} isEditing={editingField === 'birthday'} />
+              <FieldRow key={editingField === 'name' ? 'name-e' : 'name'} {...fieldRowShared} field="name" label={tr.firstName} display={<span className="break-words">{user.name}</span>} initialValue={user.name || ''} isEditing={editingField === 'name'} />
+              <FieldRow key={editingField === 'lastName' ? 'lastName-e' : 'lastName'} {...fieldRowShared} field="lastName" label={tr.lastName} display={<span className="break-words">{user.lastName}</span>} initialValue={user.lastName || ''} isEditing={editingField === 'lastName'} />
+              <FieldRow key={editingField === 'email' ? 'email-e' : 'email'} {...fieldRowShared} field="email" label={tr.email} display={<span className="break-all">{user.email}</span>} initialValue={user.email || ''} isEditing={editingField === 'email'} />
+              <FieldRow key={editingField === 'phone' ? 'phone-e' : 'phone'} {...fieldRowShared} field="phone" label={tr.phone} display={<span className="break-words">{user.phone}</span>} initialValue={user.phone || ''} isEditing={editingField === 'phone'} />
+              <FieldRow key={editingField === 'birthday' ? 'birthday-e' : 'birthday'} {...fieldRowShared} field="birthday" label={tr.birthday} display={user.birthday ? new Date(user.birthday).toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'} initialValue={user.birthday || ''} isEditing={editingField === 'birthday'} />
               <div>
-                <p className="text-xs font-medium text-mgray tracking-wider uppercase mb-1">Class Credits</p>
+                <p className="text-xs font-medium text-mgray tracking-wider uppercase mb-1">{tr.classCredits}</p>
                 <div className="flex items-center gap-2">
                   <span className="text-burg font-serif font-light text-5xl">{totalCredits}</span>
-                  <span className="text-mgray text-base">{totalCredits === 1 ? 'class' : 'classes'} remaining</span>
+                  <span className="text-mgray text-base">{tr.classRemaining(totalCredits)}</span>
                 </div>
                 {totalCredits === 0 && (
-                  <p className="text-mgray text-sm mt-1">Purchase a package to start booking classes!</p>
+                  <p className="text-mgray text-sm mt-1">{tr.purchasePackage}</p>
                 )}
                 <button onClick={() => router.push('/packages')}
                   className="mt-3 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase">
-                  Buy More Classes
+                  {tr.buyMoreClasses}
                 </button>
               </div>
             </div>
@@ -271,7 +279,7 @@ export default function ProfilePage() {
           {/* Goals */}
           <div className="border-t border-rule pt-6">
             <div className="flex items-center gap-2 mb-3">
-              <p className="text-xs font-medium text-mgray tracking-wider uppercase">Goals</p>
+              <p className="text-xs font-medium text-mgray tracking-wider uppercase">{tr.goals}</p>
               {!editingGoals && (
                 <button type="button" onClick={() => { setEditGoalIds(userGoalIds); setEditingGoals(true); setGoalError(null) }}
                   className="opacity-60 hover:opacity-100 text-mgray hover:text-burg transition-opacity" title="Edit goals">
@@ -282,7 +290,7 @@ export default function ProfilePage() {
             {editingGoals ? (
               <div>
                 {availableGoals.length === 0 ? (
-                  <p className="text-mgray text-sm">Loading goals…</p>
+                  <p className="text-mgray text-sm">{tr.loadingGoals}</p>
                 ) : (
                   <div className="flex flex-wrap gap-2 mb-3">
                     {availableGoals.map(goal => {
@@ -300,22 +308,22 @@ export default function ProfilePage() {
                             : disabled ? 'border-rule text-lgray cursor-not-allowed opacity-50'
                             : 'border-rule text-ink hover:border-burg hover:text-burg'
                           }`}>
-                          {goal.label}
+                          {tr.goalLabels[goal.label] ?? goal.label}
                         </button>
                       )
                     })}
                   </div>
                 )}
-                <p className="text-xs text-mgray mb-3">Select at least 1 and up to 3 goals ({editGoalIds.length} selected)</p>
+                <p className="text-xs text-mgray mb-3">{tr.goalsHint(editGoalIds.length)}</p>
                 {goalError && <p className="text-burg text-xs mb-2">{goalError}</p>}
                 <div className="flex gap-2">
                   <button type="button" onClick={saveGoals} disabled={goalsSaving}
                     className="px-3 py-1 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white text-sm font-medium rounded-sm transition tracking-wide">
-                    {goalsSaving ? 'Saving…' : 'Save'}
+                    {goalsSaving ? tr.saving : tr.save}
                   </button>
                   <button type="button" onClick={() => { setEditingGoals(false); setGoalError(null) }} disabled={goalsSaving}
                     className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-sm rounded-sm transition">
-                    Cancel
+                    {tr.cancel}
                   </button>
                 </div>
               </div>
@@ -323,7 +331,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-2">
                 {userGoalIds.length > 0
                   ? availableGoals.filter(g => userGoalIds.includes(g.id)).map(g => (
-                      <span key={g.id} className="px-3 py-1 rounded-full bg-burg text-warm-white text-sm">{g.label}</span>
+                      <span key={g.id} className="px-3 py-1 rounded-full bg-burg text-warm-white text-sm">{tr.goalLabels[g.label] ?? g.label}</span>
                     ))
                   : <p className="text-ink text-base">{user.goals ?? '—'}</p>
                 }
@@ -335,8 +343,10 @@ export default function ProfilePage() {
         {/* QR Code */}
         {user.qrCode && (
           <div className="bg-warm-white rounded p-6 border border-rule mb-6 flex flex-col items-center">
-            <h2 className="text-2xl font-serif font-light text-ink mb-2 tracking-wide self-start">My <em className="text-burg">QR Code</em></h2>
-            <p className="text-mgray text-sm mb-6 self-start">Show this at the studio to check in.</p>
+            <h2 className="text-2xl font-serif font-light text-ink mb-2 tracking-wide self-start">
+              {tr.myQrH2.pre}<em className="text-burg">{tr.myQrH2.em}</em>
+            </h2>
+            <p className="text-mgray text-sm mb-6 self-start">{tr.showAtStudio}</p>
             <div className="p-4 bg-white border border-rule rounded">
               <QRCode value={user.qrCode} size={180} />
             </div>
