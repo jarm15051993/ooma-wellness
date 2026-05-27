@@ -308,7 +308,7 @@ export default function ProfilePage() {
                             : disabled ? 'border-rule text-lgray cursor-not-allowed opacity-50'
                             : 'border-rule text-ink hover:border-burg hover:text-burg'
                           }`}>
-                          {goal.label}
+                          {tr.goalLabels[goal.label] ?? goal.label}
                         </button>
                       )
                     })}
@@ -331,7 +331,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-2">
                 {userGoalIds.length > 0
                   ? availableGoals.filter(g => userGoalIds.includes(g.id)).map(g => (
-                      <span key={g.id} className="px-3 py-1 rounded-full bg-burg text-warm-white text-sm">{g.label}</span>
+                      <span key={g.id} className="px-3 py-1 rounded-full bg-burg text-warm-white text-sm">{tr.goalLabels[g.label] ?? g.label}</span>
                     ))
                   : <p className="text-ink text-base">{user.goals ?? '—'}</p>
                 }

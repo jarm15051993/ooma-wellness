@@ -21,7 +21,7 @@ function daysInMonth(month: number, year: number) {
   return new Date(year, month, 0).getDate()
 }
 
-function BirthdayPicker({ value, onChange, className }: { value: string; onChange: (v: string) => void; className: string }) {
+function BirthdayPicker({ value, onChange, className, tr }: { value: string; onChange: (v: string) => void; className: string; tr: any }) {
   const parts = value ? value.split('-') : ['', '', '']
   const [year, setYear] = useState(parts[0] || '')
   const [month, setMonth] = useState(parts[1] ? String(parseInt(parts[1])) : '')
@@ -41,15 +41,15 @@ function BirthdayPicker({ value, onChange, className }: { value: string; onChang
   return (
     <div className="flex gap-2">
       <select value={month} onChange={e => update(year, e.target.value, day)} className={selectClass}>
-        <option value="">Month</option>
-        {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
+        <option value="">{tr.monthPlaceholder}</option>
+        {tr.months.map((m: string, i: number) => <option key={m} value={String(i + 1)}>{m}</option>)}
       </select>
       <select value={day} onChange={e => update(year, month, e.target.value)} className={selectClass}>
-        <option value="">Day</option>
+        <option value="">{tr.dayPlaceholder}</option>
         {Array.from({ length: maxDay }, (_, i) => i + 1).map(d => <option key={d} value={String(d)}>{d}</option>)}
       </select>
       <select value={year} onChange={e => update(e.target.value, month, day)} className={selectClass}>
-        <option value="">Year</option>
+        <option value="">{tr.yearPlaceholder}</option>
         {Array.from({ length: MAX_YEAR - MIN_YEAR + 1 }, (_, i) => MAX_YEAR - i).map(y => <option key={y} value={String(y)}>{y}</option>)}
       </select>
     </div>
@@ -102,6 +102,16 @@ const TR = {
     birthdayReq: 'Birthday is required', conditionsReq: 'Please answer the health conditions question',
     conditionsSelectReq: 'Please select at least one condition', conditionOtherReq: 'Please describe your other condition',
     digitsOnly: 'Digits only, no spaces or dashes',
+    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    monthPlaceholder: 'Month', dayPlaceholder: 'Day', yearPlaceholder: 'Year',
+    yes: 'Yes', no: 'No',
+    goalLabels: {
+      'Better flexibility': 'Better flexibility', 'Stronger core': 'Stronger core',
+      'Toned muscles': 'Toned muscles', 'Less stress': 'Less stress',
+      'Injury recovery': 'Injury recovery', 'Improved posture': 'Improved posture',
+      'Better balance': 'Better balance', 'Weight management': 'Weight management',
+      'More endurance': 'More endurance', 'Injury prevention': 'Injury prevention',
+    } as Record<string, string>,
   },
   es: {
     steps: ['Tu idioma', 'Crea tu contraseña', 'Sobre ti', '¿Cómo contactarte?', '¿Qué quieres lograr?', 'Aviso de Salud y Responsabilidad', 'Cuéntanos más'],
@@ -134,6 +144,16 @@ const TR = {
     birthdayReq: 'La fecha de nacimiento es obligatoria', conditionsReq: 'Por favor responde la pregunta de salud',
     conditionsSelectReq: 'Selecciona al menos una condición', conditionOtherReq: 'Describe tu otra condición',
     digitsOnly: 'Solo dígitos, sin espacios ni guiones',
+    months: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+    monthPlaceholder: 'Mes', dayPlaceholder: 'Día', yearPlaceholder: 'Año',
+    yes: 'Sí', no: 'No',
+    goalLabels: {
+      'Better flexibility': 'Mayor flexibilidad', 'Stronger core': 'Core más fuerte',
+      'Toned muscles': 'Músculos tonificados', 'Less stress': 'Menos estrés',
+      'Injury recovery': 'Recuperación de lesiones', 'Improved posture': 'Mejora de postura',
+      'Better balance': 'Mejor equilibrio', 'Weight management': 'Control de peso',
+      'More endurance': 'Más resistencia', 'Injury prevention': 'Prevención de lesiones',
+    } as Record<string, string>,
   },
   ca: {
     steps: ['El teu idioma', 'Crea la teva contrasenya', 'Sobre tu', 'Com contactar-te?', 'Què vols aconseguir?', 'Avís de Salut i Responsabilitat', "Explica'ns més"],
@@ -166,6 +186,16 @@ const TR = {
     birthdayReq: 'La data de naixement és obligatòria', conditionsReq: 'Si us plau respon la pregunta de salut',
     conditionsSelectReq: 'Selecciona almenys una condició', conditionOtherReq: 'Descriu la teva altra condició',
     digitsOnly: 'Només dígits, sense espais ni guions',
+    months: ['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'],
+    monthPlaceholder: 'Mes', dayPlaceholder: 'Dia', yearPlaceholder: 'Any',
+    yes: 'Sí', no: 'No',
+    goalLabels: {
+      'Better flexibility': 'Millor flexibilitat', 'Stronger core': 'Core més fort',
+      'Toned muscles': 'Músculs tonificats', 'Less stress': 'Menys estrès',
+      'Injury recovery': 'Recuperació de lesions', 'Improved posture': 'Millora de postura',
+      'Better balance': 'Millor equilibri', 'Weight management': 'Control de pes',
+      'More endurance': 'Més resistència', 'Injury prevention': 'Prevenció de lesions',
+    } as Record<string, string>,
   },
 } as const
 
@@ -603,7 +633,7 @@ function OnboardingContent() {
                           : disabled ? 'border-rule text-lgray cursor-not-allowed opacity-50'
                           : 'border-rule text-ink hover:border-burg hover:text-burg'
                         }`}>
-                        {goal.label}
+                        {tr.goalLabels[goal.label] ?? goal.label}
                       </button>
                     )
                   })}
@@ -672,7 +702,7 @@ function OnboardingContent() {
             <>
               <div>
                 <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.birthday} *</label>
-                <BirthdayPicker value={form.birthday} onChange={v => set('birthday', v)} className={inputClass()} />
+                <BirthdayPicker value={form.birthday} onChange={v => set('birthday', v)} className={inputClass()} tr={tr} />
               </div>
 
               <div>
@@ -687,7 +717,7 @@ function OnboardingContent() {
                         : 'border-rule text-mgray hover:border-burg hover:text-burg'
                     }`}
                   >
-                    No
+                    {tr.no}
                   </button>
                   <button
                     type="button"
@@ -698,7 +728,7 @@ function OnboardingContent() {
                         : 'border-rule text-mgray hover:border-burg hover:text-burg'
                     }`}
                   >
-                    Yes
+                    {tr.yes}
                   </button>
                 </div>
               </div>

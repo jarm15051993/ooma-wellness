@@ -113,6 +113,13 @@ export const APP_TR = {
     profilePicUpdated:   'Profile picture updated!',
     uploadFailed:        'Upload failed. Please try again.',
     updateFailed:        'Update failed. Please try again.',
+    goalLabels: {
+      'Better flexibility': 'Better flexibility', 'Stronger core': 'Stronger core',
+      'Toned muscles': 'Toned muscles', 'Less stress': 'Less stress',
+      'Injury recovery': 'Injury recovery', 'Improved posture': 'Improved posture',
+      'Better balance': 'Better balance', 'Weight management': 'Weight management',
+      'More endurance': 'More endurance', 'Injury prevention': 'Injury prevention',
+    } as Record<string, string>,
   },
 
   es: {
@@ -210,6 +217,13 @@ export const APP_TR = {
     profilePicUpdated:   '¡Foto de perfil actualizada!',
     uploadFailed:        'Error al subir. Por favor, inténtalo de nuevo.',
     updateFailed:        'Error al actualizar. Por favor, inténtalo de nuevo.',
+    goalLabels: {
+      'Better flexibility': 'Mayor flexibilidad', 'Stronger core': 'Core más fuerte',
+      'Toned muscles': 'Músculos tonificados', 'Less stress': 'Menos estrés',
+      'Injury recovery': 'Recuperación de lesiones', 'Improved posture': 'Mejora de postura',
+      'Better balance': 'Mejor equilibrio', 'Weight management': 'Control de peso',
+      'More endurance': 'Más resistencia', 'Injury prevention': 'Prevención de lesiones',
+    } as Record<string, string>,
   },
 
   ca: {
@@ -307,5 +321,12 @@ export const APP_TR = {
     profilePicUpdated:   'Foto de perfil actualitzada!',
     uploadFailed:        "Error en pujar. Si us plau, torna-ho a intentar.",
     updateFailed:        "Error en actualitzar. Si us plau, torna-ho a intentar.",
+    goalLabels: {
+      'Better flexibility': 'Millor flexibilitat', 'Stronger core': 'Core més fort',
+      'Toned muscles': 'Músculs tonificats', 'Less stress': 'Menys estrès',
+      'Injury recovery': 'Recuperació de lesions', 'Improved posture': 'Millora de postura',
+      'Better balance': 'Millor equilibri', 'Weight management': 'Control de pes',
+      'More endurance': 'Més resistència', 'Injury prevention': 'Prevenció de lesions',
+    } as Record<string, string>,
   },
 }
