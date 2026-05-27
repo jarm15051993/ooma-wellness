@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
 import BottomNav from '@/app/components/BottomNav'
+import { APP_TR, getLang } from '@/lib/app-translations'
 
 const toastStyle = (border: string) => ({
   background: '#F4F0E8',
@@ -59,18 +60,12 @@ function CheckIcon() {
   )
 }
 
-function StatusBadge({ status }: { status: Subscription['status'] }) {
+function StatusBadge({ status, labels }: { status: Subscription['status']; labels: Record<string, string> }) {
   const styles: Record<Subscription['status'], string> = {
     ACTIVE:    'bg-green-50 text-green-700 border border-green-300',
     CANCELLED: 'bg-yellow-50 text-yellow-700 border border-yellow-300',
     PAST_DUE:  'bg-red-50 text-red-600 border border-red-300',
     EXPIRED:   'bg-bone text-lgray border border-rule',
-  }
-  const labels: Record<Subscription['status'], string> = {
-    ACTIVE:    'Active',
-    CANCELLED: 'Cancels at period end',
-    PAST_DUE:  'Payment past due',
-    EXPIRED:   'Expired',
   }
   return (
     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -89,15 +84,19 @@ export default function PackagesPage() {
   const [purchasing, setPurchasing]     = useState<string | null>(null)
   const [cancelling, setCancelling]     = useState<string | null>(null)
 
+  const lang = getLang(user)
+  const tr = APP_TR[lang]
+
   useEffect(() => {
     const stored = localStorage.getItem('user')
     if (!stored) {
-      toast.error('Please log in to view packages', { style: toastStyle('#ef4444') })
+      toast.error(APP_TR[getLang(null)].pleaseLogIn, { style: toastStyle('#ef4444') })
       setTimeout(() => router.push('/login'), 1500)
       return
     }
     const parsedUser = JSON.parse(stored)
     setUser(parsedUser)
+    const pageTr = APP_TR[getLang(parsedUser)]
 
     Promise.all([
       fetch('/api/web/settings').then(r => r.json()),
@@ -109,7 +108,7 @@ export default function PackagesPage() {
         setPackages(Array.isArray(packagesData) ? packagesData : [])
         setSubscriptions(subsData.subscriptions ?? [])
       })
-      .catch(() => toast.error('Failed to load packages', { style: toastStyle('#ef4444') }))
+      .catch(() => toast.error(pageTr.failedToLoad, { style: toastStyle('#ef4444') }))
       .finally(() => setLoading(false))
   }, [router])
 
@@ -131,10 +130,10 @@ export default function PackagesPage() {
         body:    JSON.stringify({ userId: user.id }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to start checkout')
+      if (!res.ok) throw new Error(data.error || tr.somethingWentWrong)
       window.location.href = data.url
     } catch (err: any) {
-      toast.error(err.message || 'Something went wrong', { style: toastStyle('#ef4444') })
+      toast.error(err.message || tr.somethingWentWrong, { style: toastStyle('#ef4444') })
       setPurchasing(null)
     }
   }
@@ -148,10 +147,10 @@ export default function PackagesPage() {
         body:    JSON.stringify({ userId: user.id, packageId: pkg.id }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to start checkout')
+      if (!res.ok) throw new Error(data.error || tr.somethingWentWrong)
       window.location.href = data.url
     } catch (err: any) {
-      toast.error(err.message || 'Something went wrong', { style: toastStyle('#ef4444') })
+      toast.error(err.message || tr.somethingWentWrong, { style: toastStyle('#ef4444') })
       setPurchasing(null)
     }
   }
@@ -165,10 +164,10 @@ export default function PackagesPage() {
         body:    JSON.stringify({ packageId: pkg.id, userId: user.id, userEmail: user.email }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to start checkout')
+      if (!res.ok) throw new Error(data.error || tr.somethingWentWrong)
       window.location.href = data.url
     } catch (err: any) {
-      toast.error(err.message || 'Something went wrong', { style: toastStyle('#ef4444') })
+      toast.error(err.message || tr.somethingWentWrong, { style: toastStyle('#ef4444') })
       setPurchasing(null)
     }
   }
@@ -182,16 +181,16 @@ export default function PackagesPage() {
         body:    JSON.stringify({ userId: user.id }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to cancel')
+      if (!res.ok) throw new Error(data.error || tr.somethingWentWrong)
       setSubscriptions(prev =>
         prev.map(s => s.id === sub.id ? { ...s, status: 'CANCELLED', cancelledAt: new Date().toISOString() } : s)
       )
-      toast.success('Subscription cancelled. Access continues until the period ends.', {
+      toast.success(tr.subCancelled, {
         duration: 4000,
         style:    toastStyle('#22c55e'),
       })
     } catch (err: any) {
-      toast.error(err.message || 'Something went wrong', { style: toastStyle('#ef4444') })
+      toast.error(err.message || tr.somethingWentWrong, { style: toastStyle('#ef4444') })
     } finally {
       setCancelling(null)
     }
@@ -229,9 +228,9 @@ export default function PackagesPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-serif font-light text-ink mb-2 tracking-wide">
-            Packages &amp; <em className="text-burg">Subscriptions</em>
+            {tr.packagesH1.pre}<em className="text-burg">{tr.packagesH1.em}</em>
           </h1>
-          <p className="text-mgray text-sm">Choose how you want to practice at OOMA Wellness Club</p>
+          <p className="text-mgray text-sm">{tr.packagesSubtitle}</p>
         </div>
 
         {/* ── Membership Gate ────────────────────────────────────────── */}
@@ -239,25 +238,23 @@ export default function PackagesPage() {
           <div className="bg-warm-white rounded p-6 border border-burg/30 mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
               <div>
-                <p className="text-xs font-medium text-burg tracking-widest uppercase mb-2">Required to purchase</p>
+                <p className="text-xs font-medium text-burg tracking-widest uppercase mb-2">{tr.requiredToPurchase}</p>
                 <h2 className="text-2xl font-serif font-light text-ink mb-2 tracking-wide">
-                  Join the <em className="text-burg">OOMA Club</em>
+                  {tr.joinClubH2.pre}<em className="text-burg">{tr.joinClubH2.em}</em>
                 </h2>
-                <p className="text-mgray text-sm max-w-sm">
-                  A one-time membership fee is required before purchasing class packs or subscriptions.
-                </p>
+                <p className="text-mgray text-sm max-w-sm">{tr.membershipRequired}</p>
               </div>
               <div className="text-center flex-shrink-0">
                 <div className="text-5xl font-serif font-light text-burg mb-1">
                   €{settings!.subscriptionPrice.toFixed(2)}
                 </div>
-                <p className="text-mgray text-xs mb-4">one-time fee</p>
+                <p className="text-mgray text-xs mb-4">{tr.oneTimeFee}</p>
                 <button
                   onClick={handleJoinClub}
                   disabled={purchasing === 'membership'}
                   className="px-8 py-3 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase"
                 >
-                  {purchasing === 'membership' ? 'Processing…' : 'Join Club'}
+                  {purchasing === 'membership' ? tr.processing : tr.joinClub}
                 </button>
               </div>
             </div>
@@ -271,9 +268,9 @@ export default function PackagesPage() {
             {recurringPackages.length > 0 && (
               <div className="mb-10">
                 <h2 className="text-2xl font-serif font-light text-ink mb-1 tracking-wide">
-                  Monthly <em className="text-burg">Subscriptions</em>
+                  {tr.monthlySubsH2.pre}<em className="text-burg">{tr.monthlySubsH2.em}</em>
                 </h2>
-                <p className="text-mgray text-sm mb-6">Auto-renews each month.</p>
+                <p className="text-mgray text-sm mb-6">{tr.autoRenews}</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {recurringPackages.map(pkg => {
@@ -294,14 +291,14 @@ export default function PackagesPage() {
 
                         <div className="mb-6">
                           <div className="text-4xl font-serif font-light text-burg">€{pkg.price}</div>
-                          <div className="text-mgray text-xs mt-0.5">per month</div>
+                          <div className="text-mgray text-xs mt-0.5">{tr.perMonth}</div>
                         </div>
 
                         <div className="space-y-2 mb-6 flex-1">
                           <div className="flex items-center gap-2 text-ink text-sm">
                             <CheckIcon />
                             <span>
-                              {pkg.isUnlimited ? 'Unlimited classes' : `${pkg.classCount} ${pkg.classCount === 1 ? 'class' : 'classes'} per month`}
+                              {pkg.isUnlimited ? tr.unlimitedClasses : tr.classesPerMonth(pkg.classCount)}
                             </span>
                           </div>
                           {pricePerClass && (
@@ -314,7 +311,7 @@ export default function PackagesPage() {
 
                         {alreadySubscribed ? (
                           <div className="w-full py-3 rounded bg-bone text-mgray text-sm font-medium text-center tracking-wider uppercase">
-                            Already subscribed
+                            {tr.alreadySubscribed}
                           </div>
                         ) : (
                           <button
@@ -322,7 +319,7 @@ export default function PackagesPage() {
                             disabled={!!purchasing}
                             className="w-full py-3 bg-ink hover:bg-burg disabled:opacity-50 text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase"
                           >
-                            {isLoading ? 'Processing…' : 'Subscribe'}
+                            {isLoading ? tr.processing : tr.subscribe}
                           </button>
                         )}
                       </div>
@@ -336,9 +333,9 @@ export default function PackagesPage() {
             {oneTimePackages.length > 0 && (
               <div className="mb-10">
                 <h2 className="text-2xl font-serif font-light text-ink mb-1 tracking-wide">
-                  Class <em className="text-burg">Packs</em>
+                  {tr.classPacksH2.pre}<em className="text-burg">{tr.classPacksH2.em}</em>
                 </h2>
-                <p className="text-mgray text-sm mb-6">One-time purchase. Valid for {oneTimePackages[0]?.durationDays ?? 30} days from purchase.</p>
+                <p className="text-mgray text-sm mb-6">{tr.oneTimePurchase(oneTimePackages[0]?.durationDays ?? 30)}</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {oneTimePackages.map(pkg => {
@@ -367,16 +364,16 @@ export default function PackagesPage() {
                           <div className="flex items-center gap-2 text-ink text-sm">
                             <CheckIcon />
                             <span>
-                              {pkg.isUnlimited ? 'Unlimited classes' : `${pkg.classCount} ${pkg.classCount === 1 ? 'class' : 'classes'}`}
+                              {pkg.isUnlimited ? tr.unlimitedClasses : `${pkg.classCount} ${pkg.classCount === 1 ? 'class' : 'classes'}`}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-ink text-sm">
                             <CheckIcon />
-                            <span>Valid for {pkg.durationDays} days</span>
+                            <span>{tr.validForDays(pkg.durationDays)}</span>
                           </div>
                           <div className="flex items-center gap-2 text-ink text-sm">
                             <CheckIcon />
-                            <span>All equipment included</span>
+                            <span>{tr.allEquipmentIncluded}</span>
                           </div>
                         </div>
 
@@ -385,7 +382,7 @@ export default function PackagesPage() {
                           disabled={!!purchasing}
                           className="w-full py-3 bg-ink hover:bg-burg disabled:opacity-50 text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase"
                         >
-                          {isLoading ? 'Processing…' : 'Buy Now'}
+                          {isLoading ? tr.processing : tr.buyNow}
                         </button>
                       </div>
                     )
@@ -397,18 +394,20 @@ export default function PackagesPage() {
             {/* Empty state */}
             {recurringPackages.length === 0 && oneTimePackages.length === 0 && (
               <div className="bg-warm-white rounded p-8 border border-rule text-center">
-                <p className="text-mgray">No packages available at the moment. Check back soon!</p>
+                <p className="text-mgray">{tr.noPackagesAvailable}</p>
               </div>
             )}
 
             {/* Payment info */}
             <div className="bg-warm-white rounded p-5 border border-rule">
-              <h3 className="text-lg font-serif font-light text-burg mb-3 tracking-wide">Payment Information</h3>
+              <h3 className="text-lg font-serif font-light text-burg mb-3 tracking-wide">{tr.paymentInfo}</h3>
               <ul className="space-y-2 text-ink text-sm">
-                <li className="flex items-start gap-2"><span className="text-burg mt-1">·</span><span>Secure payment processing via Stripe</span></li>
-                <li className="flex items-start gap-2"><span className="text-burg mt-1">·</span><span>All prices are in Euros (€)</span></li>
-                <li className="flex items-start gap-2"><span className="text-burg mt-1">·</span><span>Subscriptions auto-renew monthly and can be cancelled anytime from your dashboard</span></li>
-                <li className="flex items-start gap-2"><span className="text-burg mt-1">·</span><span>Class pack credits are added to your account immediately after payment</span></li>
+                {tr.paymentLines.map((line: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-burg mt-1">·</span>
+                    <span>{line}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </>

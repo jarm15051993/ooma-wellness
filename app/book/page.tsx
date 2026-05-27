@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
 import BottomNav from '@/app/components/BottomNav'
+import { APP_TR, getLang, LOCALE } from '@/lib/app-translations'
 
 interface Class {
   id: string
@@ -66,6 +67,10 @@ export default function BookClassPage() {
   const [viewYear, setViewYear] = useState(today.getFullYear())
   const [viewMonth, setViewMonth] = useState(today.getMonth())
 
+  const lang = getLang(user)
+  const tr = APP_TR[lang]
+  const locale = LOCALE[lang]
+
   const fetchClasses = async (userId: string) => {
     try {
       const response = await fetch(`/api/classes/available?userId=${userId}`)
@@ -119,7 +124,7 @@ export default function BookClassPage() {
   }, [groupedByDay, todayKey])
 
   const calendarCells = useMemo(() => buildCalendarGrid(viewYear, viewMonth), [viewYear, viewMonth])
-  const monthLabel = new Date(viewYear, viewMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  const monthLabel = new Date(viewYear, viewMonth).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
 
   const goToPrevMonth = () => {
     if (viewMonth === 0) { setViewYear(y => y - 1); setViewMonth(11) }
@@ -142,19 +147,19 @@ export default function BookClassPage() {
       })
       const data = await response.json()
       if (!response.ok) {
-        toast.error(data.error || 'Booking failed', {
+        toast.error(data.error || tr.bookingFailed, {
           style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' },
         })
         return
       }
-      toast.success(`Class booked! Your reformer is #${data.booking.stretcherNumber}`, {
+      toast.success(tr.classBooked(data.booking.stretcherNumber), {
         duration: 4000,
         style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' },
       })
       setTotalCredits(c => Math.max(0, c - 1))
       await fetchClasses(user.id)
     } catch (error) {
-      toast.error('Network error. Please try again.', {
+      toast.error(tr.networkError, {
         style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' },
       })
     } finally {
@@ -172,19 +177,19 @@ export default function BookClassPage() {
       })
       const data = await response.json()
       if (!response.ok) {
-        toast.error(data.error || 'Cancellation failed', {
+        toast.error(data.error || tr.cancellationFailed, {
           style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' },
         })
         return
       }
-      toast.success('Booking cancelled. Your credit has been reinstated.', {
+      toast.success(tr.bookingCancelled, {
         duration: 4000,
         style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #22c55e' },
       })
       setTotalCredits(c => c + 1)
       await fetchClasses(user.id)
     } catch (error) {
-      toast.error('Network error. Please try again.', {
+      toast.error(tr.networkError, {
         style: { background: '#F4F0E8', color: '#1C1A14', border: '1px solid #ef4444' },
       })
     } finally {
@@ -205,8 +210,10 @@ export default function BookClassPage() {
       <Toaster position="top-center" />
 
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-serif font-light text-ink mb-2 tracking-wide">Book a <em className="text-burg">Class</em></h1>
-        <p className="text-mgray mb-6 text-sm">Select a day to see available classes</p>
+        <h1 className="text-4xl font-serif font-light text-ink mb-2 tracking-wide">
+          {tr.bookH1.pre}<em className="text-burg">{tr.bookH1.em}</em>
+        </h1>
+        <p className="text-mgray mb-6 text-sm">{tr.bookSubtitle}</p>
 
         {/* Calendar */}
         <div className="bg-warm-white rounded border border-rule p-4 sm:p-6 mb-8">
@@ -227,7 +234,7 @@ export default function BookClassPage() {
 
           {/* Weekday headers */}
           <div className="grid grid-cols-7 gap-1 mb-1">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+            {tr.weekdays.map((d: string) => (
               <div key={d} className="text-center text-xs font-medium text-lgray py-1 tracking-wider">{d}</div>
             ))}
           </div>
@@ -267,15 +274,15 @@ export default function BookClassPage() {
         {!selectedDay ? (
           <div className="bg-warm-white rounded p-6 border border-rule text-center">
             {todayHasNoMoreClasses ? (
-              <p className="text-mgray text-sm">No more classes available for today. Select a day to see upcoming classes.</p>
+              <p className="text-mgray text-sm">{tr.noMoreClassesToday}</p>
             ) : (
-              <p className="text-mgray text-sm">Select a day to see available classes.</p>
+              <p className="text-mgray text-sm">{tr.selectADay}</p>
             )}
           </div>
         ) : (
           <div>
             <h2 className="text-lg font-serif font-light text-ink mb-4 tracking-wide">
-              {new Date(selectedDay + 'T00:00:00').toLocaleDateString('en-US', {
+              {new Date(selectedDay + 'T00:00:00').toLocaleDateString(locale, {
                 weekday: 'long',
                 month: 'long',
                 day: 'numeric',
@@ -285,7 +292,7 @@ export default function BookClassPage() {
 
             {selectedClasses.length === 0 ? (
               <div className="bg-warm-white rounded p-6 border border-rule text-center">
-                <p className="text-mgray text-sm">No classes available on this day.</p>
+                <p className="text-mgray text-sm">{tr.noClassesOnDay}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -301,10 +308,10 @@ export default function BookClassPage() {
                   }
 
                   const badgeText = cls.isBooked
-                    ? `Reformer #${cls.userStretcherNumber}`
+                    ? tr.reformer(cls.userStretcherNumber!)
                     : cls.isFull
-                    ? 'Full'
-                    : `${cls.availableSpots} spots left`
+                    ? tr.full
+                    : tr.spotsLeft(cls.availableSpots)
 
                   return (
                     <div
@@ -331,8 +338,8 @@ export default function BookClassPage() {
                           <svg className="w-4 h-4 text-burg flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          {new Date(cls.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} -{' '}
-                          {new Date(cls.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(cls.startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} -{' '}
+                          {new Date(cls.endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
                         </div>
 
                         {cls.instructor && (
@@ -355,7 +362,7 @@ export default function BookClassPage() {
                               : 'border border-rule text-mgray hover:border-burg hover:text-burg'
                           }`}
                         >
-                          {isProcessing ? 'Cancelling...' : 'Cancel Booking'}
+                          {isProcessing ? tr.cancelling : tr.cancelBooking}
                         </button>
                       ) : (
                         <button
@@ -369,7 +376,7 @@ export default function BookClassPage() {
                               : 'bg-ink hover:bg-burg text-warm-white'
                           }`}
                         >
-                          {isProcessing ? 'Booking...' : cls.isFull ? 'Class Full' : totalCredits === 0 ? 'Buy More Classes' : 'Book Now'}
+                          {isProcessing ? tr.booking : cls.isFull ? tr.classIsFull : totalCredits === 0 ? tr.buyMoreClasses : tr.bookNow}
                         </button>
                       )}
                     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNav from '@/app/components/BottomNav'
+import { APP_TR, getLang, LOCALE } from '@/lib/app-translations'
 
 interface Booking {
   id: string
@@ -22,6 +23,10 @@ export default function ClassesPage() {
   const [loading, setLoading] = useState(true)
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([])
   const [cancellingId, setCancellingId] = useState<string | null>(null)
+
+  const lang = getLang(user)
+  const tr = APP_TR[lang]
+  const locale = LOCALE[lang]
 
   const fetchUpcomingBookings = useCallback(async (userId: string) => {
     try {
@@ -78,14 +83,16 @@ export default function ClassesPage() {
   return (
     <div className="min-h-screen bg-cream p-4 sm:p-8 pb-20">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-serif font-light text-ink mb-6 tracking-wide">My <em className="text-burg">Classes</em></h1>
+        <h1 className="text-4xl font-serif font-light text-ink mb-6 tracking-wide">
+          {tr.classesH1.pre}<em className="text-burg">{tr.classesH1.em}</em>
+        </h1>
 
         {upcomingBookings.length === 0 ? (
           <div className="bg-warm-white rounded p-8 border border-rule text-center">
-            <p className="text-mgray text-sm mb-4">No upcoming classes booked yet.</p>
+            <p className="text-mgray text-sm mb-4">{tr.noUpcomingClasses}</p>
             <button onClick={() => router.push('/book')}
               className="px-5 py-2 bg-ink hover:bg-burg text-warm-white text-sm font-medium rounded-sm transition tracking-wider uppercase">
-              Book a Class →
+              {tr.bookAClass}
             </button>
           </div>
         ) : (
@@ -95,22 +102,22 @@ export default function ClassesPage() {
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg font-serif font-light text-ink tracking-wide">{booking.class.title}</h3>
                   <span className="px-3 py-1 bg-burg text-warm-white text-xs font-medium rounded-full">
-                    Reformer #{booking.stretcherNumber}
+                    {tr.reformer(booking.stretcherNumber)}
                   </span>
                 </div>
                 <div className="space-y-1 text-sm mb-3">
                   <p className="text-mgray">
-                    {new Date(booking.class.startTime).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    {new Date(booking.class.startTime).toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                   </p>
                   <p className="text-mgray">
-                    {new Date(booking.class.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} –{' '}
-                    {new Date(booking.class.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(booking.class.startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} –{' '}
+                    {new Date(booking.class.endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
                   </p>
                   {booking.class.instructor && <p className="text-mgray">{booking.class.instructor}</p>}
                 </div>
                 <button onClick={() => handleCancelBooking(booking)} disabled={cancellingId === booking.id}
                   className="px-4 py-1.5 border border-rule hover:border-burg disabled:opacity-50 text-mgray hover:text-burg text-sm font-medium rounded-sm transition">
-                  {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
+                  {cancellingId === booking.id ? tr.cancelling : tr.cancelBooking}
                 </button>
               </div>
             ))}
