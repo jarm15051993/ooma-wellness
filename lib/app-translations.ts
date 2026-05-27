@@ -23,6 +23,12 @@ export const APP_TR = {
     myProfileH2:   { pre: 'My ',          em: 'Profile' },
     myQrH2:        { pre: 'My ',          em: 'QR Code' },
 
+    // bottom nav
+    navCalendar:    'Calendar',
+    navMyClasses:   'My Classes',
+    navSubs:        'Subscriptions',
+    navProfile:     'Profile',
+
     // book page
     bookSubtitle:        'Select a day to see available classes',
     weekdays:            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -61,6 +67,7 @@ export const APP_TR = {
     perMonth:            'per month',
     unlimitedClasses:    'Unlimited classes',
     classesPerMonth:     (n: number) => `${n} ${n === 1 ? 'class' : 'classes'} per month`,
+    perClass:            (price: string) => `€${price} per class`,
     alreadySubscribed:   'Already subscribed',
     subscribe:           'Subscribe',
     oneTimePurchase:     (days: number) => `One-time purchase. Valid for ${days} days from purchase.`,
@@ -118,6 +125,11 @@ export const APP_TR = {
     myProfileH2:   { pre: 'Mi ',           em: 'Perfil' },
     myQrH2:        { pre: 'Mi ',           em: 'Código QR' },
 
+    navCalendar:    'Calendario',
+    navMyClasses:   'Mis Clases',
+    navSubs:        'Suscripciones',
+    navProfile:     'Perfil',
+
     bookSubtitle:        'Selecciona un día para ver las clases disponibles',
     weekdays:            ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
     noMoreClassesToday:  'No hay más clases disponibles hoy. Selecciona un día para ver próximas clases.',
@@ -153,6 +165,7 @@ export const APP_TR = {
     perMonth:            'al mes',
     unlimitedClasses:    'Clases ilimitadas',
     classesPerMonth:     (n: number) => `${n} ${n === 1 ? 'clase' : 'clases'} al mes`,
+    perClass:            (price: string) => `€${price} por clase`,
     alreadySubscribed:   'Ya suscrito',
     subscribe:           'Suscribirse',
     oneTimePurchase:     (days: number) => `Compra única. Válido por ${days} días desde la compra.`,
@@ -209,6 +222,11 @@ export const APP_TR = {
     myProfileH2:   { pre: 'El meu ',       em: 'Perfil' },
     myQrH2:        { pre: 'El meu ',       em: 'Codi QR' },
 
+    navCalendar:    'Calendari',
+    navMyClasses:   'Classes',
+    navSubs:        'Subscripcions',
+    navProfile:     'Perfil',
+
     bookSubtitle:        'Selecciona un dia per veure les classes disponibles',
     weekdays:            ['Dg', 'Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds'],
     noMoreClassesToday:  'No hi ha més classes disponibles avui. Selecciona un dia per veure properes classes.',
@@ -244,6 +262,7 @@ export const APP_TR = {
     perMonth:            'al mes',
     unlimitedClasses:    'Classes il·limitades',
     classesPerMonth:     (n: number) => `${n} ${n === 1 ? 'classe' : 'classes'} al mes`,
+    perClass:            (price: string) => `€${price} per classe`,
     alreadySubscribed:   'Ja subscrit',
     subscribe:           'Subscriure',
     oneTimePurchase:     (days: number) => `Compra única. Vàlid per ${days} dies des de la compra.`,

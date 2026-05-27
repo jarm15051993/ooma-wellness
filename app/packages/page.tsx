@@ -304,7 +304,7 @@ export default function PackagesPage() {
                           {pricePerClass && (
                             <div className="flex items-center gap-2 text-green-700 text-sm">
                               <CheckIcon />
-                              <span>€{pricePerClass} per class</span>
+                              <span>{tr.perClass(pricePerClass)}</span>
                             </div>
                           )}
                         </div>
@@ -356,7 +356,7 @@ export default function PackagesPage() {
                         <div className="mb-6">
                           <div className="text-4xl font-serif font-light text-burg">€{pkg.price}</div>
                           {pricePerClass && (
-                            <div className="text-green-700 text-xs mt-0.5">€{pricePerClass} per class</div>
+                            <div className="text-green-700 text-xs mt-0.5">{tr.perClass(pricePerClass)}</div>
                           )}
                         </div>
 
