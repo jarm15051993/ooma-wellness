@@ -50,6 +50,17 @@ interface InactiveCustomer {
   createdAt: string
 }
 
+interface CashPaymentRequest {
+  id: string
+  type: 'MEMBERSHIP' | 'SUBSCRIPTION' | 'ONE_TIME_CLASS'
+  amount: number
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'
+  requestedAt: string
+  processedAt: string | null
+  user: { name: string | null; lastName: string | null; email: string }
+  package: { name: string } | null
+}
+
 const defaultForm = {
   title: '',
   description: '',
@@ -138,7 +149,7 @@ function parseConditions(info: string | null): { tags: string[]; other: string |
 
 export default function AdminPage() {
   const router = useRouter()
-  const [tab, setTab] = useState<'classes' | 'customers' | 'inactive'>('classes')
+  const [tab, setTab] = useState<'classes' | 'customers' | 'inactive' | 'cash'>('classes')
 
   // ── Classes state ────────────────────────────────────────────────────────────
   const [classes, setClasses] = useState<AdminClass[]>([])
@@ -161,6 +172,13 @@ export default function AdminPage() {
   const [inactiveLoading, setInactiveLoading] = useState(false)
   const [inactiveSearch, setInactiveSearch] = useState('')
   const [debouncedInactiveSearch, setDebouncedInactiveSearch] = useState('')
+
+  // ── Cash payments state ───────────────────────────────────────────────────────
+  const [cashRequests, setCashRequests] = useState<CashPaymentRequest[]>([])
+  const [cashLoading, setCashLoading] = useState(false)
+  const [cashSubTab, setCashSubTab] = useState<'active' | 'processed'>('active')
+  const [cashConfirm, setCashConfirm] = useState<{ id: string; action: 'approve' | 'reject' } | null>(null)
+  const [cashProcessing, setCashProcessing] = useState(false)
 
   // ── CSV import state & refs ───────────────────────────────────────────────────
   const [importingActive, setImportingActive] = useState(false)
@@ -260,6 +278,50 @@ export default function AdminPage() {
   useEffect(() => {
     setExpandedClasses(new Set())
   }, [calSelectedDay])
+
+  // ── Cash payments ─────────────────────────────────────────────────────────────
+  const fetchCashPayments = useCallback(async () => {
+    setCashLoading(true)
+    try {
+      const res = await fetch('/api/admin/cash-payments')
+      const data = await res.json()
+      if (res.ok) setCashRequests(data.requests)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setCashLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (tab === 'cash') fetchCashPayments()
+  }, [tab, fetchCashPayments])
+
+  const handleCashAction = async () => {
+    if (!cashConfirm) return
+    setCashProcessing(true)
+    try {
+      const endpoint = cashConfirm.action === 'approve' ? 'approve' : 'reject'
+      const res = await fetch(`/api/admin/cash-payments/${cashConfirm.id}/${endpoint}`, { method: 'POST' })
+      if (res.ok) {
+        toast.success(cashConfirm.action === 'approve' ? 'Payment approved' : 'Request rejected', toastOpts('#22c55e'))
+        fetchCashPayments()
+      } else {
+        toast.error('Something went wrong', toastOpts('#ef4444'))
+      }
+    } catch {
+      toast.error('Something went wrong', toastOpts('#ef4444'))
+    } finally {
+      setCashProcessing(false)
+      setCashConfirm(null)
+    }
+  }
+
+  const cashPaymentLabel = (req: CashPaymentRequest) => {
+    if (req.type === 'MEMBERSHIP') return 'Membership'
+    if (req.type === 'SUBSCRIPTION') return `Subscription — ${req.package?.name ?? ''}`
+    return `One-time class — ${req.package?.name ?? ''}`
+  }
 
   // ── Logout ───────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
@@ -406,7 +468,7 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex gap-1 bg-warm-white p-1 rounded-xl border border-rule mb-8 w-fit">
-          {([['classes', 'Classes'], ['customers', 'Active Customers'], ['inactive', 'Non-Active']] as const).map(([t, label]) => (
+          {([['classes', 'Classes'], ['customers', 'Active Customers'], ['inactive', 'Non-Active'], ['cash', 'Cash Payments']] as const).map(([t, label]) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -829,6 +891,140 @@ export default function AdminPage() {
                 <p className="text-lgray text-xs mt-4">{inactiveCustomers.length} customer{inactiveCustomers.length !== 1 ? 's' : ''}</p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── Cash Payments Tab ──────────────────────────────────────────────── */}
+        {tab === 'cash' && (
+          <div className="bg-warm-white rounded-2xl p-6 sm:p-8 border border-rule">
+            <h2 className="text-2xl font-serif font-light text-burg mb-6 tracking-wide">Cash Payments</h2>
+
+            {/* Sub-tabs */}
+            <div className="flex gap-1 bg-bone p-1 rounded-xl border border-rule mb-6 w-fit">
+              {(['active', 'processed'] as const).map(st => (
+                <button
+                  key={st}
+                  onClick={() => setCashSubTab(st)}
+                  className={`px-5 py-1.5 rounded-lg text-sm font-medium transition tracking-wider capitalize ${
+                    cashSubTab === st ? 'bg-ink text-warm-white' : 'text-mgray hover:text-ink'
+                  }`}
+                >
+                  {st === 'active' ? 'Active' : 'Processed'}
+                </button>
+              ))}
+            </div>
+
+            {cashLoading ? (
+              <p className="text-mgray text-sm">Loading...</p>
+            ) : (() => {
+              const rows = cashRequests.filter(r =>
+                cashSubTab === 'active' ? r.status === 'PENDING' : r.status !== 'PENDING'
+              )
+              if (rows.length === 0) {
+                return <p className="text-lgray text-sm">{cashSubTab === 'active' ? 'No pending requests.' : 'No processed requests.'}</p>
+              }
+              return (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-rule">
+                        {cashSubTab === 'active'
+                          ? ['Name', 'Last Name', 'Payment', 'Amount', 'Requested', 'Actions'].map(h => (
+                              <th key={h} className="text-left text-xs font-medium text-mgray uppercase tracking-wider pb-3 pr-4 whitespace-nowrap">{h}</th>
+                            ))
+                          : ['Name', 'Last Name', 'Payment', 'Amount', 'Processed', 'Status'].map(h => (
+                              <th key={h} className="text-left text-xs font-medium text-mgray uppercase tracking-wider pb-3 pr-4 whitespace-nowrap">{h}</th>
+                            ))
+                        }
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-rule">
+                      {rows.map(r => (
+                        <tr key={r.id} className="hover:bg-bone/50 transition">
+                          <td className="py-3 pr-4 text-ink font-medium">{r.user.name ?? '—'}</td>
+                          <td className="py-3 pr-4 text-ink">{r.user.lastName ?? '—'}</td>
+                          <td className="py-3 pr-4 text-mgray">{cashPaymentLabel(r)}</td>
+                          <td className="py-3 pr-4 text-ink whitespace-nowrap">€{r.amount.toFixed(2)}</td>
+                          {cashSubTab === 'active' ? (
+                            <>
+                              <td className="py-3 pr-4 text-lgray whitespace-nowrap">
+                                {new Date(r.requestedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                              <td className="py-3 pr-4">
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => setCashConfirm({ id: r.id, action: 'approve' })}
+                                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition tracking-wide"
+                                  >
+                                    Paid
+                                  </button>
+                                  <button
+                                    onClick={() => setCashConfirm({ id: r.id, action: 'reject' })}
+                                    className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-xs rounded-lg border border-rule transition tracking-wide"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="py-3 pr-4 text-lgray whitespace-nowrap">
+                                {r.processedAt ? new Date(r.processedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
+                              </td>
+                              <td className="py-3 pr-4">
+                                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide ${
+                                  r.status === 'APPROVED' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {r.status === 'APPROVED' ? 'Approved' : 'Rejected'}
+                                </span>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p className="text-lgray text-xs mt-4">{rows.length} request{rows.length !== 1 ? 's' : ''}</p>
+                </div>
+              )
+            })()}
+          </div>
+        )}
+
+        {/* ── Cash payment confirmation modal ────────────────────────────────── */}
+        {cashConfirm && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+            <div className="bg-warm-white rounded-2xl p-6 max-w-sm w-full border border-rule shadow-xl">
+              <h3 className="text-lg font-serif font-light text-ink mb-2 tracking-wide">
+                {cashConfirm.action === 'approve' ? 'Confirm payment received' : 'Reject request'}
+              </h3>
+              <p className="text-mgray text-sm mb-6">
+                {cashConfirm.action === 'approve'
+                  ? 'Are you sure you want to mark this payment as received? This will grant access immediately.'
+                  : 'Are you sure you want to reject this request? The user\'s purchase buttons will be unblocked.'}
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setCashConfirm(null)}
+                  disabled={cashProcessing}
+                  className="px-4 py-2 text-sm text-mgray hover:text-ink transition tracking-wide"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCashAction}
+                  disabled={cashProcessing}
+                  className={`px-5 py-2 text-sm text-white rounded-xl transition tracking-wide ${
+                    cashConfirm.action === 'approve'
+                      ? 'bg-green-600 hover:bg-green-700'
+                      : 'bg-red-500 hover:bg-red-600'
+                  } disabled:opacity-50`}
+                >
+                  {cashProcessing ? 'Processing…' : 'Confirm'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

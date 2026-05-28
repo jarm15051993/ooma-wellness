@@ -32,6 +32,23 @@ enum SubscriptionStatus {
   EXPIRED
 }
 
+enum PaymentMethod {
+  CARD
+  CASH
+}
+
+enum CashPaymentType {
+  MEMBERSHIP
+  SUBSCRIPTION
+  ONE_TIME_CLASS
+}
+
+enum CashPaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -64,7 +81,8 @@ model User {
   disclaimerVersion     String?
   dni                   String?  @unique
   stripeCustomerId      String?  @unique
-  isClubMember          Boolean  @default(false)
+  isClubMember              Boolean       @default(false)
+  membershipPaymentMethod   PaymentMethod?
   tokenVersion          Int      @default(1)
   isKiosk               Boolean  @default(false)
   deletedAt DateTime?
@@ -81,7 +99,8 @@ model User {
   adminLogsAsAdmin         AdminAuditLog[] @relation("AdminLogs")
   adminLogsAsTarget        AdminAuditLog[] @relation("TargetLogs")
   notificationPreferences  NotificationPreference[]
-  userGoals           UserGoal[]
+  userGoals                UserGoal[]
+  cashPaymentRequests      CashPaymentRequest[]
 }
 
 model Goal {
@@ -121,10 +140,11 @@ model Package {
   updatedAt     DateTime @updatedAt
   user_id       String?  @db.Uuid
 
-  transactions  Transaction[]
-  payments      Payment[]
-  userCredits   UserCredit[]
-  subscriptions Subscription[]
+  transactions         Transaction[]
+  payments             Payment[]
+  userCredits          UserCredit[]
+  subscriptions        Subscription[]
+  cashPaymentRequests  CashPaymentRequest[]
 }
 
 model UserCredit {
@@ -138,6 +158,7 @@ model UserCredit {
   isUnlimited      Boolean     @default(false)
   stripePaymentId  String?
   subscriptionId   String?
+  paymentMethod    PaymentMethod @default(CARD)
   createdAt        DateTime  @default(now())
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -288,4 +309,18 @@ model Subscription {
 model Setting {
   key   String @id
   value String
+}
+
+model CashPaymentRequest {
+  id          String            @id @default(cuid())
+  userId      String
+  type        CashPaymentType
+  packageId   String?
+  amount      Float
+  status      CashPaymentStatus @default(PENDING)
+  requestedAt DateTime          @default(now())
+  processedAt DateTime?
+
+  user    User     @relation(fields: [userId], references: [id])
+  package Package? @relation(fields: [packageId], references: [id])
 }
