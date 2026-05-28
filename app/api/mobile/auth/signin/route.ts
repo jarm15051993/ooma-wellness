@@ -22,11 +22,11 @@ export async function POST(request: NextRequest) {
       where: { email: { equals: email.trim(), mode: 'insensitive' } }
     })
 
-    if (!user) {
+    if (!user || !user.password) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password!)
+    const passwordMatch = await bcrypt.compare(password, user.password)
     if (!passwordMatch) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
