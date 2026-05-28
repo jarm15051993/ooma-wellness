@@ -3,11 +3,12 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(
   _request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params
     const cashRequest = await prisma.cashPaymentRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!cashRequest) {
@@ -18,7 +19,7 @@ export async function POST(
     }
 
     await prisma.cashPaymentRequest.update({
-      where: { id: params.id },
+      where: { id },
       data:  { status: 'REJECTED', processedAt: new Date() },
     })
 

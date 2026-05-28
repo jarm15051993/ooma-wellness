@@ -5,11 +5,12 @@ import { randomUUID } from 'crypto'
 
 export async function POST(
   _request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params
     const cashRequest = await prisma.cashPaymentRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { user: true, package: true },
     })
 
