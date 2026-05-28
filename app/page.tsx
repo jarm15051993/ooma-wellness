@@ -1215,7 +1215,7 @@ const bodyHtml = `
     <h2 class="cierre-h2 rv">Empieza cuando<br>quieras, <em>a tu ritmo</em>.</h2>
     <p class="cierre-body rv">Sin permanencias. Sin presión.<br>Solo tú, el movimiento y el tiempo que necesitas.</p>
     <div class="cierre-btns rv">
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdNJKcAxlZgFPAfZhTcjF57bQTu4iPp9iYn6AAjmml5GxaWZQ/viewform" class="btn-hero-p" target="_blank" rel="noopener noreferrer">Únete a OOMA</a>
+      <a href="/signup" class="btn-hero-p">Únete a OOMA</a>
     </div>
   </div>
 </section>
