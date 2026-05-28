@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
 const css = `
 :root {
@@ -1268,19 +1267,7 @@ const bodyHtml = `
 </footer>
 `
 
-const APP_STORE_URL = 'https://apps.apple.com/mx/app/ooma-wellness/id6761262370?l=en-GB'
-
 export default function LandingPage() {
-  const router = useRouter()
-
-  useEffect(() => {
-    const ua = navigator.userAgent
-    const isIOS = /iPhone|iPad|iPod/.test(ua)
-    const isAndroid = /Android/.test(ua)
-    if (isIOS) { window.location.replace(APP_STORE_URL); return }
-    if (isAndroid) { router.replace('/signup'); return }
-  }, [router])
-
   useEffect(() => {
     // Scroll reveal
     const obs = new IntersectionObserver(entries => {
