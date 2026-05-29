@@ -2,8 +2,8 @@
 
 @theme {
   /* Fonts */
-  --font-sans: var(--font-montserrat), 'Montserrat', system-ui, sans-serif;
-  --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-sans: var(--font-jost), 'Jost', system-ui, sans-serif;
+  --font-serif: var(--font-playfair), 'Playfair Display', Georgia, serif;
 
   /* Backgrounds */
   --color-cream: #FAF7F2;
