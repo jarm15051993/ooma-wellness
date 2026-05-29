@@ -204,17 +204,17 @@ export default function ProfilePage() {
             src="/logo.png"
             alt="OOMA Wellness"
             className="h-[280px] w-auto -mt-[100px] -mb-[110px] -ml-[22px] sm:h-[560px] sm:-mt-[200px] sm:-mb-[220px] sm:-ml-[45px]"
-            style={{ mixBlendMode: 'multiply' }}
+            style={{ mixBlendMode: 'multiply', filter: 'brightness(0)' }}
           />
           <button onClick={handleLogout}
-            className="px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm border border-rule text-mgray hover:border-burg hover:text-burg rounded-sm transition tracking-wide">
+            className="px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm border border-rule text-mgray hover:border-burg hover:text-burg transition tracking-wide">
             {tr.logout}
           </button>
         </div>
 
         {/* Profile Card */}
-        <div className="bg-warm-white rounded p-6 border border-rule mb-6">
-          <h2 className="text-4xl font-serif font-light text-ink mb-6 tracking-wide">
+        <div className="bg-warm-white p-6 border border-rule mb-6" style={{ borderTop: '2px solid #9C7A52' }}>
+          <h2 className="text-4xl font-serif font-normal text-ink mb-6 tracking-wide">
             {tr.myProfileH2.pre}<em className="text-burg">{tr.myProfileH2.em}</em>
           </h2>
 
@@ -262,14 +262,14 @@ export default function ProfilePage() {
               <div>
                 <p className="text-xs font-medium text-mgray tracking-wider uppercase mb-1">{tr.classCredits}</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-burg font-serif font-light text-5xl">{totalCredits}</span>
+                  <span className="text-burg font-serif font-normal text-5xl">{totalCredits}</span>
                   <span className="text-mgray text-base">{tr.classRemaining(totalCredits)}</span>
                 </div>
                 {totalCredits === 0 && (
                   <p className="text-mgray text-sm mt-1">{tr.purchasePackage}</p>
                 )}
                 <button onClick={() => router.push('/packages')}
-                  className="mt-3 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase">
+                  className="mt-3 px-6 py-2 bg-ink hover:bg-burg text-warm-white font-light transition tracking-wider text-sm uppercase">
                   {tr.buyMoreClasses}
                 </button>
               </div>
@@ -303,7 +303,7 @@ export default function ProfilePage() {
                             else if (!disabled) setEditGoalIds(ids => [...ids, goal.id])
                             setGoalError(null)
                           }}
-                          className={`px-3 py-1.5 rounded-full border text-sm font-medium transition ${
+                          className={`px-3 py-1.5 border text-sm font-light tracking-wide transition ${
                             selected ? 'bg-burg border-burg text-warm-white'
                             : disabled ? 'border-rule text-lgray cursor-not-allowed opacity-50'
                             : 'border-rule text-ink hover:border-burg hover:text-burg'
@@ -318,11 +318,11 @@ export default function ProfilePage() {
                 {goalError && <p className="text-burg text-xs mb-2">{goalError}</p>}
                 <div className="flex gap-2">
                   <button type="button" onClick={saveGoals} disabled={goalsSaving}
-                    className="px-3 py-1 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white text-sm font-medium rounded-sm transition tracking-wide">
+                    className="px-3 py-1 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white text-sm font-light transition tracking-wide">
                     {goalsSaving ? tr.saving : tr.save}
                   </button>
                   <button type="button" onClick={() => { setEditingGoals(false); setGoalError(null) }} disabled={goalsSaving}
-                    className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-sm rounded-sm transition">
+                    className="px-3 py-1 bg-bone hover:bg-bone-dk text-ink text-sm transition">
                     {tr.cancel}
                   </button>
                 </div>
@@ -331,7 +331,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-2">
                 {userGoalIds.length > 0
                   ? availableGoals.filter(g => userGoalIds.includes(g.id)).map(g => (
-                      <span key={g.id} className="px-3 py-1 rounded-full bg-burg text-warm-white text-sm">{tr.goalLabels[g.label] ?? g.label}</span>
+                      <span key={g.id} className="px-3 py-1 bg-burg text-warm-white text-sm font-light tracking-wide">{tr.goalLabels[g.label] ?? g.label}</span>
                     ))
                   : <p className="text-ink text-base">{user.goals ?? '—'}</p>
                 }
@@ -342,12 +342,12 @@ export default function ProfilePage() {
 
         {/* QR Code */}
         {user.qrCode && (
-          <div className="bg-warm-white rounded p-6 border border-rule mb-6 flex flex-col items-center">
-            <h2 className="text-2xl font-serif font-light text-ink mb-2 tracking-wide self-start">
+          <div className="bg-warm-white p-6 border border-rule mb-6 flex flex-col items-center" style={{ borderTop: '2px solid #9C7A52' }}>
+            <h2 className="text-2xl font-serif font-normal text-ink mb-2 tracking-wide self-start">
               {tr.myQrH2.pre}<em className="text-burg">{tr.myQrH2.em}</em>
             </h2>
             <p className="text-mgray text-sm mb-6 self-start">{tr.showAtStudio}</p>
-            <div className="p-4 bg-white border border-rule rounded">
+            <div className="p-4 bg-white border border-rule">
               <QRCode value={user.qrCode} size={180} />
             </div>
           </div>
