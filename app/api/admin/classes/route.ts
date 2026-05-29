@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid classType. Must be REFORMER or YOGA' }, { status: 400 })
     }
 
-    if (capacity < 1 || capacity > 6) {
-      return NextResponse.json({ error: 'Capacity must be between 1 and 6' }, { status: 400 })
+    if (capacity < 1 || capacity > 20) {
+      return NextResponse.json({ error: 'Capacity must be between 1 and 20' }, { status: 400 })
     }
 
     const start = new Date(startTime)
