@@ -61,7 +61,9 @@ export async function GET(
         title: cls.title,
         startTime: cls.startTime,
         endTime: cls.endTime,
+        capacity: cls.capacity,
         instructor: cls.instructor,
+        classType: cls.classType,
       },
       attendees,
     })
