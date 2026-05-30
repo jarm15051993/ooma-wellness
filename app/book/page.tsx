@@ -368,7 +368,7 @@ export default function BookClassPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-2 mb-5">
+                      <div className="space-y-2 mb-4">
                         <div className="flex items-center gap-2 text-mgray text-sm">
                           <svg className="w-4 h-4 text-burg flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -394,6 +394,7 @@ export default function BookClassPage() {
                         </span>
                       </div>
 
+                      <div className="pt-4 border-t border-rule">
                       {cls.isBooked ? (
                         <button
                           onClick={() => handleCancelClass(cls.id)}
@@ -421,6 +422,7 @@ export default function BookClassPage() {
                           {isProcessing ? tr.booking : cls.isFull ? tr.classIsFull : totalCredits === 0 ? tr.buyMoreClasses : tr.bookNow}
                         </button>
                       )}
+                      </div>
                     </div>
                   )
                 })}
