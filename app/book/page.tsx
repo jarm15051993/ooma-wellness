@@ -218,7 +218,7 @@ export default function BookClassPage() {
     <div className="min-h-screen bg-cream p-4 sm:p-8 pb-32">
       <Toaster position="top-center" />
 
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto pb-24">
         <h1 className="text-4xl font-serif font-light text-ink mb-2 tracking-wide">
           {tr.bookH1.pre}<em className="text-burg">{tr.bookH1.em}</em>
         </h1>
