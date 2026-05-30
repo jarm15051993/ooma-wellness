@@ -215,7 +215,7 @@ export default function BookClassPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream p-4 sm:p-8 pb-20">
+    <div className="min-h-screen bg-cream p-4 sm:p-8 pb-32">
       <Toaster position="top-center" />
 
       <div className="max-w-3xl mx-auto">
@@ -368,7 +368,7 @@ export default function BookClassPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-2 mb-4">
+                      <div className="space-y-2 mb-5">
                         <div className="flex items-center gap-2 text-mgray text-sm">
                           <svg className="w-4 h-4 text-burg flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -385,8 +385,10 @@ export default function BookClassPage() {
                             {cls.instructor}
                           </div>
                         )}
-                        <span className={`text-[10px] font-medium tracking-widest uppercase ${
-                          cls.classType === 'YOGA' ? 'text-sage' : 'text-burg'
+                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium tracking-widest uppercase border ${
+                          cls.classType === 'YOGA'
+                            ? 'bg-sage/10 text-sage border-sage/30'
+                            : 'bg-burg/10 text-burg border-burg/30'
                         }`}>
                           {cls.classType === 'YOGA' ? tr.typeYoga : tr.typeReformer}
                         </span>
