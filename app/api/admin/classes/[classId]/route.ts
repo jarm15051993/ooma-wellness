@@ -30,8 +30,8 @@ export async function PATCH(
     }
 
     const cap = parseInt(capacity)
-    if (isNaN(cap) || cap < 1 || cap > 6) {
-      return NextResponse.json({ error: 'Capacity must be between 1 and 6' }, { status: 400 })
+    if (isNaN(cap) || cap < 1 || cap > 20) {
+      return NextResponse.json({ error: 'Capacity must be between 1 and 20' }, { status: 400 })
     }
 
     const start = new Date(startTime)
@@ -95,6 +95,48 @@ export async function PATCH(
     return NextResponse.json({ class: updated })
   } catch (error: any) {
     console.error('[admin/classes/patch] Error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ classId: string }> },
+) {
+  try {
+    const token = extractBearerToken(_request.headers.get('authorization'))
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const payload = await verifyToken(token)
+    if (!payload.canCreateClass && payload.role !== 'OWNER') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { classId } = await params
+
+    const existing = await prisma.class.findUnique({
+      where: { id: classId },
+      include: {
+        _count: { select: { bookings: { where: { status: { in: ['confirmed', 'attended'] } } } } },
+      },
+    })
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Class not found' }, { status: 404 })
+    }
+
+    if (existing._count.bookings > 0) {
+      return NextResponse.json(
+        { error: 'Cannot delete a class with enrolled participants.' },
+        { status: 400 },
+      )
+    }
+
+    await prisma.class.delete({ where: { id: classId } })
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    console.error('[admin/classes/delete] Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
