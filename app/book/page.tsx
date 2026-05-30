@@ -13,6 +13,7 @@ interface Class {
   startTime: string
   endTime: string
   instructor: string | null
+  classType: 'REFORMER' | 'YOGA'
   bookedSpots: number
   availableSpots: number
   isFull: boolean
@@ -61,6 +62,7 @@ export default function BookClassPage() {
   const [loading, setLoading] = useState(true)
   const [processingClass, setProcessingClass] = useState<string | null>(null)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'REFORMER' | 'YOGA'>('ALL')
 
   const today = useMemo(() => new Date(), [])
   const todayKey = today.toLocaleDateString('en-CA')
@@ -127,15 +129,22 @@ export default function BookClassPage() {
   const monthLabel = new Date(viewYear, viewMonth).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
 
   const goToPrevMonth = () => {
+    setTypeFilter('ALL')
     if (viewMonth === 0) { setViewYear(y => y - 1); setViewMonth(11) }
     else setViewMonth(m => m - 1)
   }
   const goToNextMonth = () => {
+    setTypeFilter('ALL')
     if (viewMonth === 11) { setViewYear(y => y + 1); setViewMonth(0) }
     else setViewMonth(m => m + 1)
   }
 
   const selectedClasses = selectedDay ? (groupedByDay.get(selectedDay) ?? []) : []
+
+  const filteredClasses = useMemo(() => {
+    if (typeFilter === 'ALL') return selectedClasses
+    return selectedClasses.filter(cls => cls.classType === typeFilter)
+  }, [selectedClasses, typeFilter])
 
   const handleBookClass = async (classId: string) => {
     setProcessingClass(classId)
@@ -253,7 +262,7 @@ export default function BookClassPage() {
                   key={cell.dateKey}
                   onClick={() => hasClasses && setSelectedDay(cell.dateKey)}
                   disabled={!hasClasses}
-                  className={`relative flex items-center justify-center py-2 sm:py-3 rounded transition-all ${
+                  className={`relative flex flex-col items-center justify-center py-2 sm:py-3 rounded transition-all ${
                     isSelected
                       ? 'bg-burg-pale/30 border border-burg text-burg'
                       : isToday
@@ -264,11 +273,33 @@ export default function BookClassPage() {
                   }`}
                 >
                   <span className="text-sm font-medium">{cell.day}</span>
+                  {hasClasses && (
+                    <span className={`w-1 h-1 rounded-full mt-0.5 ${isSelected ? 'bg-burg' : 'bg-burg opacity-60'}`} />
+                  )}
                 </button>
               )
             })}
           </div>
         </div>
+
+        {/* Filter bar */}
+        {selectedDay && (
+          <div className="flex gap-2 mb-6">
+            {(['ALL', 'REFORMER', 'YOGA'] as const).map(type => (
+              <button
+                key={type}
+                onClick={() => setTypeFilter(type)}
+                className={`px-4 py-1.5 text-xs tracking-widest uppercase border transition ${
+                  typeFilter === type
+                    ? 'bg-burg text-warm-white border-burg'
+                    : 'bg-warm-white text-mgray border-rule hover:border-burg hover:text-burg'
+                }`}
+              >
+                {type === 'ALL' ? tr.filterAll : type === 'REFORMER' ? tr.filterPilates : tr.filterYoga}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Classes section */}
         {!selectedDay ? (
@@ -290,13 +321,17 @@ export default function BookClassPage() {
               })}
             </h2>
 
-            {selectedClasses.length === 0 ? (
+            {filteredClasses.length === 0 ? (
               <div className="bg-warm-white rounded p-6 border border-rule text-center">
-                <p className="text-mgray text-sm">{tr.noClassesOnDay}</p>
+                <p className="text-mgray text-sm">
+                  {typeFilter === 'REFORMER' ? tr.noReformerOnDay
+                    : typeFilter === 'YOGA' ? tr.noYogaOnDay
+                    : tr.noClassesOnDay}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {selectedClasses.map(cls => {
+                {filteredClasses.map(cls => {
                   const isProcessing = processingClass === cls.id
                   const color = getAvailabilityColor(cls)
 
@@ -350,6 +385,11 @@ export default function BookClassPage() {
                             {cls.instructor}
                           </div>
                         )}
+                        <span className={`text-[10px] font-medium tracking-widest uppercase ${
+                          cls.classType === 'YOGA' ? 'text-sage' : 'text-burg'
+                        }`}>
+                          {cls.classType === 'YOGA' ? tr.typeYoga : tr.typeReformer}
+                        </span>
                       </div>
 
                       {cls.isBooked ? (
