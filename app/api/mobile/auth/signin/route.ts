@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
       canValidateAttendance: isOwner || user.canValidateAttendance,
       canBulkUpload: isOwner || user.canBulkUpload,
       canMarkAsStudent: isOwner || user.canMarkAsStudent,
+      canGiftClasses: isOwner || user.canGiftClasses,
       isStudent: user.isStudent,
       tokenVersion: user.tokenVersion,
     })

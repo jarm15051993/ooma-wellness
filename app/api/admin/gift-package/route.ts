@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const isOwner = payload.role === 'OWNER'
-    if (!isOwner && !payload.isAdmin) {
+    if (!isOwner && !payload.isAdmin && !payload.canGiftClasses) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
