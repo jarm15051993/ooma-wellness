@@ -83,6 +83,15 @@ export default function PackagesPage() {
   const [loading, setLoading]           = useState(true)
   const [purchasing, setPurchasing]     = useState<string | null>(null)
   const [cancelling, setCancelling]     = useState<string | null>(null)
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set())
+
+  const toggleCategory = (key: string) => {
+    setOpenCategories(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
 
   const lang = getLang(user)
   const tr = APP_TR[lang]
@@ -206,8 +215,15 @@ export default function PackagesPage() {
 
   if (!user) return null
 
-  const recurringPackages = packages.filter(p => p.isRecurring && p.stripePriceId)
-  const oneTimePackages   = packages.filter(p => !p.isRecurring)
+  const reformerPackages = packages.filter(p => p.packageType === 'REFORMER')
+  const yogaPackages     = packages.filter(p => p.packageType === 'YOGA')
+  const bothPackages     = packages.filter(p => p.packageType === 'BOTH')
+
+  const categories = [
+    { key: 'REFORMER', label: tr.catReformer, pkgs: reformerPackages, badge: null },
+    { key: 'YOGA',     label: tr.catYoga,     pkgs: yogaPackages,     badge: null },
+    { key: 'BOTH',     label: tr.catBoth,     pkgs: bothPackages,     badge: tr.packEspecial },
+  ]
 
   const activeSubscriptionPackageIds = new Set(
     subscriptions
@@ -264,142 +280,139 @@ export default function PackagesPage() {
         {/* ── Content (hidden behind gate if needed) ─────────────────── */}
         {!showMembershipGate && (
           <>
-            {/* Monthly Subscriptions */}
-            {recurringPackages.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-2xl font-serif font-light text-ink mb-1 tracking-wide">
-                  {tr.monthlySubsH2.pre}<em className="text-burg">{tr.monthlySubsH2.em}</em>
-                </h2>
-                <p className="text-mgray text-sm mb-6">{tr.autoRenews}</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {recurringPackages.map(pkg => {
-                    const alreadySubscribed = activeSubscriptionPackageIds.has(pkg.id)
-                    const isLoading         = purchasing === pkg.id
-                    const pricePerClass     = !pkg.isUnlimited && pkg.classCount > 0
-                      ? (pkg.price / pkg.classCount).toFixed(2)
-                      : null
-
-                    return (
-                      <div key={pkg.id} className="bg-warm-white rounded p-6 border border-rule hover:border-burg/40 transition-all flex flex-col">
-                        <div className="mb-4">
-                          <h3 className="text-xl font-serif font-light text-ink tracking-wide">{pkg.name}</h3>
-                          {pkg.description && (
-                            <p className="text-mgray text-sm mt-1">{pkg.description}</p>
-                          )}
-                        </div>
-
-                        <div className="mb-6">
-                          <div className="text-4xl font-serif font-light text-burg">€{pkg.price}</div>
-                          <div className="text-mgray text-xs mt-0.5">{tr.perMonth}</div>
-                        </div>
-
-                        <div className="space-y-2 mb-6 flex-1">
-                          <div className="flex items-center gap-2 text-ink text-sm">
-                            <CheckIcon />
-                            <span>
-                              {pkg.isUnlimited ? tr.unlimitedClasses : tr.classesPerMonth(pkg.classCount)}
-                            </span>
-                          </div>
-                          {pricePerClass && (
-                            <div className="flex items-center gap-2 text-green-700 text-sm">
-                              <CheckIcon />
-                              <span>{tr.perClass(pricePerClass)}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {alreadySubscribed ? (
-                          <div className="w-full py-3 rounded bg-bone text-mgray text-sm font-medium text-center tracking-wider uppercase">
-                            {tr.alreadySubscribed}
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => handleSubscribe(pkg)}
-                            disabled={!!purchasing}
-                            className="w-full py-3 bg-ink hover:bg-burg disabled:opacity-50 text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase"
-                          >
-                            {isLoading ? tr.processing : tr.subscribe}
-                          </button>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Class Packs */}
-            {oneTimePackages.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-2xl font-serif font-light text-ink mb-1 tracking-wide">
-                  {tr.classPacksH2.pre}<em className="text-burg">{tr.classPacksH2.em}</em>
-                </h2>
-                <p className="text-mgray text-sm mb-6">{tr.oneTimePurchase(oneTimePackages[0]?.durationDays ?? 30)}</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {oneTimePackages.map(pkg => {
-                    const isLoading     = purchasing === pkg.id
-                    const pricePerClass = !pkg.isUnlimited && pkg.classCount > 1
-                      ? (pkg.price / pkg.classCount).toFixed(2)
-                      : null
-
-                    return (
-                      <div key={pkg.id} className="bg-warm-white rounded p-6 border border-rule hover:border-burg/40 transition-all flex flex-col">
-                        <div className="mb-4">
-                          <h3 className="text-xl font-serif font-light text-ink tracking-wide">{pkg.name}</h3>
-                          {pkg.description && (
-                            <p className="text-mgray text-sm mt-1">{pkg.description}</p>
-                          )}
-                        </div>
-
-                        <div className="mb-6">
-                          <div className="text-4xl font-serif font-light text-burg">€{pkg.price}</div>
-                          {pricePerClass && (
-                            <div className="text-green-700 text-xs mt-0.5">{tr.perClass(pricePerClass)}</div>
-                          )}
-                        </div>
-
-                        <div className="space-y-2 mb-6 flex-1">
-                          <div className="flex items-center gap-2 text-ink text-sm">
-                            <CheckIcon />
-                            <span>
-                              {pkg.isUnlimited ? tr.unlimitedClasses : `${pkg.classCount} ${pkg.classCount === 1 ? 'class' : 'classes'}`}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-ink text-sm">
-                            <CheckIcon />
-                            <span>{tr.validForDays(pkg.durationDays)}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-ink text-sm">
-                            <CheckIcon />
-                            <span>{tr.allEquipmentIncluded}</span>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => handleBuyPack(pkg)}
-                          disabled={!!purchasing}
-                          className="w-full py-3 bg-ink hover:bg-burg disabled:opacity-50 text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase"
-                        >
-                          {isLoading ? tr.processing : tr.buyNow}
-                        </button>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Empty state */}
-            {recurringPackages.length === 0 && oneTimePackages.length === 0 && (
-              <div className="bg-warm-white rounded p-8 border border-rule text-center">
+            {/* Collapsible categories */}
+            {packages.length === 0 ? (
+              <div className="bg-warm-white p-8 border border-rule text-center mb-8">
                 <p className="text-mgray">{tr.noPackagesAvailable}</p>
+              </div>
+            ) : (
+              <div className="mb-8 space-y-3">
+                {categories.map(({ key, label, pkgs, badge }) => {
+                  if (pkgs.length === 0) return null
+                  const isOpen = openCategories.has(key)
+
+                  return (
+                    <div key={key} className="border border-rule overflow-hidden">
+                      {/* Row header */}
+                      <button
+                        onClick={() => toggleCategory(key)}
+                        className="w-full flex items-center justify-between px-5 py-4 bg-warm-white hover:bg-bone transition-colors text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl font-serif font-light text-ink tracking-wide">{label}</span>
+                          {badge && (
+                            <span className="px-2 py-0.5 text-[10px] font-medium tracking-widest uppercase bg-burg-pale/40 text-burg border border-burg/20">
+                              {badge}
+                            </span>
+                          )}
+                        </div>
+                        <svg
+                          className={`w-5 h-5 text-mgray flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
+                          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+
+                      {/* Expanded content */}
+                      {isOpen && (
+                        <div className="border-t border-rule bg-cream px-5 py-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                            {pkgs.map(pkg => {
+                              const alreadySubscribed = activeSubscriptionPackageIds.has(pkg.id)
+                              const isLoading         = purchasing === pkg.id
+                              const pricePerClass     = !pkg.isUnlimited && pkg.classCount > 0
+                                ? (pkg.price / pkg.classCount).toFixed(2)
+                                : null
+
+                              return (
+                                <div key={pkg.id} className="bg-warm-white p-6 border border-rule hover:border-burg/40 transition-all flex flex-col">
+                                  <div className="mb-4">
+                                    <h3 className="text-xl font-serif font-light text-ink tracking-wide">{pkg.name}</h3>
+                                    {pkg.description && (
+                                      <p className="text-mgray text-sm mt-1">{pkg.description}</p>
+                                    )}
+                                  </div>
+
+                                  <div className="mb-6">
+                                    <div className="text-4xl font-serif font-light text-burg">€{pkg.price}</div>
+                                    {pkg.isRecurring ? (
+                                      <div className="text-mgray text-xs mt-0.5">{tr.perMonth}</div>
+                                    ) : (
+                                      pricePerClass && (
+                                        <div className="text-green-700 text-xs mt-0.5">{tr.perClass(pricePerClass)}</div>
+                                      )
+                                    )}
+                                  </div>
+
+                                  <div className="space-y-2 mb-6 flex-1">
+                                    <div className="flex items-center gap-2 text-ink text-sm">
+                                      <CheckIcon />
+                                      <span>
+                                        {pkg.isUnlimited
+                                          ? tr.unlimitedClasses
+                                          : pkg.isRecurring
+                                          ? tr.classesPerMonth(pkg.classCount)
+                                          : `${pkg.classCount} ${pkg.classCount === 1 ? 'class' : 'classes'}`}
+                                      </span>
+                                    </div>
+                                    {pkg.isRecurring && pricePerClass && (
+                                      <div className="flex items-center gap-2 text-green-700 text-sm">
+                                        <CheckIcon />
+                                        <span>{tr.perClass(pricePerClass)}</span>
+                                      </div>
+                                    )}
+                                    {!pkg.isRecurring && (
+                                      <>
+                                        <div className="flex items-center gap-2 text-ink text-sm">
+                                          <CheckIcon />
+                                          <span>{tr.validForDays(pkg.durationDays)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-ink text-sm">
+                                          <CheckIcon />
+                                          <span>{tr.allEquipmentIncluded}</span>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+
+                                  {pkg.isRecurring ? (
+                                    alreadySubscribed ? (
+                                      <div className="w-full py-3 bg-bone text-mgray text-sm font-medium text-center tracking-wider uppercase">
+                                        {tr.alreadySubscribed}
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={() => handleSubscribe(pkg)}
+                                        disabled={!!purchasing}
+                                        className="w-full py-3 bg-ink hover:bg-burg disabled:opacity-50 text-warm-white font-medium transition tracking-wider text-sm uppercase"
+                                      >
+                                        {isLoading ? tr.processing : tr.subscribe}
+                                      </button>
+                                    )
+                                  ) : (
+                                    <button
+                                      onClick={() => handleBuyPack(pkg)}
+                                      disabled={!!purchasing}
+                                      className="w-full py-3 bg-ink hover:bg-burg disabled:opacity-50 text-warm-white font-medium transition tracking-wider text-sm uppercase"
+                                    >
+                                      {isLoading ? tr.processing : tr.buyNow}
+                                    </button>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )}
 
             {/* Payment info */}
-            <div className="bg-warm-white rounded p-5 border border-rule">
+            <div className="bg-warm-white p-5 border border-rule">
               <h3 className="text-lg font-serif font-light text-burg mb-3 tracking-wide">{tr.paymentInfo}</h3>
               <ul className="space-y-2 text-ink text-sm">
                 {tr.paymentLines.map((line: string, i: number) => (
