@@ -22,6 +22,10 @@ export const APP_TR = {
     joinClubH2:    { pre: 'Join the ',    em: 'OOMA Club' },
     myProfileH2:   { pre: 'My ',          em: 'Profile' },
     myQrH2:        { pre: 'My ',          em: 'QR Code' },
+    catReformer:   'Reformer Pilates',
+    catYoga:       'Yoga',
+    catBoth:       'Reformer + Yoga',
+    packEspecial:  'PACK ESPECIAL',
 
     // bottom nav
     navCalendar:    'Calendar',
@@ -138,6 +142,10 @@ export const APP_TR = {
     joinClubH2:    { pre: 'Únete al ',     em: 'Club OOMA' },
     myProfileH2:   { pre: 'Mi ',           em: 'Perfil' },
     myQrH2:        { pre: 'Mi ',           em: 'Código QR' },
+    catReformer:   'Reformer Pilates',
+    catYoga:       'Yoga',
+    catBoth:       'Reformer + Yoga',
+    packEspecial:  'PACK ESPECIAL',
 
     navCalendar:    'Calendario',
     navMyClasses:   'Mis Clases',
@@ -249,6 +257,10 @@ export const APP_TR = {
     joinClubH2:    { pre: 'Uneix-te al ',  em: 'Club OOMA' },
     myProfileH2:   { pre: 'El meu ',       em: 'Perfil' },
     myQrH2:        { pre: 'El meu ',       em: 'Codi QR' },
+    catReformer:   'Reformer Pilates',
+    catYoga:       'Yoga',
+    catBoth:       'Reformer + Yoga',
+    packEspecial:  'PACK ESPECIAL',
 
     navCalendar:    'Calendari',
     navMyClasses:   'Classes',
