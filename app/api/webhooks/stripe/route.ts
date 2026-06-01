@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/email'
+import { getSettings } from '@/lib/settings'
 import { endOfDay } from 'date-fns'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -177,6 +178,15 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       },
     })
   })
+
+  // Mark as club member on first recurring subscription when membership fee is disabled
+  const settings = await getSettings(['subscriptionPaymentRequired'])
+  if (settings.subscriptionPaymentRequired !== 'true') {
+    await prisma.user.updateMany({
+      where: { id: sub.userId, isClubMember: false },
+      data:  { isClubMember: true },
+    })
+  }
 
   // Send confirmation email — fire-and-forget so a failed email doesn't retry the webhook
   sendEmail({
