@@ -15,7 +15,12 @@ export async function GET(request: NextRequest) {
     const bookings = await prisma.booking.findMany({
       where: {
         userId,
-        status: 'attended',
+        status: 'confirmed',
+        cancelledAt: null,
+        attendedAt: null,
+        class: {
+          endTime: { lt: new Date() },
+        },
       },
       include: {
         class: {
@@ -31,7 +36,7 @@ export async function GET(request: NextRequest) {
       orderBy: { class: { startTime: 'desc' } },
     })
 
-    const history = bookings.map((b) => {
+    const missed = bookings.map((b) => {
       const durationMins = Math.round(
         (b.class.endTime.getTime() - b.class.startTime.getTime()) / 60000
       )
@@ -45,13 +50,12 @@ export async function GET(request: NextRequest) {
           classType: b.class.classType,
         },
         stretcherNumber: b.stretcherNumber,
-        attendedAt: b.attendedAt,
       }
     })
 
-    return NextResponse.json({ history })
+    return NextResponse.json({ missed })
   } catch (error) {
-    console.error('Bookings history error:', error)
+    console.error('Missed bookings error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
