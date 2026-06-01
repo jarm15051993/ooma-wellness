@@ -5,8 +5,9 @@ import { verifyToken, extractBearerToken } from '@/lib/jwt'
 type BulkClassInput = {
   title: string
   instructor: string
-  date: string       // YYYY-MM-DD
-  startTime: string  // HH:MM
+  date?: string      // YYYY-MM-DD (legacy)
+  startTime: string  // HH:MM or ISO string
+  endTime?: string   // ISO string (when sent from mobile)
   durationMins: number
   capacity: number
   classType?: string // REFORMER | YOGA
@@ -43,12 +44,17 @@ export async function POST(request: NextRequest) {
       if (!c.title?.trim()) {
         failed.push({ row: rowNum, reason: 'Missing class name' }); continue
       }
-      if (!c.date || !/^\d{4}-\d{2}-\d{2}$/.test(c.date)) {
-        failed.push({ row: rowNum, reason: 'Invalid or missing date (expected YYYY-MM-DD)' }); continue
+      const isISO = c.startTime && c.startTime.includes('T')
+
+      if (!isISO) {
+        if (!c.date || !/^\d{4}-\d{2}-\d{2}$/.test(c.date)) {
+          failed.push({ row: rowNum, reason: 'Invalid or missing date (expected YYYY-MM-DD)' }); continue
+        }
+        if (!c.startTime || !/^\d{1,2}:\d{2}$/.test(c.startTime)) {
+          failed.push({ row: rowNum, reason: 'Invalid or missing start time (expected HH:MM)' }); continue
+        }
       }
-      if (!c.startTime || !/^\d{1,2}:\d{2}$/.test(c.startTime)) {
-        failed.push({ row: rowNum, reason: 'Invalid or missing start time (expected HH:MM)' }); continue
-      }
+
       const duration = Number(c.durationMins)
       if (!duration || duration < 30 || duration > 180 || duration % 10 !== 0) {
         failed.push({ row: rowNum, reason: 'Duration must be between 30 and 180 minutes in 10-minute increments' }); continue
@@ -58,10 +64,16 @@ export async function POST(request: NextRequest) {
         failed.push({ row: rowNum, reason: 'Capacity must be between 1 and 20' }); continue
       }
 
-      const [hours, mins] = c.startTime.split(':').map(Number)
-      const start = new Date(`${c.date}T00:00:00`)
-      start.setHours(hours, mins, 0, 0)
-      const end = new Date(start.getTime() + duration * 60_000)
+      let start: Date, end: Date
+      if (isISO) {
+        start = new Date(c.startTime)
+        end = c.endTime ? new Date(c.endTime) : new Date(start.getTime() + duration * 60_000)
+      } else {
+        const [hours, mins] = c.startTime.split(':').map(Number)
+        start = new Date(`${c.date}T00:00:00`)
+        start.setHours(hours, mins, 0, 0)
+        end = new Date(start.getTime() + duration * 60_000)
+      }
 
       if (isNaN(start.getTime())) {
         failed.push({ row: rowNum, reason: 'Invalid date' }); continue
