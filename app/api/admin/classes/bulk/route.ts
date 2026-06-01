@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       if (!c.date || !/^\d{4}-\d{2}-\d{2}$/.test(c.date)) {
         failed.push({ row: rowNum, reason: 'Invalid or missing date (expected YYYY-MM-DD)' }); continue
       }
-      if (!c.startTime || !/^\d{2}:\d{2}$/.test(c.startTime)) {
+      if (!c.startTime || !/^\d{1,2}:\d{2}$/.test(c.startTime)) {
         failed.push({ row: rowNum, reason: 'Invalid or missing start time (expected HH:MM)' }); continue
       }
       const duration = Number(c.durationMins)
