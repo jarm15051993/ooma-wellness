@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
         capacity: cls.capacity,
         instructor: cls.instructor,
         classType: cls.classType,
+        level: cls.level ?? null,
         bookedSpots: bookedCount,
         availableSpots: cls.capacity - bookedCount,
         isFull: bookedCount >= cls.capacity,

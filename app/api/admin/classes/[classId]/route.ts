@@ -16,7 +16,7 @@ export async function PATCH(
     }
 
     const { classId } = await params
-    const { title, description, startTime, endTime, capacity, instructor, classType } = await request.json()
+    const { title, description, startTime, endTime, capacity, instructor, classType, level } = await request.json()
 
     if (!title || !startTime || !endTime || !capacity) {
       return NextResponse.json(
@@ -79,6 +79,11 @@ export async function PATCH(
       )
     }
 
+    const VALID_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED']
+    const classLevel = level && VALID_LEVELS.includes(level.toUpperCase())
+      ? level.toUpperCase()
+      : null
+
     const updated = await prisma.class.update({
       where: { id: classId },
       data: {
@@ -89,6 +94,7 @@ export async function PATCH(
         capacity: cap,
         instructor: instructor?.trim() || null,
         classType: classType ?? existing.classType,
+        level: classLevel as any ?? null,
       },
     })
 

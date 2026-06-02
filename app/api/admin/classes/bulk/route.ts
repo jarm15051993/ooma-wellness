@@ -10,6 +10,7 @@ type BulkClassInput = {
   durationMins: number
   capacity: number
   classType?: string // REFORMER | YOGA
+  level?: string     // BEGINNER | INTERMEDIATE | ADVANCED (optional)
 }
 
 type FailedRow = {
@@ -71,6 +72,11 @@ export async function POST(request: NextRequest) {
         ? c.classType.toUpperCase() as 'REFORMER' | 'YOGA'
         : 'REFORMER'
 
+      const VALID_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED']
+      const level = c.level && VALID_LEVELS.includes(c.level.toUpperCase())
+        ? c.level.toUpperCase() as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+        : null
+
       toCreate.push({
         title: c.title.trim(),
         instructor: c.instructor?.trim() || null,
@@ -79,6 +85,7 @@ export async function POST(request: NextRequest) {
         capacity: cap,
         bookedCount: 0,
         classType,
+        ...(level ? { level } : {}),
       })
     }
 

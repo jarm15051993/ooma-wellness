@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { title, description, startTime, endTime, capacity, instructor, classType } = await request.json()
+    const { title, description, startTime, endTime, capacity, instructor, classType, level } = await request.json()
 
     if (!title || !startTime || !endTime || !capacity) {
       return NextResponse.json(
@@ -89,6 +89,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const VALID_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED']
+    const classLevel = level && VALID_LEVELS.includes(level.toUpperCase())
+      ? level.toUpperCase()
+      : null
+
     const newClass = await prisma.class.create({
       data: {
         title,
@@ -98,6 +103,7 @@ export async function POST(request: NextRequest) {
         capacity: parseInt(capacity),
         instructor: instructor || null,
         classType: classType ?? 'REFORMER',
+        level: classLevel as any ?? undefined,
       }
     })
 
