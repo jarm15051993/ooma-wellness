@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/email'
+import { getOrCreateStripeCustomer } from '@/lib/stripe-customer'
 import { endOfDay } from 'date-fns'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -249,6 +250,39 @@ async function handleSubscriptionDeleted(stripeSub: Stripe.Subscription) {
     where: { id: sub.id },
     data:  { status: 'EXPIRED' },
   })
+
+  // If the user had a queued downgrade (PENDING subscription), activate it now.
+  const pending = await prisma.subscription.findFirst({
+    where:   { userId: sub.userId, status: 'PENDING' },
+    include: { package: true },
+  })
+  if (!pending || !pending.package.stripePriceId) return
+
+  try {
+    const customerId = await getOrCreateStripeCustomer(sub.userId)
+    const newStripeSub = await stripe.subscriptions.create({
+      customer:         customerId,
+      items:            [{ price: pending.package.stripePriceId }],
+      payment_behavior: 'default_incomplete',
+      expand:           ['latest_invoice'],
+      metadata:         { userId: sub.userId, packageId: pending.packageId },
+    })
+
+    const periodStart = new Date(newStripeSub.current_period_start * 1000)
+    const periodEnd   = new Date(newStripeSub.current_period_end   * 1000)
+
+    await prisma.subscription.update({
+      where: { id: pending.id },
+      data: {
+        status:               'ACTIVE',
+        stripeSubscriptionId: newStripeSub.id,
+        currentPeriodStart:   periodStart,
+        currentPeriodEnd:     periodEnd,
+      },
+    })
+  } catch (err) {
+    console.error('[webhook/stripe] Failed to activate pending plan change:', err)
+  }
 }
 
 // ─── payment_intent.succeeded ─────────────────────────────────────────────

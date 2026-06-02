@@ -96,19 +96,19 @@ export async function POST(request: NextRequest) {
 
     // ── Recurring subscription ────────────────────────────────────────────────
 
-    // Prevent duplicate active subscription for the same package
-    const existing = await prisma.subscription.findFirst({
-      where:   { userId, packageId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
+    // Block new subscription purchase if user already has any active subscription.
+    // Users must use the Change Plan flow to switch plans.
+    const anyActive = await prisma.subscription.findFirst({
+      where:   { userId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
       include: { credits: { take: 1 } },
     })
-    if (existing) {
-      // If it has no credits the previous payment never completed — clean it up
-      // automatically so the user can retry instead of being permanently blocked.
-      if (existing.credits.length === 0) {
-        try { await stripe.subscriptions.cancel(existing.stripeSubscriptionId) } catch {}
-        await prisma.subscription.delete({ where: { id: existing.id } })
+    if (anyActive) {
+      if (anyActive.credits.length === 0 && anyActive.packageId === packageId) {
+        // Previous payment for the same package never completed — clean it up so user can retry.
+        try { await stripe.subscriptions.cancel(anyActive.stripeSubscriptionId) } catch {}
+        await prisma.subscription.delete({ where: { id: anyActive.id } })
       } else {
-        return NextResponse.json({ error: 'You already have an active subscription for this package' }, { status: 409 })
+        return NextResponse.json({ error: 'You already have an active subscription. Use the Change Plan flow to switch plans.' }, { status: 409 })
       }
     }
 
