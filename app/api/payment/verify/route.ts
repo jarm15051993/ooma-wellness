@@ -63,15 +63,23 @@ export async function POST(request: NextRequest) {
     // Add credits to user
     const classCount = parseInt(classes)
     const expiryDate = new Date()
-    expiryDate.setMonth(expiryDate.getMonth() + 6) // Credits valid for 6 months
+    expiryDate.setMonth(expiryDate.getMonth() + 6)
+
+    const pkg = await prisma.package.findUnique({
+      where:  { id: packageId },
+      select: { packageType: true, isUnlimited: true, durationDays: true },
+    })
 
     await prisma.userCredit.create({
       data: {
         userId,
+        packageId,
         creditsRemaining: classCount,
-        creditsTotal: classCount,
-        expiresAt: expiryDate
-      }
+        creditsTotal:     classCount,
+        expiresAt:        expiryDate,
+        packageType:      pkg?.packageType ?? 'REFORMER',
+        isUnlimited:      pkg?.isUnlimited ?? false,
+      },
     })
 
     return NextResponse.json({ 
