@@ -7,7 +7,8 @@ export async function GET(request: NextRequest) {
     const token = extractBearerToken(request.headers.get('authorization'))
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const payload = await verifyToken(token)
-    const userId  = payload.userId
+    const tenantUserId = request.headers.get('x-tenant-user-id')
+    const userId = tenantUserId ?? payload.userId
 
     const [subscriptions, standaloneCredits] = await Promise.all([
       prisma.subscription.findMany({
