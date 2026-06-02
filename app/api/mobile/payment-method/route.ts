@@ -12,9 +12,11 @@ export async function GET(request: NextRequest) {
     const token = extractBearerToken(request.headers.get('authorization'))
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const payload = await verifyToken(token)
+    const tenantUserId = request.headers.get('x-tenant-user-id')
+    const userId = tenantUserId ?? payload.userId
 
     const user = await prisma.user.findUniqueOrThrow({
-      where:  { id: payload.userId },
+      where:  { id: userId },
       select: { stripeCustomerId: true },
     })
 
@@ -39,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch next invoice amount for each active subscription
     const activeSubscriptions = await prisma.subscription.findMany({
-      where:  { userId: payload.userId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
+      where:  { userId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
       select: { id: true, stripeSubscriptionId: true, status: true },
     })
 

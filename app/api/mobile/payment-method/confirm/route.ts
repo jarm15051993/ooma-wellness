@@ -15,15 +15,17 @@ export async function POST(request: NextRequest) {
     const token = extractBearerToken(request.headers.get('authorization'))
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const payload = await verifyToken(token)
+    const tenantUserId = request.headers.get('x-tenant-user-id')
+    const userId = tenantUserId ?? payload.userId
 
     const { setupIntentId } = await request.json()
     if (!setupIntentId) return NextResponse.json({ error: 'setupIntentId required' }, { status: 400 })
 
     const setupIntent = await stripe.setupIntents.retrieve(setupIntentId)
 
-    // Security: ensure this SetupIntent belongs to this user's Stripe customer
+    // Security: ensure this SetupIntent belongs to the target user's Stripe customer
     const user = await prisma.user.findUniqueOrThrow({
-      where:  { id: payload.userId },
+      where:  { id: userId },
       select: { stripeCustomerId: true },
     })
     if (setupIntent.customer !== user.stripeCustomerId) {
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Set as default on all active subscriptions
     const activeSubscriptions = await prisma.subscription.findMany({
-      where:  { userId: payload.userId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
+      where:  { userId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
       select: { stripeSubscriptionId: true },
     })
 

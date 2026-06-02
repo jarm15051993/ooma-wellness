@@ -12,8 +12,10 @@ export async function POST(request: NextRequest) {
     const token = extractBearerToken(request.headers.get('authorization'))
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const payload = await verifyToken(token)
+    const tenantUserId = request.headers.get('x-tenant-user-id')
+    const userId = tenantUserId ?? payload.userId
 
-    const customerId = await getOrCreateStripeCustomer(payload.userId)
+    const customerId = await getOrCreateStripeCustomer(userId)
 
     const setupIntent = await stripe.setupIntents.create({
       customer: customerId,
