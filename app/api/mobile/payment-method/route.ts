@@ -29,7 +29,33 @@ export async function GET(request: NextRequest) {
       expand: ['invoice_settings.default_payment_method'],
     }) as Stripe.Customer
 
-    const pm = customer.invoice_settings?.default_payment_method as Stripe.PaymentMethod | null
+    let pm = customer.invoice_settings?.default_payment_method as Stripe.PaymentMethod | null
+
+    // Fallback 1: check the subscription's own default_payment_method
+    if (!pm) {
+      const activeSubs = await prisma.subscription.findMany({
+        where:  { userId, status: { in: ['ACTIVE', 'PAST_DUE'] } },
+        select: { stripeSubscriptionId: true },
+        take: 1,
+      })
+      if (activeSubs.length > 0) {
+        const stripeSub = await stripe.subscriptions.retrieve(activeSubs[0].stripeSubscriptionId, {
+          expand: ['default_payment_method'],
+        })
+        pm = stripeSub.default_payment_method as Stripe.PaymentMethod | null
+      }
+    }
+
+    // Fallback 2: list the customer's attached payment methods and take the first card
+    if (!pm) {
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer: user.stripeCustomerId,
+        type: 'card',
+        limit: 1,
+      })
+      pm = paymentMethods.data[0] ?? null
+    }
+
     const card = pm?.card
       ? {
           brand:    pm.card.brand,
