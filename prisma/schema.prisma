@@ -30,6 +30,7 @@ enum SubscriptionStatus {
   CANCELLED
   PAST_DUE
   EXPIRED
+  PENDING
 }
 
 enum PaymentMethod {
