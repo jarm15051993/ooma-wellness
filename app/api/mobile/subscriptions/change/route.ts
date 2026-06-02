@@ -15,11 +15,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 //   2. Single type (REFORMER or YOGA) → BOTH + more classes (cross-upgrade)
 // Everything else is a downgrade.
 function isUpgrade(
-  currentType: string, currentCount: number,
-  newType: string,     newCount: number,
+  currentType: string, currentCount: number, currentUnlimited: boolean,
+  newType: string,     newCount: number,     newUnlimited: boolean,
 ): boolean {
-  if (currentType === newType && newCount > currentCount) return true
-  if (currentType !== 'BOTH' && newType === 'BOTH' && newCount > currentCount) return true
+  const curEff = currentUnlimited ? Infinity : currentCount
+  const newEff = newUnlimited     ? Infinity : newCount
+  if (currentType === newType && newEff > curEff) return true
+  if (currentType !== 'BOTH' && newType === 'BOTH' && newEff > curEff) return true
   return false
 }
 
@@ -57,8 +59,8 @@ export async function GET(request: NextRequest) {
     }
 
     const upgrade = isUpgrade(
-      currentSub.package.packageType, currentSub.package.classCount,
-      newPkg.packageType, newPkg.classCount,
+      currentSub.package.packageType, currentSub.package.classCount, currentSub.package.isUnlimited,
+      newPkg.packageType, newPkg.classCount, newPkg.isUnlimited,
     )
 
     const alreadyUsed = currentSub.credits[0]
@@ -142,8 +144,8 @@ export async function POST(request: NextRequest) {
     }
 
     const upgrade = isUpgrade(
-      currentSub.package.packageType, currentSub.package.classCount,
-      newPkg.packageType, newPkg.classCount,
+      currentSub.package.packageType, currentSub.package.classCount, currentSub.package.isUnlimited,
+      newPkg.packageType, newPkg.classCount, newPkg.isUnlimited,
     )
 
     // Cancel any existing pending plan change for this user
