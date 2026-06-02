@@ -11,9 +11,11 @@ export async function GET(request: NextRequest) {
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const payload = await verifyToken(token)
+    const tenantUserId = request.headers.get('x-tenant-user-id')
+    const userId = tenantUserId ?? payload.userId
 
     const rows = await prisma.notificationPreference.findMany({
-      where: { userId: payload.userId },
+      where: { userId },
     })
 
     // Build response — default to enabled:true for any type not yet in DB
@@ -34,6 +36,8 @@ export async function PATCH(request: NextRequest) {
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const payload = await verifyToken(token)
+    const tenantUserId = request.headers.get('x-tenant-user-id')
+    const userId = tenantUserId ?? payload.userId
     const { type, enabled } = await request.json()
 
     if (!CONTROLLABLE_TYPES.includes(type as PreferenceType) || typeof enabled !== 'boolean') {
@@ -41,9 +45,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     await prisma.notificationPreference.upsert({
-      where: { userId_type: { userId: payload.userId, type } },
+      where: { userId_type: { userId, type } },
       update: { enabled },
-      create: { userId: payload.userId, type, enabled },
+      create: { userId, type, enabled },
     })
 
     return NextResponse.json({ ok: true })
