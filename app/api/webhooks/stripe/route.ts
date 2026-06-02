@@ -268,8 +268,9 @@ async function handleSubscriptionDeleted(stripeSub: Stripe.Subscription) {
       metadata:         { userId: sub.userId, packageId: pending.packageId },
     })
 
-    const periodStart = new Date(newStripeSub.current_period_start * 1000)
-    const periodEnd   = new Date(newStripeSub.current_period_end   * 1000)
+    const subAny      = newStripeSub as any
+    const periodStart = new Date((subAny.current_period_start ?? 0) * 1000)
+    const periodEnd   = new Date((subAny.current_period_end   ?? 0) * 1000)
 
     await prisma.subscription.update({
       where: { id: pending.id },
