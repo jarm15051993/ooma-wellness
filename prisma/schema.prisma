@@ -19,6 +19,12 @@ enum ClassType {
   YOGA
 }
 
+enum ClassLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
 enum PackageType {
   REFORMER
   YOGA
@@ -178,8 +184,9 @@ model Class {
   capacity    Int
   bookedCount Int       @default(0)
   instructor  String?
-  classType   ClassType @default(REFORMER)
-  createdAt   DateTime  @default(now())
+  classType   ClassType  @default(REFORMER)
+  level       ClassLevel?
+  createdAt   DateTime   @default(now())
 
   bookings Booking[]
 }
