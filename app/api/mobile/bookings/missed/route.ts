@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
             endTime: true,
             instructor: true,
             classType: true,
+            level: true,
           },
         },
       },
@@ -48,6 +49,7 @@ export async function GET(request: NextRequest) {
           instructor: b.class.instructor,
           durationMins,
           classType: b.class.classType,
+          level: b.class.level ?? null,
         },
         stretcherNumber: b.stretcherNumber,
       }

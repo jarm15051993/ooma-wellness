@@ -64,6 +64,7 @@ export async function GET(
         capacity: cls.capacity,
         instructor: cls.instructor,
         classType: cls.classType,
+        level: cls.level ?? null,
       },
       attendees,
     })
