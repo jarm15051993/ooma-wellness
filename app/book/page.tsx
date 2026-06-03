@@ -14,6 +14,7 @@ interface Class {
   endTime: string
   instructor: string | null
   classType: 'REFORMER' | 'YOGA'
+  level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null
   bookedSpots: number
   availableSpots: number
   isFull: boolean
@@ -385,13 +386,24 @@ export default function BookClassPage() {
                             {cls.instructor}
                           </div>
                         )}
-                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium tracking-widest uppercase border ${
-                          cls.classType === 'YOGA'
-                            ? 'bg-sage/10 text-sage border-sage/30'
-                            : 'bg-burg/10 text-burg border-burg/30'
-                        }`}>
-                          {cls.classType === 'YOGA' ? tr.typeYoga : tr.typeReformer}
-                        </span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium tracking-widest uppercase border ${
+                            cls.classType === 'YOGA'
+                              ? 'bg-sage/10 text-sage border-sage/30'
+                              : 'bg-burg/10 text-burg border-burg/30'
+                          }`}>
+                            {cls.classType === 'YOGA' ? tr.typeYoga : tr.typeReformer}
+                          </span>
+                          {cls.level && (
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium tracking-widest uppercase border ${
+                              cls.level === 'BEGINNER'     ? 'bg-green-50 text-green-700 border-green-300'
+                              : cls.level === 'INTERMEDIATE' ? 'bg-yellow-50 text-yellow-700 border-yellow-300'
+                              : 'bg-burg/10 text-burg border-burg/30'
+                            }`}>
+                              {cls.level === 'BEGINNER' ? tr.levelBeginner : cls.level === 'INTERMEDIATE' ? tr.levelIntermediate : tr.levelAdvanced}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="pt-4 border-t border-rule">

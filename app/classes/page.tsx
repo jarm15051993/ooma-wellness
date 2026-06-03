@@ -14,6 +14,8 @@ interface Booking {
     startTime: string
     endTime: string
     instructor: string | null
+    classType: 'REFORMER' | 'YOGA'
+    level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | null
   }
 }
 
@@ -114,6 +116,24 @@ export default function ClassesPage() {
                     {new Date(booking.class.endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
                   </p>
                   {booking.class.instructor && <p className="text-mgray">{booking.class.instructor}</p>}
+                  <div className="flex items-center gap-2 flex-wrap pt-1">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium tracking-widest uppercase border ${
+                      booking.class.classType === 'YOGA'
+                        ? 'bg-sage/10 text-sage border-sage/30'
+                        : 'bg-burg/10 text-burg border-burg/30'
+                    }`}>
+                      {booking.class.classType === 'YOGA' ? tr.typeYoga : tr.typeReformer}
+                    </span>
+                    {booking.class.level && (
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium tracking-widest uppercase border ${
+                        booking.class.level === 'BEGINNER'     ? 'bg-green-50 text-green-700 border-green-300'
+                        : booking.class.level === 'INTERMEDIATE' ? 'bg-yellow-50 text-yellow-700 border-yellow-300'
+                        : 'bg-burg/10 text-burg border-burg/30'
+                      }`}>
+                        {booking.class.level === 'BEGINNER' ? tr.levelBeginner : booking.class.level === 'INTERMEDIATE' ? tr.levelIntermediate : tr.levelAdvanced}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button onClick={() => handleCancelBooking(booking)} disabled={cancellingId === booking.id}
                   className="px-4 py-1.5 border border-rule hover:border-burg disabled:opacity-50 text-mgray hover:text-burg text-sm font-medium rounded-sm transition">
