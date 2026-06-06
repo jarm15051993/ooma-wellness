@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
 import { COUNTRY_CODES, PHONE_LENGTHS } from '@/lib/constants'
 import { validateDNI } from '@/utils/validateDNI'
+import { APP_TR, getLang } from '@/lib/app-translations'
 
 const toastStyle = (border: string) => ({
   background: '#F4F0E8',
@@ -219,6 +220,9 @@ function OnboardingContent() {
 
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [showGiftModal, setShowGiftModal] = useState(false)
+  const [giftUser, setGiftUser] = useState<any>(null)
+  const [claimingGift, setClaimingGift] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [phoneError, setPhoneError] = useState('')
@@ -428,7 +432,22 @@ function OnboardingContent() {
       }
       localStorage.setItem('user', JSON.stringify(data.user))
       toast.success(tr.welcome, { duration: 2000, style: toastStyle('#22c55e') })
-      setTimeout(() => router.push('/dashboard'), 1200)
+
+      // Check early member gift eligibility after onboarding
+      try {
+        const giftRes = await fetch(`/api/web/welcome-gift?userId=${data.user.id}`)
+        const giftData = await giftRes.json()
+        if (giftData.eligible) {
+          setGiftUser(data.user)
+          setShowGiftModal(true)
+          setLoading(false)
+          return
+        }
+      } catch {
+        // Non-blocking — proceed to dashboard
+      }
+
+      setTimeout(() => router.push('/book'), 1200)
     } catch {
       toast.error('Network error. Please try again.', { duration: 4000, style: toastStyle('#ef4444') })
       setLoading(false)
@@ -442,7 +461,31 @@ function OnboardingContent() {
 
   if (!userId) return null
 
+  const giftTr = APP_TR[getLang(giftUser)]
+
+  const handleClaimGift = async () => {
+    setClaimingGift(true)
+    try {
+      await fetch('/api/web/welcome-gift', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: giftUser?.id }),
+      })
+    } catch {
+      // Non-blocking
+    }
+    toast.success(giftTr.giftModalSuccess, { duration: 3000, style: toastStyle('#22c55e') })
+    setShowGiftModal(false)
+    router.push('/book')
+  }
+
+  const handleSkipGift = () => {
+    setShowGiftModal(false)
+    router.push('/book')
+  }
+
   return (
+    <>
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
       <Toaster position="top-center" />
 
@@ -821,6 +864,36 @@ function OnboardingContent() {
         </div>
       </div>
     </div>
+
+    {/* Welcome Gift Modal */}
+    {showGiftModal && (
+      <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-[9999] p-4">
+        <div className="bg-warm-white rounded p-8 w-full max-w-sm border border-rule shadow-sm text-center">
+          <div className="w-14 h-14 bg-burg/10 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-burg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a4 4 0 00-4-4H5.45a2 2 0 00-1.992 2.189l.637 7A2 2 0 005.89 13H9m3-5h3.55a2 2 0 011.99 1.811l.637 7A2 2 0 0118.1 13H15m-3-5a4 4 0 014-4h.55" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-serif font-light text-ink mb-3 tracking-wide">{giftTr.giftModalTitle}</h2>
+          <p className="text-mgray text-sm mb-8 leading-relaxed">{giftTr.giftModalBody}</p>
+          <button
+            onClick={handleClaimGift}
+            disabled={claimingGift}
+            className="w-full py-3 bg-burg hover:bg-burg-mid disabled:opacity-50 text-warm-white font-medium rounded-sm transition tracking-wider text-sm uppercase mb-3"
+          >
+            {claimingGift ? '...' : giftTr.giftModalClaim}
+          </button>
+          <button
+            onClick={handleSkipGift}
+            disabled={claimingGift}
+            className="text-sm text-mgray hover:text-ink transition"
+          >
+            {giftTr.giftModalSkip}
+          </button>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
 

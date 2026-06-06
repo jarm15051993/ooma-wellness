@@ -68,7 +68,7 @@ export default function LoginPage() {
       setNotActivated(false)
 
       toast.success('Login successful!', { duration: 2000, style: toastStyle('#22c55e') })
-      setTimeout(() => router.push('/dashboard'), 1000)
+      setTimeout(() => router.push('/book'), 1000)
     } catch {
       toast.error('Network error. Please try again.', { duration: 4000, style: toastStyle('#ef4444') })
       setLoading(false)
@@ -239,6 +239,8 @@ export default function LoginPage() {
           </a>
         </p>
       </div>
+
+
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
