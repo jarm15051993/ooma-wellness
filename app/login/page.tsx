@@ -171,6 +171,7 @@ export default function LoginPage() {
   const inputClass = 'w-full px-4 py-2 bg-warm-white border border-rule rounded focus:ring-2 focus:ring-burg focus:border-transparent text-ink placeholder-lgray'
 
   return (
+    <>
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
       <Toaster position="top-center" />
 
@@ -286,9 +287,11 @@ export default function LoginPage() {
         </p>
       </div>
 
+    </div>
+
       {/* Welcome Gift Modal */}
       {showGiftModal && (
-        <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-[9999] p-4">
           <div className="bg-warm-white rounded p-8 w-full max-w-sm border border-rule shadow-sm text-center">
             <div className="w-14 h-14 bg-burg/10 rounded-full flex items-center justify-center mx-auto mb-5">
               <svg className="w-7 h-7 text-burg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -374,6 +377,6 @@ export default function LoginPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
