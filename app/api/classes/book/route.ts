@@ -156,8 +156,8 @@ export async function POST(request: NextRequest) {
         const cls = result.class
         const lang = (user.language ?? 'es') as EmailLanguage
         const locale = lang === 'en' ? 'en-GB' : lang === 'ca' ? 'ca-ES' : 'es-ES'
-        const date = new Date(cls.startTime).toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-        const time = `${new Date(cls.startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} - ${new Date(cls.endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}`
+        const date = new Date(cls.startTime).toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'Europe/Madrid' })
+        const time = `${new Date(cls.startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} - ${new Date(cls.endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}`
         const icsContent = buildIcs({
           uid: `booking-${result.id}@oomawellness.com`,
           title: cls.title,
@@ -273,8 +273,8 @@ export async function DELETE(request: NextRequest) {
       const cancelledUser = booking.user
       const lang = (cancelledUser.language ?? 'es') as EmailLanguage
       const locale = lang === 'en' ? 'en-GB' : lang === 'ca' ? 'ca-ES' : 'es-ES'
-      const date = new Date(cancelledClass.startTime).toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-      const time = `${new Date(cancelledClass.startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} - ${new Date(cancelledClass.endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}`
+      const date = new Date(cancelledClass.startTime).toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'Europe/Madrid' })
+      const time = `${new Date(cancelledClass.startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} - ${new Date(cancelledClass.endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}`
       await sendEmail({
         to: cancelledUser.email,
         type: 'booking_cancellation',

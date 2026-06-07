@@ -145,8 +145,8 @@ export async function POST(request: NextRequest) {
         if (!user) return
         const lang = (user.language ?? 'es') as EmailLanguage
         const locale = lang === 'en' ? 'en-GB' : lang === 'ca' ? 'ca-ES' : 'es-ES'
-        const date = booking.class.startTime.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric' })
-        const time = booking.class.startTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+        const date = booking.class.startTime.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' })
+        const time = booking.class.startTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })
         return sendEmail({
           to: user.email,
           type: 'booking_confirmation',

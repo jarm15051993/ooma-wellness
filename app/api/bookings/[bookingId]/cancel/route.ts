@@ -86,8 +86,8 @@ export async function PATCH(
         if (!user) return
         const lang = (user.language ?? 'es') as EmailLanguage
         const locale = lang === 'en' ? 'en-GB' : lang === 'ca' ? 'ca-ES' : 'es-ES'
-        const date = updatedBooking.class.startTime.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric' })
-        const time = updatedBooking.class.startTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+        const date = updatedBooking.class.startTime.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' })
+        const time = updatedBooking.class.startTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })
         const creditNote = creditLost
           ? 'This class was cancelled less than 2 hours before it started, so your credit was not returned.'
           : 'Your credit has been returned to your account.'
