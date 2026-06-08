@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     const classes = await prisma.class.findMany({
       where: {
-        startTime: {
+        endTime: {
           gte: new Date()
         }
       },
