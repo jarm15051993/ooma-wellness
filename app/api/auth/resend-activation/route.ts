@@ -16,7 +16,10 @@ export async function POST(request: NextRequest) {
     })
 
     // Always return 200 — don't reveal whether the email exists
-    if (!user || user.activatedAt) {
+    // Allow resend even if activatedAt is set: the user may have clicked the link
+    // but never completed onboarding, in which case activationToken is null and
+    // they need a fresh token to re-enter the onboarding flow.
+    if (!user || user.onboardingCompleted) {
       return NextResponse.json({ message: 'If that account exists and is not yet activated, a new link has been sent.' })
     }
 
