@@ -51,11 +51,26 @@ const SIGNUP_TR: Record<Lang, {
   },
 }
 
-const LANGS: { code: Lang; flag: string; label: string }[] = [
-  { code: 'es', flag: '🇪🇸', label: 'ES' },
-  { code: 'ca', flag: '🏴󠁥󠁳󠁣󠁴󠁿', label: 'CAT' },
-  { code: 'en', flag: '🇬🇧', label: 'EN' },
+const LANGS: { code: Lang; label: string }[] = [
+  { code: 'es', label: 'ES' },
+  { code: 'ca', label: 'CAT' },
+  { code: 'en', label: 'EN' },
 ]
+
+function FlagIcon({ code }: { code: Lang }) {
+  if (code === 'ca') {
+    return (
+      <svg viewBox="0 0 5 9" xmlns="http://www.w3.org/2000/svg" className="w-5 h-3.5 rounded-sm inline-block flex-shrink-0">
+        <rect width="5" height="9" fill="#FCDD09" />
+        <rect y="1" width="5" height="1" fill="#DA121A" />
+        <rect y="3" width="5" height="1" fill="#DA121A" />
+        <rect y="5" width="5" height="1" fill="#DA121A" />
+        <rect y="7" width="5" height="1" fill="#DA121A" />
+      </svg>
+    )
+  }
+  return <span>{code === 'es' ? '🇪🇸' : '🇬🇧'}</span>
+}
 
 const toastStyle = (border: string) => ({
   background: '#F4F0E8',
@@ -104,7 +119,7 @@ export default function SignupPage() {
 
         {/* Language switcher */}
         <div className="flex justify-center gap-2 mb-6">
-          {LANGS.map(({ code, flag, label }) => (
+          {LANGS.map(({ code, label }) => (
             <button
               key={code}
               type="button"
@@ -115,7 +130,7 @@ export default function SignupPage() {
                   : 'border-rule text-mgray hover:border-burg/50 hover:text-ink'
               }`}
             >
-              <span>{flag}</span>
+              <FlagIcon code={code} />
               <span className="tracking-wide uppercase">{label}</span>
             </button>
           ))}
