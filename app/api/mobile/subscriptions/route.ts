@@ -34,15 +34,24 @@ export async function GET(request: NextRequest) {
           { currentPeriodEnd: 'asc' },
         ],
       }),
-      // Credits not linked to any subscription (e.g. welcome gift, manual grants)
+      // Single-class credits (all states: active, booked, attended, expired)
       prisma.userCredit.findMany({
         where: {
           userId,
           subscriptionId: null,
-          creditsRemaining: { gt: 0 },
-          OR: [{ expiresAt: null }, { expiresAt: { gte: new Date() } }],
         },
-        include: { package: { select: { name: true, packageType: true } } },
+        include: {
+          package: { select: { name: true, packageType: true } },
+          bookings: {
+            where: { cancelledAt: null },
+            include: {
+              class: { select: { title: true, startTime: true, classType: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
       }),
     ])
 
