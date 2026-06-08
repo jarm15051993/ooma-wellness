@@ -3,6 +3,59 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
+import type { Lang } from '@/lib/app-translations'
+
+const SIGNUP_TR: Record<Lang, {
+  subtitle: string
+  emailLabel: string
+  continue: string
+  sending: string
+  alreadyMember: string
+  logIn: string
+  errorAlreadyRegistered: string
+  errorNetwork: string
+  errorGeneric: string
+}> = {
+  es: {
+    subtitle: 'Crea tu cuenta',
+    emailLabel: 'Correo electrónico',
+    continue: 'Continuar',
+    sending: 'Enviando enlace…',
+    alreadyMember: '¿Ya eres miembro?',
+    logIn: 'Iniciar sesión',
+    errorAlreadyRegistered: 'Este correo ya está registrado',
+    errorNetwork: 'Error de red. Inténtalo de nuevo.',
+    errorGeneric: 'Algo ha salido mal. Inténtalo de nuevo.',
+  },
+  ca: {
+    subtitle: 'Crea el teu compte',
+    emailLabel: 'Correu electrònic',
+    continue: 'Continua',
+    sending: "Enviant l'enllaç…",
+    alreadyMember: 'Ja ets membre?',
+    logIn: 'Inicia sessió',
+    errorAlreadyRegistered: 'Aquest correu ja està registrat',
+    errorNetwork: 'Error de xarxa. Torna-ho a intentar.',
+    errorGeneric: 'Alguna cosa ha anat malament. Torna-ho a intentar.',
+  },
+  en: {
+    subtitle: 'Create your account',
+    emailLabel: 'Email',
+    continue: 'Continue',
+    sending: 'Sending link…',
+    alreadyMember: 'Already a member?',
+    logIn: 'Log in',
+    errorAlreadyRegistered: 'This email is already registered',
+    errorNetwork: 'Network error. Please try again.',
+    errorGeneric: 'Something went wrong. Please try again.',
+  },
+}
+
+const LANGS: { code: Lang; flag: string; label: string }[] = [
+  { code: 'es', flag: '🇪🇸', label: 'ES' },
+  { code: 'ca', flag: '🏴󠁥󠁳󠁣󠁴󠁿', label: 'CAT' },
+  { code: 'en', flag: '🇬🇧', label: 'EN' },
+]
 
 const toastStyle = (border: string) => ({
   background: '#F4F0E8',
@@ -12,8 +65,10 @@ const toastStyle = (border: string) => ({
 
 export default function SignupPage() {
   const router = useRouter()
+  const [lang, setLang] = useState<Lang>('es')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+  const tr = SIGNUP_TR[lang]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,13 +81,17 @@ export default function SignupPage() {
       })
       const data = await response.json()
       if (!response.ok) {
-        toast.error(data.message || 'Something went wrong', { duration: 5000, style: toastStyle('#ef4444') })
+        const msg = (data.message ?? '').toLowerCase()
+        const errText = msg.includes('already') || msg.includes('registrado') || msg.includes('registrat')
+          ? tr.errorAlreadyRegistered
+          : tr.errorGeneric
+        toast.error(errText, { duration: 5000, style: toastStyle('#ef4444') })
         setLoading(false)
         return
       }
       router.push('/signup/success')
     } catch {
-      toast.error('Network error. Please try again.', { duration: 4000, style: toastStyle('#ef4444') })
+      toast.error(tr.errorNetwork, { duration: 4000, style: toastStyle('#ef4444') })
       setLoading(false)
     }
   }
@@ -42,12 +101,32 @@ export default function SignupPage() {
       <Toaster position="top-center" />
 
       <div className="bg-warm-white rounded shadow-sm p-6 w-full max-w-md border border-rule">
+
+        {/* Language switcher */}
+        <div className="flex justify-center gap-2 mb-6">
+          {LANGS.map(({ code, flag, label }) => (
+            <button
+              key={code}
+              type="button"
+              onClick={() => setLang(code)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition border ${
+                lang === code
+                  ? 'border-burg text-burg bg-burg/5'
+                  : 'border-rule text-mgray hover:border-burg/50 hover:text-ink'
+              }`}
+            >
+              <span>{flag}</span>
+              <span className="tracking-wide uppercase">{label}</span>
+            </button>
+          ))}
+        </div>
+
         <h1 className="text-3xl font-serif font-light text-center mb-2 text-burg tracking-wide">OOMA Wellness Club</h1>
-        <p className="text-center text-mgray mb-8 text-sm tracking-wider uppercase">Create your account</p>
+        <p className="text-center text-mgray mb-8 text-sm tracking-wider uppercase">{tr.subtitle}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1 tracking-wide">Email *</label>
+            <label className="block text-sm font-medium text-ink mb-1 tracking-wide">{tr.emailLabel} *</label>
             <input
               type="email"
               required
@@ -62,14 +141,21 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full bg-ink hover:bg-burg text-warm-white font-medium py-3 rounded-sm transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wider text-sm uppercase"
           >
-            {loading ? 'Sending link…' : 'Continue'}
+            {loading ? tr.sending : tr.continue}
           </button>
         </form>
 
-        <p className="text-center text-mgray mt-4 text-sm">
-          Already have an account?{' '}
-          <a href="/login" className="text-burg hover:underline font-medium">Log in</a>
-        </p>
+        {/* Already a member — prominent section */}
+        <div className="mt-5 pt-5 border-t border-rule">
+          <p className="text-center text-mgray text-sm mb-3">{tr.alreadyMember}</p>
+          <a
+            href="/login"
+            className="block w-full py-3 border border-ink hover:border-burg hover:text-burg text-ink text-center font-medium rounded-sm transition tracking-wider text-sm uppercase"
+          >
+            {tr.logIn}
+          </a>
+        </div>
+
       </div>
     </div>
   )
