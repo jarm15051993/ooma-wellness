@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
         email: true,
         phone: true,
         onboardingCompleted: true,
+        qrCode: true,
       },
       take: 10,
       orderBy: { name: 'asc' },
@@ -49,6 +50,7 @@ export async function GET(request: NextRequest) {
       email: u.email,
       phone: u.phone ?? '',
       onboardingCompleted: u.onboardingCompleted,
+      qrCode: u.qrCode ?? null,
     }))
 
     return NextResponse.json(results)
