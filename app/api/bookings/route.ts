@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     const creditToUse = hasUnlimited ? unlimitedCredits[0] : activeCredits[0]
 
     const bookedNumbers = cls.bookings.map(b => b.stretcherNumber)
-    const availableReformer = [1, 2, 3, 4, 5, 6].find(n => !bookedNumbers.includes(n))
+    const availableReformer = Array.from({ length: cls.capacity }, (_, i) => i + 1).find(n => !bookedNumbers.includes(n))
     if (!availableReformer) {
       return NextResponse.json({ error: 'No reformers available' }, { status: 400 })
     }
