@@ -74,6 +74,63 @@ const TEMPLATES = [
 </div>`,
   },
   {
+    type: 'gift_class',
+    language: 'es',
+    subject: '🎁 Te han regalado clases en OOMA — {{packageName}}',
+    htmlBody: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+  <h1 style="color: #fbbf24; text-align: center; margin-bottom: 8px;">OOMA Wellness Club</h1>
+  <p style="color: #9ca3af; text-align: center; margin-bottom: 32px;">¡Tienes un regalo!</p>
+  <p style="color: #fff; font-size: 16px;">Hola {{name}},</p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">Alguien ha pensado en ti. Se te han añadido clases a tu cuenta y ya puedes empezar a reservar.</p>
+  <div style="background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 24px; margin: 24px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Pack</td><td style="color: #fbbf24; font-size: 14px; font-weight: 700; text-align: right;">{{packageName}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Clases</td><td style="color: #fff; font-size: 14px; text-align: right;">{{classCount}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Válido hasta</td><td style="color: #fff; font-size: 14px; text-align: right;">{{expiresAt}}</td></tr>
+    </table>
+  </div>
+  <p style="color: #6b7280; font-size: 13px; text-align: center;">Abre la app de OOMA para reservar tus clases. ¡Nos vemos en el reformer!</p>
+</div>`,
+  },
+  {
+    type: 'gift_class',
+    language: 'en',
+    subject: '🎁 You\'ve been gifted classes at OOMA — {{packageName}}',
+    htmlBody: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+  <h1 style="color: #fbbf24; text-align: center; margin-bottom: 8px;">OOMA Wellness Club</h1>
+  <p style="color: #9ca3af; text-align: center; margin-bottom: 32px;">You have a gift!</p>
+  <p style="color: #fff; font-size: 16px;">Hi {{name}},</p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">Someone is thinking of you. Classes have been added to your account and you can start booking right away.</p>
+  <div style="background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 24px; margin: 24px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Pack</td><td style="color: #fbbf24; font-size: 14px; font-weight: 700; text-align: right;">{{packageName}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Classes</td><td style="color: #fff; font-size: 14px; text-align: right;">{{classCount}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Valid until</td><td style="color: #fff; font-size: 14px; text-align: right;">{{expiresAt}}</td></tr>
+    </table>
+  </div>
+  <p style="color: #6b7280; font-size: 13px; text-align: center;">Open the OOMA app to book your classes. See you on the reformer!</p>
+</div>`,
+  },
+  {
+    type: 'gift_class',
+    language: 'ca',
+    subject: '🎁 T\'han regalat classes a OOMA — {{packageName}}',
+    htmlBody: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+  <h1 style="color: #fbbf24; text-align: center; margin-bottom: 8px;">OOMA Wellness Club</h1>
+  <p style="color: #9ca3af; text-align: center; margin-bottom: 32px;">Tens un regal!</p>
+  <p style="color: #fff; font-size: 16px;">Hola {{name}},</p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">Algú ha pensat en tu. S'han afegit classes al teu compte i ja pots començar a reservar.</p>
+  <div style="background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 24px; margin: 24px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Pack</td><td style="color: #fbbf24; font-size: 14px; font-weight: 700; text-align: right;">{{packageName}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Classes</td><td style="color: #fff; font-size: 14px; text-align: right;">{{classCount}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Vàlid fins</td><td style="color: #fff; font-size: 14px; text-align: right;">{{expiresAt}}</td></tr>
+    </table>
+  </div>
+  <p style="color: #6b7280; font-size: 13px; text-align: center;">Obre l'app d'OOMA per reservar les teves classes. Ens veiem al reformer!</p>
+</div>`,
+  },
+  {
     type: 'package_purchase',
     language: 'es',
     subject: 'Your OOMA class pack is ready — {{packageName}}',

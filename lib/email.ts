@@ -26,7 +26,7 @@ export type EmailLanguage = 'en' | 'es' | 'ca'
 
 interface SendEmailOptions {
   to: string
-  type: 'activation' | 'password_reset' | 'email_verification' | 'booking_confirmation' | 'booking_cancellation' | 'package_purchase' | 'student_status_granted' | 'student_status_removed'
+  type: 'activation' | 'password_reset' | 'email_verification' | 'booking_confirmation' | 'booking_cancellation' | 'package_purchase' | 'gift_class' | 'student_status_granted' | 'student_status_removed'
   language?: EmailLanguage
   userId?: string
   vars: Record<string, string>

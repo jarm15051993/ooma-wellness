@@ -94,14 +94,13 @@ export async function POST(request: NextRequest) {
 
     sendEmail({
       to: targetUser.email,
-      type: 'package_purchase',
+      type: 'gift_class',
       language: lang,
       userId,
       vars: {
         name: targetUser.name ?? 'there',
         packageName: pkg.name,
         classCount: String(pkg.classCount),
-        amount: '0.00',
         expiresAt: expiresLabel,
       },
     }).catch(err => console.error('[gift-package] Email error:', err))
