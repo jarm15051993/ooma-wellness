@@ -11,7 +11,7 @@ export async function PATCH(
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const payload = await verifyToken(token)
-    if (!payload.isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!payload.isAdmin && !payload.canValidateAttendance) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const { bookingId } = await params
     const { classId } = await request.json()
