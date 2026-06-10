@@ -19,10 +19,12 @@ interface Class {
   availableSpots: number
   isFull: boolean
   isBooked: boolean
+  isCancelled: boolean
   userStretcherNumber: number | null
 }
 
 function getAvailabilityColor(cls: Class) {
+  if (cls.isCancelled) return 'gray'
   if (cls.isBooked) return 'burg'
   if (cls.isFull) return 'red'
   if (cls.availableSpots <= 2) return 'yellow'
@@ -34,6 +36,7 @@ const dotColors: Record<string, string> = {
   yellow: 'bg-yellow-500',
   green: 'bg-green-500',
   burg: 'bg-burg',
+  gray: 'bg-gray-400',
 }
 
 function buildCalendarGrid(year: number, month: number) {
@@ -341,9 +344,12 @@ export default function BookClassPage() {
                     red: 'bg-red-50 text-red-600 border border-red-300',
                     yellow: 'bg-yellow-50 text-yellow-700 border border-yellow-300',
                     green: 'bg-green-50 text-green-700 border border-green-300',
+                    gray: 'bg-gray-100 text-gray-500 border border-gray-300',
                   }
 
-                  const badgeText = cls.isBooked
+                  const badgeText = cls.isCancelled
+                    ? 'Cancelled'
+                    : cls.isBooked
                     ? tr.reformer(cls.userStretcherNumber!)
                     : cls.isFull
                     ? tr.full
@@ -352,7 +358,7 @@ export default function BookClassPage() {
                   return (
                     <div
                       key={cls.id}
-                      className={`bg-warm-white rounded p-5 border ${cls.isBooked ? 'border-burg/40' : 'border-rule'}`}
+                      className={`bg-warm-white rounded p-5 border ${cls.isCancelled ? 'border-rule opacity-60' : cls.isBooked ? 'border-burg/40' : 'border-rule'}`}
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -407,7 +413,11 @@ export default function BookClassPage() {
                       </div>
 
                       <div className="pt-4 border-t border-rule">
-                      {cls.isBooked ? (
+                      {cls.isCancelled ? (
+                        <div className="w-full py-3 rounded-sm text-center text-sm font-medium tracking-wider uppercase bg-gray-100 text-gray-400 cursor-not-allowed">
+                          Class Cancelled
+                        </div>
+                      ) : cls.isBooked ? (
                         <button
                           onClick={() => handleCancelClass(cls.id)}
                           disabled={isProcessing}
