@@ -44,7 +44,9 @@ export async function GET(request: NextRequest) {
         availableSpots: cls.capacity - bookedCount,
         isFull: bookedCount >= cls.capacity,
         isBooked: reformerNumber !== null,
-        userStretcherNumber: reformerNumber
+        userStretcherNumber: reformerNumber,
+        status: cls.status,
+        isCancelled: cls.status === 'cancelled',
       }
     })
 

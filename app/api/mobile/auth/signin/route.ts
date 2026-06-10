@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       canBulkUpload: isOwner || user.canBulkUpload,
       canMarkAsStudent: isOwner || user.canMarkAsStudent,
       canGiftClasses: isOwner || user.canGiftClasses,
+      canCancellClasses: isOwner || user.canCancellClasses,
       isStudent: user.isStudent,
       tokenVersion: user.tokenVersion,
     })
