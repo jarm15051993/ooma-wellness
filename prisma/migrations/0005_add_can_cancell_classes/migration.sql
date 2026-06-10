@@ -1,0 +1,1 @@
+ALTER TABLE "User" ADD COLUMN "canCancellClasses" BOOLEAN NOT NULL DEFAULT false;

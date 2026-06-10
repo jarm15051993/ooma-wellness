@@ -55,6 +55,75 @@ const TEMPLATES = [
 </div>`,
   },
   {
+    type: 'class_cancelled',
+    language: 'es',
+    subject: 'Clase cancelada: {{classTitle}}',
+    htmlBody: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+  <h1 style="color: #fbbf24; text-align: center; margin-bottom: 8px;">OOMA Wellness Club</h1>
+  <p style="color: #9ca3af; text-align: center; margin-bottom: 32px;">Clase Cancelada</p>
+  <p style="color: #fff; font-size: 16px;">Hola {{name}},</p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">Lamentamos comunicarte que hemos tenido que cancelar la siguiente clase:</p>
+  <div style="background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 24px; margin: 24px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Clase</td><td style="color: #fbbf24; font-size: 14px; font-weight: 700; text-align: right;">{{classTitle}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Fecha</td><td style="color: #fff; font-size: 14px; text-align: right;">{{date}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Hora</td><td style="color: #fff; font-size: 14px; text-align: right;">{{time}}</td></tr>
+    </table>
+  </div>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">Tu crédito ha sido restituido automáticamente a tu cuenta. ¡Nos encantaría verte pronto en otro reformer!</p>
+  <div style="text-align: center; margin: 32px 0;">
+    <a href="{{bookUrl}}" style="background: #7f1d1d; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">Reservar nueva clase</a>
+  </div>
+  <p style="color: #6b7280; font-size: 13px; text-align: center;">Disculpa las molestias. ¡Hasta pronto!</p>
+</div>`,
+  },
+  {
+    type: 'class_cancelled',
+    language: 'en',
+    subject: 'Class cancelled: {{classTitle}}',
+    htmlBody: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+  <h1 style="color: #fbbf24; text-align: center; margin-bottom: 8px;">OOMA Wellness Club</h1>
+  <p style="color: #9ca3af; text-align: center; margin-bottom: 32px;">Class Cancelled</p>
+  <p style="color: #fff; font-size: 16px;">Hi {{name}},</p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">We're sorry to let you know that we've had to cancel the following class:</p>
+  <div style="background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 24px; margin: 24px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Class</td><td style="color: #fbbf24; font-size: 14px; font-weight: 700; text-align: right;">{{classTitle}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Date</td><td style="color: #fff; font-size: 14px; text-align: right;">{{date}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Time</td><td style="color: #fff; font-size: 14px; text-align: right;">{{time}}</td></tr>
+    </table>
+  </div>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">Your credit has been automatically reinstated to your account. We'd love to see you on the reformer again soon!</p>
+  <div style="text-align: center; margin: 32px 0;">
+    <a href="{{bookUrl}}" style="background: #7f1d1d; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">Book a new class</a>
+  </div>
+  <p style="color: #6b7280; font-size: 13px; text-align: center;">We apologise for the inconvenience. See you soon!</p>
+</div>`,
+  },
+  {
+    type: 'class_cancelled',
+    language: 'ca',
+    subject: 'Classe cancel·lada: {{classTitle}}',
+    htmlBody: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 40px; border-radius: 12px;">
+  <h1 style="color: #fbbf24; text-align: center; margin-bottom: 8px;">OOMA Wellness Club</h1>
+  <p style="color: #9ca3af; text-align: center; margin-bottom: 32px;">Classe Cancel·lada</p>
+  <p style="color: #fff; font-size: 16px;">Hola {{name}},</p>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">Lamentem comunicar-te que hem hagut de cancel·lar la classe següent:</p>
+  <div style="background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 24px; margin: 24px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Classe</td><td style="color: #fbbf24; font-size: 14px; font-weight: 700; text-align: right;">{{classTitle}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Data</td><td style="color: #fff; font-size: 14px; text-align: right;">{{date}}</td></tr>
+      <tr><td style="color: #9ca3af; font-size: 14px; padding: 6px 0;">Hora</td><td style="color: #fff; font-size: 14px; text-align: right;">{{time}}</td></tr>
+    </table>
+  </div>
+  <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">El teu crèdit ha estat restituït automàticament al teu compte. T'esperem aviat a un altre reformer!</p>
+  <div style="text-align: center; margin: 32px 0;">
+    <a href="{{bookUrl}}" style="background: #7f1d1d; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">Reservar nova classe</a>
+  </div>
+  <p style="color: #6b7280; font-size: 13px; text-align: center;">Disculpa les molèsties. Fins aviat!</p>
+</div>`,
+  },
+  {
     type: 'booking_cancellation',
     language: 'es',
     subject: 'Booking cancelled: {{classTitle}}',

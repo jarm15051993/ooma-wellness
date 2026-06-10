@@ -82,6 +82,7 @@ model User {
   canBulkUpload         Boolean  @default(false)
   canMarkAsStudent      Boolean  @default(false)
   canGiftClasses        Boolean  @default(false)
+  canCancellClasses     Boolean  @default(false)
   isStudent             Boolean  @default(false)
   isBeta                Boolean  @default(false)
   language              String   @default("es")
@@ -186,6 +187,8 @@ model Class {
   instructor  String?
   classType   ClassType  @default(REFORMER)
   level       ClassLevel?
+  status      String    @default("confirmed")
+  cancelledAt DateTime?
   createdAt   DateTime   @default(now())
 
   bookings Booking[]

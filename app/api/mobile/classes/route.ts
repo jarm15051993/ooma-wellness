@@ -55,6 +55,8 @@ export async function GET(request: NextRequest) {
         isBooked: userBooking !== null,
         userStretcherNumber: userBooking?.stretcherNumber ?? null,
         bookingId: userBooking?.bookingId ?? null,
+        status: cls.status,
+        isCancelled: cls.status === 'cancelled',
       }
     })
 

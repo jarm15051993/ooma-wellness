@@ -1,0 +1,2 @@
+ALTER TABLE "Class" ADD COLUMN "status" TEXT NOT NULL DEFAULT 'confirmed';
+ALTER TABLE "Class" ADD COLUMN "cancelledAt" TIMESTAMP(3);
