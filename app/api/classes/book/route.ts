@@ -119,21 +119,22 @@ export async function POST(request: NextRequest) {
         throw new Error('No reformers available')
       }
 
+      // Deduct one credit from the oldest credit record
+      const creditToUse = credits[0]
+
       // Create booking
       const booking = await tx.booking.create({
         data: {
           userId,
           classId,
           stretcherNumber: availableReformer,
-          status: 'confirmed'
+          status: 'confirmed',
+          userCreditId: creditToUse.id,
         },
         include: {
           class: true
         }
       })
-
-      // Deduct one credit from the oldest credit record
-      const creditToUse = credits[0]
       await tx.userCredit.update({
         where: { id: creditToUse.id },
         data: {
