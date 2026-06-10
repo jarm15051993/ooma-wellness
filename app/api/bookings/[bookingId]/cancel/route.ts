@@ -55,11 +55,29 @@ export async function PATCH(
         data: { bookedCount: { decrement: 1 } },
       })
 
-      if (!creditLost && booking.userCreditId && !booking.userCredit?.isUnlimited) {
-        await tx.userCredit.update({
-          where: { id: booking.userCreditId },
-          data: { creditsRemaining: { increment: 1 } },
-        })
+      if (!creditLost && !booking.userCredit?.isUnlimited) {
+        if (booking.userCreditId) {
+          await tx.userCredit.update({
+            where: { id: booking.userCreditId },
+            data: { creditsRemaining: { increment: 1 } },
+          })
+        } else {
+          // Booking has no linked credit (pre-fix bookings) — reinstate to the
+          // oldest non-expired credit for this user as a safe fallback.
+          const fallbackCredit = await tx.userCredit.findFirst({
+            where: {
+              userId: effectiveUserId,
+              OR: [{ expiresAt: null }, { expiresAt: { gte: now } }],
+            },
+            orderBy: { expiresAt: 'asc' },
+          })
+          if (fallbackCredit) {
+            await tx.userCredit.update({
+              where: { id: fallbackCredit.id },
+              data: { creditsRemaining: { increment: 1 } },
+            })
+          }
+        }
       }
 
       if (adminId) {
