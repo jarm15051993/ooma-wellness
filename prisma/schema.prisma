@@ -187,6 +187,8 @@ model Class {
   instructor  String?
   classType   ClassType  @default(REFORMER)
   level       ClassLevel?
+  status      String    @default("confirmed")
+  cancelledAt DateTime?
   createdAt   DateTime   @default(now())
 
   bookings Booking[]
