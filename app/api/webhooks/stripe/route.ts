@@ -196,8 +196,11 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 }
 
 // ─── invoice.payment_failed ────────────────────────────────────────────────
-// Fires when a renewal charge fails. Marks the subscription PAST_DUE and
-// notifies the student. Stripe smart retries will attempt again automatically.
+// Fires when a charge fails.
+// - Initial payment failure (no credits ever provisioned): delete the subscription
+//   so the user can start fresh without manual cleanup.
+// - Renewal failure (credits were provisioned before): mark PAST_DUE so Stripe
+//   smart-retries can recover the subscription.
 async function handleInvoiceFailed(invoice: Stripe.Invoice) {
   const subDetails = invoice.parent?.subscription_details
   const stripeSubId = subDetails
@@ -210,19 +213,26 @@ async function handleInvoiceFailed(invoice: Stripe.Invoice) {
 
   const sub = await prisma.subscription.findUnique({
     where:   { stripeSubscriptionId: stripeSubId },
-    include: { user: true, package: true },
+    include: { user: true, package: true, credits: { take: 1 } },
   })
   if (!sub) return
 
+  // Initial payment — no credits were ever provisioned, so this subscription
+  // never activated. Delete it so the user can retry without being blocked.
+  if (sub.credits.length === 0) {
+    await prisma.subscription.delete({ where: { id: sub.id } })
+    return
+  }
+
+  // Renewal failure — subscription was previously active. Mark PAST_DUE.
   await prisma.subscription.update({
     where: { id: sub.id },
     data:  { status: 'PAST_DUE' },
   })
 
-  // Notify the student — use a fire-and-forget approach to not block the webhook
   sendEmail({
     to:       sub.user.email,
-    type:     'package_purchase', // reuse closest template; add payment_failed template later
+    type:     'package_purchase',
     language: (sub.user.language as any) ?? 'es',
     userId:   sub.user.id,
     vars: {

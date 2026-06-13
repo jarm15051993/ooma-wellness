@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
       include: { credits: { take: 1 } },
     })
     if (anyActive) {
-      if (anyActive.credits.length === 0 && anyActive.packageId === packageId) {
-        // Previous payment for the same package never completed — clean it up so user can retry.
+      if (anyActive.credits.length === 0) {
+        // Previous payment never completed (any package) — clean it up so user can retry.
         try { await stripe.subscriptions.cancel(anyActive.stripeSubscriptionId) } catch {}
         await prisma.subscription.delete({ where: { id: anyActive.id } })
       } else {
